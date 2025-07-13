@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
+  "compilerOptions": {
+    "types": ["node"] // ✅ เพิ่มให้รู้จัก Node.js types เช่น path, fs, etc.
+  }
+}
