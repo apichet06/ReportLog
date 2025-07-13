@@ -5,6 +5,7 @@ import { Box, Button, Container, Grid } from '@mui/material';
 import { useState } from 'react';
 import ApprovedReportLogService from '../service/reportlogService';
 import type { ReportLog } from '../types/reportlog';
+import Swal from 'sweetalert2';
 
 
 
@@ -59,6 +60,7 @@ export default function ReportLogPage() {
 
     const hendleSubmit = async () => {
 
+
         const rawData =
             Array.isArray(selectionModel)
                 ? selectionModel
@@ -66,6 +68,10 @@ export default function ReportLogPage() {
 
         if (rawData.length === 0) {
             console.warn('No rows selected');
+            Swal.fire({
+                title: "No rows selected!",
+                icon: "error"
+            });
             return;
         }
 
@@ -75,8 +81,24 @@ export default function ReportLogPage() {
             .map(({ id, firstName, lastName, age }) => ({ id, firstName, lastName, age }));
 
         try {
+            Swal.fire({
+                title: "Are you sure?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, Save it!"
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: "Success!",
+                        icon: "success"
+                    });
+                    await ApprovedReportLogService(selectedData);
+                }
 
-            await ApprovedReportLogService(selectedData);
+            });
+
             // ถ้าสำเร็จ แสดง Snackbar หรือรีเฟรชข้อมูลได้ที่นี่
         } catch (err) {
             console.error(err);
