@@ -1,6 +1,7 @@
 import {
   DataGrid,
   type GridColDef,
+  type GridRenderCellParams,
   type GridRowSelectionModel,
 } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
@@ -9,41 +10,54 @@ import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
-import { useState } from "react";
-import ApprovedReportLogService from "../service/reportlogService";
+import { useCallback, useEffect, useState } from "react";
+import reportLogService from "../service/reportlogService";
 import type { ReportLog } from "../types/reportlog";
 import Swal from "sweetalert2";
-import DateLongTH from "@/shared/utils/handleDatetime";
+import datetime from "@/shared/utils/handleDatetime";
 import SearchIcon from "@mui/icons-material/Search";
 import SaveIcon from "@mui/icons-material/Save";
+import { fNumber } from "@/shared/utils/formatNumber";
+
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { Dayjs } from "dayjs";
+
+
+
 export default function ReportLogPage() {
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>(
     [] as unknown as GridRowSelectionModel
   );
 
+
+  const [startDate, setStartDate] = useState<Dayjs | null>(null);
+  const [endDate, setEndDate] = useState<Dayjs | null>(null);
+
+
+  const [data, SetData] = useState<ReportLog[]>();
+  const [textSearch, SetTextSearch] = useState<string>("");
   const columns: GridColDef[] = [
     {
-      field: "id",
+      field: "no",
       headerName: "ID",
       width: 70,
       align: "center",
       headerAlign: "center",
+      renderCell: (params: GridRenderCellParams) => {
+        const sortedRowIds = params.api.getSortedRowIds();
+        const rowIndex = sortedRowIds.indexOf(params.id);
+        return fNumber(rowIndex + 1);
+      },
     },
     { field: "group_name", headerName: "GROUP NAME", width: 130 },
     { field: "username", headerName: "USERNAME", width: 130 },
     {
       field: "action",
       headerName: "ACTION",
-      type: "string",
       width: 90,
-      renderCell: (params) => {
-        const action = params.value as string; // 👈 ยืนยันว่าเป็น number
-        return (
-          <span style={{ color: action == "Download" ? "red" : "inherit" }}>
-            {action}
-          </span>
-        );
-      },
     },
     {
       field: "action_date_time",
@@ -51,15 +65,31 @@ export default function ReportLogPage() {
       description: "This column has a value getter and is not sortable.",
       sortable: false,
       width: 160,
-      valueGetter: (_value, row) =>
-        `${row.firstName || ""} ${row.lastName || ""}`,
+      renderCell: (params) => (datetime.DateTimeLongTH(params.row.action_date_time))
     },
     { field: "detail", headerName: "DETAIL", width: 400 },
     { field: "bu", headerName: "BU", width: 160 },
     { field: "position", headerName: "POSITION", width: 160 },
-    { field: "resigned_date", headerName: "RESINGNED DATE", width: 130 },
+    {
+      field: "resigned_date", headerName: "RESINGNED DATE", width: 130,
+      renderCell: (params) => (params.row.resigned_date ? datetime.DateLongTH(params.row.resigned_date) : '')
+    },
     { field: "days_after_action", headerName: "DAY AFTER ACTION", width: 160 },
-    { field: "event_type", headerName: "EVENT TYPE", width: 140 },
+    {
+      field: "event_type",
+      headerName: "EVENT TYPE",
+      width: 140,
+      renderCell: (params) => {
+        const even_type = params.value as string; // 👈 ยืนยันว่าเป็น number
+        return (
+          <span
+            style={{ color: even_type == "Unusual Event" ? "red" : "inherit" }}
+          >
+            {even_type}
+          </span>
+        );
+      },
+    },
     {
       field: "download_more_10_files_day",
       headerName: "DOWNLOAD MORE 10 FILES DAY",
@@ -77,42 +107,34 @@ export default function ReportLogPage() {
     },
   ];
 
-  const rows: ReportLog[] = [
-    {
-      id: 1,
-      group_name: "Snow",
-      username: "noppadolp",
-      action: "Download",
-      action_date_time: DateLongTH(new Date()),
-      detail:
-        "CB_CISCO_OTBU/Supplier_Cisco_OTBU/Poomjai/FIXTURE DIS ASSEMBLY P04-GROUP 6_2024-12-17.zip",
-      bu: "CB-CISCO-CRBU",
-      position: "Process Engineer 2",
-      resigned_date: DateLongTH(new Date()),
-      days_after_action: 134,
-      event_type: "Usual Event",
-      unauthorized: "N",
-      download_more_10_files_day: "N",
-      employee_resigning_within_one_month: "N",
-    },
-    {
-      id: 2,
-      group_name: "Snow",
-      username: "suchakreea",
-      action: "Upload",
-      action_date_time: DateLongTH(new Date()),
-      detail:
-        "CB_CISCO_OTBU/Supplier_Cisco_OTBU/Poomjai/FIXTURE DIS ASSEMBLY P04-GROUP 6_2024-12-17.zip",
-      bu: "CB-CISCO-CRBU",
-      position: "Process Engineer 2",
-      resigned_date: DateLongTH(new Date()),
-      days_after_action: 134,
-      event_type: "Usual Event",
-      unauthorized: "N",
-      download_more_10_files_day: "N",
-      employee_resigning_within_one_month: "N",
-    },
-  ];
+
+  const fetchDUC = useCallback(async () => {
+    try {
+      const res = await reportLogService.GetReportLogService();
+      console.log(res.data.result);
+      SetData(res.data.result);
+    } catch (err) {
+      console.log(err);
+    }
+  }, []);
+
+  const handleSearch = useCallback(async () => {
+    try {
+      console.log(textSearch);
+
+      const res = await reportLogService.SearchReportLogService({ Search: textSearch });
+
+      SetData(res.data.result)
+    } catch (err) {
+      console.log(err);
+    }
+  }, [textSearch]);
+
+  useEffect(() => {
+    fetchDUC();
+  }, [fetchDUC]);
+
+
 
   const paginationModel = { page: 0, pageSize: 5 };
 
@@ -122,50 +144,13 @@ export default function ReportLogPage() {
       : Array.from(selectionModel.ids);
 
     if (rawData.length === 0) {
-      console.warn("No rows selected");
       Swal.fire({
         title: "No rows selected!",
         icon: "error",
       });
       return;
     }
-
-    // const numericIds = rawIds.map((id) => Number(id));
-    const selectedData = rows
-      .filter((row) => rawData.includes(row.id))
-      .map(
-        ({
-          id,
-          group_name,
-          username,
-          action,
-          action_date_time,
-          detail,
-          bu,
-          position,
-          resigned_date,
-          days_after_action,
-          event_type,
-          unauthorized,
-          download_more_10_files_day, // ดาวน์โหลดมากกว่า 10 files
-          employee_resigning_within_one_month,
-        }) => ({
-          id,
-          group_name,
-          username,
-          action,
-          action_date_time,
-          detail,
-          bu,
-          position,
-          resigned_date,
-          days_after_action,
-          event_type,
-          unauthorized,
-          download_more_10_files_day, // ดาวน์โหลดมากกว่า 10 files
-          employee_resigning_within_one_month,
-        })
-      );
+    const numericIds = rawData.map((id) => Number(id));
 
     try {
       Swal.fire({
@@ -181,15 +166,33 @@ export default function ReportLogPage() {
             title: "Success!",
             icon: "success",
           });
-          await ApprovedReportLogService(selectedData);
+          await reportLogService.ApprovedReportLogService(numericIds);
+          fetchDUC();
         }
       });
-      // ถ้าสำเร็จ แสดง Snackbar หรือรีเฟรชข้อมูลได้ที่นี่
+
     } catch (err) {
       console.error(err);
-      // จัดการ error (toast/snackbar) ตามเหมาะสม
+
     }
   };
+
+  useEffect(() => {
+    fetch('https://dcc', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include'
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log(data)
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  }, [])
 
   return (
     <Container maxWidth="xl" sx={{ mt: 2 }}>
@@ -211,13 +214,34 @@ export default function ReportLogPage() {
                   mb: 3,
                 }}
               >
-                <Grid size={11}>
+                <Grid size={5}>
                   <TextField
                     id="outlined-multiline-flexible"
-                    label="Search"
+                    label="Search ALL"
                     type="search"
                     size="small"
+                    onChange={(e) => SetTextSearch(e.target.value)}
                   />
+                </Grid>
+                <Grid size={5} sx={{ mb: 1 }}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoContainer components={['DatePicker', 'DatePicker']}>
+                      <DatePicker label="Form"
+                        value={startDate}
+                        onChange={(newValue) => setStartDate(newValue)}
+                        slotProps={{ textField: { size: 'small' } }} disableFuture />
+                      <DatePicker
+                        label="TO"
+                        value={endDate}
+                        onChange={(newValue) => setEndDate(newValue)}
+                        sx={{
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                        slotProps={{ textField: { size: 'small' } }} disableFuture
+                      />
+                    </DemoContainer>
+                  </LocalizationProvider>
                 </Grid>
                 <Grid
                   size={1}
@@ -226,7 +250,7 @@ export default function ReportLogPage() {
                     alignItems: "center",
                   }}
                 >
-                  <Button variant="contained">
+                  <Button variant="contained" onClick={() => handleSearch()}>
                     <SearchIcon />
                   </Button>
                 </Grid>
@@ -237,7 +261,8 @@ export default function ReportLogPage() {
           <h2>Report Log DCC & DUC</h2>
           <Paper sx={{ height: 400, width: "100%" }}>
             <DataGrid
-              rows={rows}
+              getRowId={(row) => row.id.toString()}
+              rows={data}
               columns={columns}
               initialState={{ pagination: { paginationModel } }}
               pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
@@ -246,13 +271,17 @@ export default function ReportLogPage() {
                 setSelectionModel(newSelection)
               }
               getRowClassName={(params) =>
-                params.row.action == "Download" ? "row--highlight" : ""
+                params.row.unauthorized == "Y" ||
+                  params.row.download_more_10_files_day == "Y" ||
+                  params.row.employee_resigning_within_one_month == "Y"
+                  ? "row--highlight"
+                  : ""
               }
               sx={{
                 // ถ้าต้องการให้ "ทั้งแถว" สีเขียว (พื้นหลัง + ตัวอักษร)
                 "& .row--highlight": {
                   bgcolor: "rgba(255,165,0,0.1)", // พื้นหลังเขียวอ่อน (ปรับได้)
-                  color: "green", // สีตัวอักษร
+                  color: "orange", // สีตัวอักษร
                   "&:hover": { bgcolor: "rgba(0, 128, 0, 0.15)" }, // hover color
                 },
                 fontSize: "12px",

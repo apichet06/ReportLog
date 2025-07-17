@@ -13,4 +13,6 @@ export interface ReportSaveLog {
   unauthorized: string;
   download_more_10_files_day: string; // ดาวน์โหลดมากกว่า 10 files
   employee_resigning_within_one_month: string; //พนักงานลาออกภายในหนึ่งเดือน
+  users_action: string;
+  user_action_date: Date;
 }

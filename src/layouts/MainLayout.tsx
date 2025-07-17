@@ -1,42 +1,40 @@
 // src/layouts/MainLayout.tsx
-import { type ReactNode, useState } from 'react';
-import { styled, useTheme } from '@mui/material/styles';
-import {
-    Box,
-    CssBaseline,
-    Toolbar,
-    Typography,
-    IconButton,
-    Drawer,
-    Divider,
-    List,
-    ListItem,
-    ListItemButton,
-    ListItemIcon,
-    ListItemText,
-    // Button,
-    Menu,
-    MenuItem,
-} from '@mui/material';
-import MuiAppBar, { type AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
-import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
+import { type ReactNode, useState } from "react";
+import { styled, useTheme } from "@mui/material/styles";
+import Box from '@mui/material/Box';
+import CssBaseline from '@mui/material/CssBaseline';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import Drawer from '@mui/material/Drawer';
+import Divider from '@mui/material/Divider';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import MuiAppBar, {
+    type AppBarProps as MuiAppBarProps,
+} from "@mui/material/AppBar";
+import MenuIcon from "@mui/icons-material/Menu";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import InboxIcon from "@mui/icons-material/MoveToInbox";
 // import MailIcon from '@mui/icons-material/Mail';
-import DescriptionIcon from '@mui/icons-material/Description';
-import { Link as RouterLink } from 'react-router-dom';
-import { AccountCircle } from '@mui/icons-material';
-
+import DescriptionIcon from "@mui/icons-material/Description";
+import { Link as RouterLink } from "react-router-dom";
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 const drawerWidth = 240;
 
 /* ---------- styled components ---------- */
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
+const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })<{
     open?: boolean;
 }>(({ theme, open }) => ({
     flexGrow: 1,
     padding: theme.spacing(3),
-    transition: theme.transitions.create('margin', {
+    transition: theme.transitions.create("margin", {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
     }),
@@ -48,28 +46,28 @@ interface StyledAppBarProps extends MuiAppBarProps {
 }
 
 const AppBar = styled(MuiAppBar, {
-    shouldForwardProp: (prop) => prop !== 'open',
+    shouldForwardProp: (prop) => prop !== "open",
 })<StyledAppBarProps>(({ theme, open }) => ({
-    transition: theme.transitions.create(['margin', 'width'], {
+    transition: theme.transitions.create(["margin", "width"], {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
     }),
     ...(open && {
         width: `calc(100% - ${drawerWidth}px)`,
         marginLeft: drawerWidth,
-        transition: theme.transitions.create(['margin', 'width'], {
+        transition: theme.transitions.create(["margin", "width"], {
             easing: theme.transitions.easing.easeOut,
             duration: theme.transitions.duration.enteringScreen,
         }),
     }),
 }));
 
-const DrawerHeader = styled('div')(({ theme }) => ({
-    display: 'flex',
-    alignItems: 'center',
+const DrawerHeader = styled("div")(({ theme }) => ({
+    display: "flex",
+    alignItems: "center",
     padding: theme.spacing(0, 1),
     ...theme.mixins.toolbar,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
 }));
 
 /* ---------- component ---------- */
@@ -81,7 +79,6 @@ type MainLayoutProps = {
 const MainLayout = ({ children }: MainLayoutProps) => {
     const theme = useTheme();
     const [open, setOpen] = useState(false);
-
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -95,9 +92,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     const handleDrawerClose = () => setOpen(false);
 
     const menuItems = [
-        { label: 'Report Log', icon: <InboxIcon />, path: '/reportlog' },
-        // { label: 'Mail', icon: <MailIcon />, path: '/mail' },
-        { label: 'Save Report', icon: <DescriptionIcon />, path: '/saved_report' },
+        { label: "Report Log", icon: <InboxIcon />, path: "/reportlog" },
+        { label: "Save Report", icon: <DescriptionIcon />, path: "/saved_report" },
     ];
 
     // const extraItems = [
@@ -107,7 +103,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     // ];
 
     return (
-        <Box sx={{ display: 'flex' }}>
+        <Box sx={{ display: "flex" }}>
             <CssBaseline />
 
             {/* ---------- Top AppBar ---------- */}
@@ -118,7 +114,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                         edge="start"
                         aria-label="open drawer"
                         onClick={handleDrawerOpen}
-                        sx={{ mr: 2, ...(open && { display: 'none' }) }}
+                        sx={{ mr: 2, ...(open && { display: "none" }) }}
                     >
                         <MenuIcon />
                     </IconButton>
@@ -135,19 +131,19 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                             onClick={handleMenu}
                             color="inherit"
                         >
-                            <AccountCircle />
+                            <AccountCircleIcon />
                         </IconButton>
                         <Menu
                             id="menu-appbar"
                             anchorEl={anchorEl}
                             anchorOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
+                                vertical: "top",
+                                horizontal: "right",
                             }}
                             keepMounted
                             transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'right',
+                                vertical: "top",
+                                horizontal: "right",
                             }}
                             open={Boolean(anchorEl)}
                             onClose={handleClose}
@@ -164,7 +160,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 sx={{
                     width: drawerWidth,
                     flexShrink: 0,
-                    '& .MuiDrawer-paper': { width: drawerWidth, boxSizing: 'border-box' },
+                    "& .MuiDrawer-paper": { width: drawerWidth, boxSizing: "border-box" },
                 }}
                 variant="persistent"
                 anchor="left"
@@ -172,7 +168,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             >
                 <DrawerHeader>
                     <IconButton onClick={handleDrawerClose}>
-                        {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+                        {theme.direction === "ltr" ? (
+                            <ChevronLeftIcon />
+                        ) : (
+                            <ChevronRightIcon />
+                        )}
                     </IconButton>
                 </DrawerHeader>
 
@@ -181,7 +181,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 <List>
                     {menuItems.map(({ label, icon, path }) => (
                         <ListItem key={label} disablePadding>
-                            <ListItemButton component={RouterLink} to={path} onClick={handleDrawerClose}>
+                            <ListItemButton
+                                component={RouterLink}
+                                to={path}
+                                onClick={handleDrawerClose}
+                            >
                                 <ListItemIcon>{icon}</ListItemIcon>
                                 <ListItemText primary={label} />
                             </ListItemButton>
