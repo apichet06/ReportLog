@@ -19,7 +19,6 @@ import SearchIcon from "@mui/icons-material/Search";
 import SaveIcon from "@mui/icons-material/Save";
 import { fNumber } from "@/shared/utils/formatNumber";
 
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -34,7 +33,7 @@ export default function ReportLogPage() {
 
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [loadingDataGrid, setLoadnigDataGrid] = useState(false);
 
   const [data, SetData] = useState<ReportLog[]>();
@@ -183,7 +182,7 @@ export default function ReportLogPage() {
     <Container maxWidth="xl" sx={{ mt: 2 }}>
       <Grid container spacing={2} justifyContent="center">
 
-        {loading ?
+        {!loading ?
           <Stack spacing={2} sx={{ color: 'grey.500' }} direction="row" alignItems="center">
             <CircularProgress color="inherit" size={200} thickness={2} />
           </Stack>
@@ -195,59 +194,57 @@ export default function ReportLogPage() {
               noValidate
               autoComplete="off"
             >
-
               <Grid
                 container
                 spacing={2}
-                sx={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  mb: 3,
-                }}
+                justifyContent="center"
+                alignItems="center"
+                mb={3}
               >
-                <Grid size={6}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                   <TextField
-                    id="outlined-multiline-flexible"
                     label="Search ALL"
                     type="search"
                     size="small"
                     onChange={(e) => SetTextSearch(e.target.value)}
                   />
                 </Grid>
-                <Grid size={5} sx={{ mb: 1 }}>
+
+                <Grid size={{ xs: 12, sm: 6, md: 6 }}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DemoContainer components={['DatePicker', 'DatePicker']}>
-                      <Grid container spacing={4}>
-                        <Grid size={6} >
-                          <DatePicker
-                            label="Form"
-                            value={startDate}
-                            onChange={(newValue) => setStartDate(newValue)}
-                            slotProps={{ textField: { size: 'small', fullWidth: true } }}
-                            disableFuture
-                          />
-                        </Grid>
-                        <Grid size={6}>
-                          <DatePicker
-                            label="TO"
-                            value={endDate}
-                            onChange={(newValue) => setEndDate(newValue)}
-                            slotProps={{ textField: { size: 'small', fullWidth: true } }}
-                            disableFuture
-                          />
-                        </Grid>
+                    <Grid container spacing={2}>
+                      <Grid size={{ xs: 6 }}>
+                        <DatePicker
+                          label="From"
+                          value={startDate}
+                          onChange={(newValue) => setStartDate(newValue)}
+                          slotProps={{
+                            textField: { size: "small", fullWidth: true },
+                          }}
+                          disableFuture
+                        />
                       </Grid>
-                    </DemoContainer>
+                      <Grid size={{ xs: 6 }}>
+                        <DatePicker
+                          label="To"
+                          value={endDate}
+                          onChange={(newValue) => setEndDate(newValue)}
+                          slotProps={{
+                            textField: { size: "small", fullWidth: true },
+                          }}
+                          disableFuture
+                        />
+                      </Grid>
+                    </Grid>
                   </LocalizationProvider>
                 </Grid>
-                <Grid
-                  size={1}
-                  sx={{
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Button variant="contained" onClick={() => handleSearch()}>
+
+                <Grid size={{ xs: 12, sm: 12, md: 2 }}>
+                  <Button
+                    variant="contained"
+                    onClick={() => handleSearch()}
+                    fullWidth
+                  >
                     <SearchIcon />
                   </Button>
                 </Grid>

@@ -1,7 +1,6 @@
-import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
-import { DataGrid, type GridColDef } from "@mui/x-data-grid";
+import { DataGrid, type GridColDef, type GridRenderCellParams } from "@mui/x-data-grid";
 import SearchIcon from "@mui/icons-material/Search";
 import datetime from "@/shared/utils/handleDatetime";
 import Box from '@mui/material/Box';
@@ -12,12 +11,22 @@ import reportSaveLog from "../service/saveReposrtService";
 import type { ReportSaveLog } from "../types/reportsavelog";
 import type { Dayjs } from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+// import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
+import { fNumber } from "@/shared/utils/formatNumber";
+
+import { Container, useMediaQuery, useTheme } from "@mui/material";
+
 export default function Saved_Reports() {
+  const theme = useTheme();
+
+  const isLgUp = useMediaQuery(theme.breakpoints.up("lg"));
+
+  const containerMaxWidth = isLgUp ? "lg" : "xl";
+
 
   const [data, SetData] = useState<ReportSaveLog[]>();
   const [textSearch, SetTextSearch] = useState<string>("");
@@ -47,7 +56,7 @@ export default function Saved_Reports() {
     } catch (err) {
       console.log(err);
     }
-  }, [textSearch]);
+  }, [endDate, startDate, textSearch]);
 
   useEffect(() => {
     fetchDUC();
@@ -57,11 +66,16 @@ export default function Saved_Reports() {
 
   const columns: GridColDef[] = [
     {
-      field: "id",
+      field: "no",
       headerName: "ID",
       width: 70,
       align: "center",
       headerAlign: "center",
+      renderCell: (params: GridRenderCellParams) => {
+        const sortedRowIds = params.api.getSortedRowIds();
+        const rowIndex = sortedRowIds.indexOf(params.id);
+        return fNumber(rowIndex + 1);
+      },
     },
     { field: "group_name", headerName: "GROUP NAME", width: 130 },
     { field: "username", headerName: "USERNAME", width: 130 },
@@ -126,149 +140,122 @@ export default function Saved_Reports() {
 
   ];
 
-  // const rows: ReportSaveLog[] = [
-  //   {
-  //     id: 1,
-  //     group_name: "Snow",
-  //     username: "Jon",
-  //     action: "35",
-  //     action_date_time: datetime.DateLongTH(new Date()),
-  //     detail:
-  //       "CB_CISCO_OTBU/Supplier_Cisco_OTBU/Poomjai/FIXTURE DIS ASSEMBLY P04-GROUP 6_2024-12-17.zip",
-  //     bu: "CB-CISCO-CRBU",
-  //     position: "Process Engineer 2",
-  //     resigned_date: datetime.DateLongTH(new Date()),
-  //     days_after_action: 134,
-  //     event_type: "Usual Event",
-  //     unauthorized: "N",
-  //     download_more_10_files_day: "N",
-  //     employee_resigning_within_one_month: "N",
-  //   },
-  //   {
-  //     id: 2,
-  //     group_name: "Snow",
-  //     username: "Jon",
-  //     action: "34",
-  //     action_date_time: datetime.DateLongTH(new Date()),
-  //     detail:
-  //       "CB_CISCO_OTBU/Supplier_Cisco_OTBU/Poomjai/FIXTURE DIS ASSEMBLY P04-GROUP 6_2024-12-17.zip",
-  //     bu: "CB-CISCO-CRBU",
-  //     position: "Process Engineer 2",
-  //     resigned_date: datetime.DateLongTH(new Date()),
-  //     days_after_action: 134,
-  //     event_type: "Usual Event",
-  //     unauthorized: "N",
-  //     download_more_10_files_day: "N",
-  //     employee_resigning_within_one_month: "N",
-  //   },
-  // ];
 
   const paginationModel = { page: 0, pageSize: 5 };
 
   return (
-    <Container maxWidth="xl" sx={{ mt: 2 }}>
+    <Container maxWidth={containerMaxWidth} sx={{ mt: 2 }}>
       <Grid container spacing={2} justifyContent="center">
-
-        {loading ?
-          <Stack spacing={2} sx={{ color: 'grey.500' }} direction="row" alignItems="center">
+        {loading ? (
+          <Stack
+            spacing={2}
+            sx={{ color: 'grey.500', width: '100%', justifyContent: 'center' }}
+            direction="row"
+            alignItems="center"
+          >
             <CircularProgress color="inherit" size={200} thickness={2} />
           </Stack>
-          :
-          <Grid size={{ xs: 12, sm: 12, md: 11, lg: 12, xl: 11 }}>
+        ) : (
+          <Grid size={{ xs: 12 }}>
             <Box
               component="form"
               sx={{ "& .MuiTextField-root": { width: "100%" } }}
               noValidate
               autoComplete="off"
             >
-              <div>
-                <Grid
-                  container
-                  spacing={2}
-                  sx={{
-                    justifyContent: "center",
-                    alignItems: "center",
-                    mb: 3,
-                  }}
-                >
-                  <Grid size={6}>
-                    <TextField
-                      id="outlined-multiline-flexible"
-                      label="Search ALL"
-                      type="search"
-                      size="small"
-                      onChange={(e) => SetTextSearch(e.target.value)}
-                    />
-                  </Grid>
-                  <Grid size={5} sx={{ mb: 1 }}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DemoContainer components={['DatePicker', 'DatePicker']}>
-                        <Grid container spacing={4}>
-                          <Grid size={6} >
-                            <DatePicker
-                              label="Form"
-                              value={startDate}
-                              onChange={(newValue) => setStartDate(newValue)}
-                              slotProps={{ textField: { size: 'small', fullWidth: true } }}
-                              disableFuture
-                            />
-                          </Grid>
-                          <Grid size={6}>
-                            <DatePicker
-                              label="TO"
-                              value={endDate}
-                              onChange={(newValue) => setEndDate(newValue)}
-                              slotProps={{ textField: { size: 'small', fullWidth: true } }}
-                              disableFuture
-                            />
-                          </Grid>
-                        </Grid>
-                      </DemoContainer>
-                    </LocalizationProvider>
-                  </Grid>
-                  <Grid
-                    size={1}
-                    sx={{
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Button variant="contained" onClick={() => handleSearch()}>
-                      <SearchIcon />
-                    </Button>
-                  </Grid>
+              <Grid
+                container
+                spacing={2}
+                justifyContent="center"
+                alignItems="center"
+                mb={3}
+              >
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                  <TextField
+                    label="Search ALL"
+                    type="search"
+                    size="small"
+                    onChange={(e) => SetTextSearch(e.target.value)}
+                  />
                 </Grid>
-              </div>
+
+                <Grid size={{ xs: 12, sm: 6, md: 6 }}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <Grid container spacing={2}>
+                      <Grid size={{ xs: 6 }}>
+                        <DatePicker
+                          label="From"
+                          value={startDate}
+                          onChange={(newValue) => setStartDate(newValue)}
+                          slotProps={{
+                            textField: { size: "small", fullWidth: true },
+                          }}
+                          disableFuture
+                        />
+                      </Grid>
+                      <Grid size={{ xs: 6 }}>
+                        <DatePicker
+                          label="To"
+                          value={endDate}
+                          onChange={(newValue) => setEndDate(newValue)}
+                          slotProps={{
+                            textField: { size: "small", fullWidth: true },
+                          }}
+                          disableFuture
+                        />
+                      </Grid>
+                    </Grid>
+                  </LocalizationProvider>
+                </Grid>
+
+                <Grid size={{ xs: 12, sm: 12, md: 2 }}>
+                  <Button
+                    variant="contained"
+                    onClick={() => handleSearch()}
+                    fullWidth
+                  >
+                    <SearchIcon />
+                  </Button>
+                </Grid>
+              </Grid>
             </Box>
+
             <hr />
             <h2>Saved DCC & DUC Reports</h2>
-            <Paper sx={{ width: "100%" }}>
-              <DataGrid
-                rows={data}
-                loading={loadingDataGrid}
-                columns={columns}
-                initialState={{ pagination: { paginationModel } }}
-                pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
-                getRowClassName={(params) =>
-                  params.row.unauthorized == "Y" ||
-                    params.row.download_more_10_files_day == "Y" ||
-                    params.row.employee_resigning_within_one_month == "Y"
-                    ? "row--highlight"
-                    : ""
-                }
-                sx={{
-                  // ถ้าต้องการให้ "ทั้งแถว" สีเขียว (พื้นหลัง + ตัวอักษร)
-                  "& .row--highlight": {
-                    bgcolor: "rgba(255,165,0,0.1)", // พื้นหลังเขียวอ่อน (ปรับได้)
-                    color: "orange", // สีตัวอักษร
-                    "&:hover": { bgcolor: "rgba(0, 128, 0, 0.15)" }, // hover color
-                  },
-                  fontSize: "12px",
-                }}
-              />
+
+            <Paper sx={{ width: "100%", overflowX: "auto" }}>
+              <Box sx={{ minWidth: 600 }}>
+                <DataGrid
+                  rows={data}
+                  loading={loadingDataGrid}
+                  columns={columns}
+                  initialState={{ pagination: { paginationModel } }}
+                  pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
+                  getRowClassName={(params) =>
+                    params.row.unauthorized === "Y" ||
+                      params.row.download_more_10_files_day === "Y" ||
+                      params.row.employee_resigning_within_one_month === "Y"
+                      ? "row--highlight"
+                      : ""
+                  }
+                  sx={{
+                    "& .row--highlight": {
+                      bgcolor: "rgba(255,165,0,0.1)",
+                      color: "orange",
+                      "&:hover": { bgcolor: "rgba(0, 128, 0, 0.15)" },
+                    },
+                    fontSize: "12px",
+                    "& .MuiDataGrid-columnHeaders": {
+                      fontSize: "14px",
+                    },
+                  }}
+                />
+              </Box>
             </Paper>
-          </Grid>}
+          </Grid>
+        )}
       </Grid>
     </Container>
+
   );
 }
