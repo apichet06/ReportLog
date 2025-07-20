@@ -1,3 +1,5 @@
+import type { Dayjs } from "dayjs";
+
 export interface ReportLog {
   id: number;
   group_name: string;
@@ -17,4 +19,6 @@ export interface ReportLog {
 
 export interface SearchData {
   Search?: string;
+  startDate?: Dayjs | null;
+  endDate?: Dayjs | null;
 }

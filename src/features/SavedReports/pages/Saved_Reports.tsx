@@ -1,8 +1,8 @@
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
-import { DataGrid, GridSearchIcon, type GridColDef } from "@mui/x-data-grid";
-
+import { DataGrid, type GridColDef } from "@mui/x-data-grid";
+import SearchIcon from "@mui/icons-material/Search";
 import datetime from "@/shared/utils/handleDatetime";
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -10,17 +10,29 @@ import TextField from '@mui/material/TextField';
 import { useCallback, useEffect, useState } from "react";
 import reportSaveLog from "../service/saveReposrtService";
 import type { ReportSaveLog } from "../types/reportsavelog";
+import type { Dayjs } from "dayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import CircularProgress from '@mui/material/CircularProgress';
+import Stack from '@mui/material/Stack';
 export default function Saved_Reports() {
 
   const [data, SetData] = useState<ReportSaveLog[]>();
   const [textSearch, SetTextSearch] = useState<string>("");
+  const [startDate, setStartDate] = useState<Dayjs | null>(null);
+  const [endDate, setEndDate] = useState<Dayjs | null>(null);
 
+  const [loading, setLoading] = useState(false);
+  const [loadingDataGrid, setLoadnigDataGrid] = useState(false);
 
   const fetchDUC = useCallback(async () => {
     try {
+      setLoadnigDataGrid(true)
       const res = await reportSaveLog.GetSaveReportLogService();
-      console.log(res.data.result);
       SetData(res.data.result);
+      setLoadnigDataGrid(false)
     } catch (err) {
       console.log(err);
     }
@@ -28,11 +40,10 @@ export default function Saved_Reports() {
 
   const handleSearch = useCallback(async () => {
     try {
-      console.log(textSearch);
-
-      const res = await reportSaveLog.SearchSaveReportLogService({ Search: textSearch });
-      console.log(res.data.result);
+      setLoading(true)
+      const res = await reportSaveLog.SearchSaveReportLogService({ Search: textSearch, startDate, endDate });
       SetData(res.data.result)
+      setLoading(false)
     } catch (err) {
       console.log(err);
     }
@@ -157,73 +168,106 @@ export default function Saved_Reports() {
   return (
     <Container maxWidth="xl" sx={{ mt: 2 }}>
       <Grid container spacing={2} justifyContent="center">
-        <Grid size={{ xs: 12, sm: 12, md: 11, lg: 12, xl: 11 }}>
-          <Box
-            component="form"
-            sx={{ "& .MuiTextField-root": { width: "100%" } }}
-            noValidate
-            autoComplete="off"
-          >
-            <div>
-              <Grid
-                container
-                spacing={2}
-                sx={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  mb: 3,
-                }}
-              >
-                <Grid size={11}>
-                  <TextField
-                    id="outlined-multiline-flexible"
-                    label="Search"
-                    type="search"
-                    size="small"
-                    onChange={(e) => SetTextSearch(e.target.value)}
-                  />
-                </Grid>
+
+        {loading ?
+          <Stack spacing={2} sx={{ color: 'grey.500' }} direction="row" alignItems="center">
+            <CircularProgress color="inherit" size={200} thickness={2} />
+          </Stack>
+          :
+          <Grid size={{ xs: 12, sm: 12, md: 11, lg: 12, xl: 11 }}>
+            <Box
+              component="form"
+              sx={{ "& .MuiTextField-root": { width: "100%" } }}
+              noValidate
+              autoComplete="off"
+            >
+              <div>
                 <Grid
-                  size={1}
+                  container
+                  spacing={2}
                   sx={{
                     justifyContent: "center",
                     alignItems: "center",
+                    mb: 3,
                   }}
                 >
-                  <Button variant="contained" onClick={handleSearch}>
-                    <GridSearchIcon />
-                  </Button>
+                  <Grid size={6}>
+                    <TextField
+                      id="outlined-multiline-flexible"
+                      label="Search ALL"
+                      type="search"
+                      size="small"
+                      onChange={(e) => SetTextSearch(e.target.value)}
+                    />
+                  </Grid>
+                  <Grid size={5} sx={{ mb: 1 }}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DemoContainer components={['DatePicker', 'DatePicker']}>
+                        <Grid container spacing={4}>
+                          <Grid size={6} >
+                            <DatePicker
+                              label="Form"
+                              value={startDate}
+                              onChange={(newValue) => setStartDate(newValue)}
+                              slotProps={{ textField: { size: 'small', fullWidth: true } }}
+                              disableFuture
+                            />
+                          </Grid>
+                          <Grid size={6}>
+                            <DatePicker
+                              label="TO"
+                              value={endDate}
+                              onChange={(newValue) => setEndDate(newValue)}
+                              slotProps={{ textField: { size: 'small', fullWidth: true } }}
+                              disableFuture
+                            />
+                          </Grid>
+                        </Grid>
+                      </DemoContainer>
+                    </LocalizationProvider>
+                  </Grid>
+                  <Grid
+                    size={1}
+                    sx={{
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Button variant="contained" onClick={() => handleSearch()}>
+                      <SearchIcon />
+                    </Button>
+                  </Grid>
                 </Grid>
-              </Grid>
-            </div>
-          </Box>
-          <hr />
-          <h2>Saved DCC & DUC Reports</h2>
-          <Paper sx={{ height: 400, width: "100%" }}>
-            <DataGrid
-              rows={data}
-              columns={columns}
-              initialState={{ pagination: { paginationModel } }}
-              pageSizeOptions={[5, 10]}
-              getRowClassName={(params) =>
-                params.row.unauthorized == "Y" ||
-                  params.row.download_more_10_files_day == "Y" ||
-                  params.row.employee_resigning_within_one_month == "Y"
-                  ? "row--highlight"
-                  : ""
-              }
-              sx={{
-                // ถ้าต้องการให้ "ทั้งแถว" สีเขียว (พื้นหลัง + ตัวอักษร)
-                "& .row--highlight": {
-                  bgcolor: "rgba(255,165,0,0.1)", // พื้นหลังเขียวอ่อน (ปรับได้)
-                  color: "orange", // สีตัวอักษร
-                  "&:hover": { bgcolor: "rgba(0, 128, 0, 0.15)" }, // hover color
-                },
-                fontSize: "12px",
-              }}
-            />
-          </Paper>
-        </Grid>
+              </div>
+            </Box>
+            <hr />
+            <h2>Saved DCC & DUC Reports</h2>
+            <Paper sx={{ width: "100%" }}>
+              <DataGrid
+                rows={data}
+                loading={loadingDataGrid}
+                columns={columns}
+                initialState={{ pagination: { paginationModel } }}
+                pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
+                getRowClassName={(params) =>
+                  params.row.unauthorized == "Y" ||
+                    params.row.download_more_10_files_day == "Y" ||
+                    params.row.employee_resigning_within_one_month == "Y"
+                    ? "row--highlight"
+                    : ""
+                }
+                sx={{
+                  // ถ้าต้องการให้ "ทั้งแถว" สีเขียว (พื้นหลัง + ตัวอักษร)
+                  "& .row--highlight": {
+                    bgcolor: "rgba(255,165,0,0.1)", // พื้นหลังเขียวอ่อน (ปรับได้)
+                    color: "orange", // สีตัวอักษร
+                    "&:hover": { bgcolor: "rgba(0, 128, 0, 0.15)" }, // hover color
+                  },
+                  fontSize: "12px",
+                }}
+              />
+            </Paper>
+          </Grid>}
       </Grid>
     </Container>
   );

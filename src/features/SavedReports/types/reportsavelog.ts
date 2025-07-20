@@ -1,3 +1,5 @@
+import type { Dayjs } from "dayjs";
+
 export interface ReportSaveLog {
   id: number;
   group_name: string;
@@ -15,4 +17,10 @@ export interface ReportSaveLog {
   employee_resigning_within_one_month: string; //พนักงานลาออกภายในหนึ่งเดือน
   users_action: string;
   user_action_date: Date;
+}
+
+export interface SearchData {
+  Search?: string;
+  startDate?: Dayjs | null;
+  endDate?: Dayjs | null;
 }

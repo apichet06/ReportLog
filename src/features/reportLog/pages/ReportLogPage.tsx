@@ -24,9 +24,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { Dayjs } from "dayjs";
-
-
-
+import CircularProgress from '@mui/material/CircularProgress';
+import Stack from '@mui/material/Stack';
 export default function ReportLogPage() {
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>(
     [] as unknown as GridRowSelectionModel
@@ -35,7 +34,8 @@ export default function ReportLogPage() {
 
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
-
+  const [loading, setLoading] = useState(false);
+  const [loadingDataGrid, setLoadnigDataGrid] = useState(false);
 
   const [data, SetData] = useState<ReportLog[]>();
   const [textSearch, SetTextSearch] = useState<string>("");
@@ -110,9 +110,11 @@ export default function ReportLogPage() {
 
   const fetchDUC = useCallback(async () => {
     try {
+      setLoading(true)
       const res = await reportLogService.GetReportLogService();
       console.log(res.data.result);
       SetData(res.data.result);
+      setLoading(false)
     } catch (err) {
       console.log(err);
     }
@@ -120,15 +122,14 @@ export default function ReportLogPage() {
 
   const handleSearch = useCallback(async () => {
     try {
-      console.log(textSearch);
-
-      const res = await reportLogService.SearchReportLogService({ Search: textSearch });
-
+      setLoadnigDataGrid(true)
+      const res = await reportLogService.SearchReportLogService({ Search: textSearch, startDate, endDate });
       SetData(res.data.result)
+      setLoadnigDataGrid(false)
     } catch (err) {
       console.log(err);
     }
-  }, [textSearch]);
+  }, [textSearch, startDate, endDate]);
 
   useEffect(() => {
     fetchDUC();
@@ -177,34 +178,24 @@ export default function ReportLogPage() {
     }
   };
 
-  useEffect(() => {
-    fetch('https://dcc', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
-      .then(res => res.json())
-      .then(data => {
-        console.log(data)
-      })
-      .catch(err => {
-        console.log(err)
-      })
-  }, [])
 
   return (
     <Container maxWidth="xl" sx={{ mt: 2 }}>
       <Grid container spacing={2} justifyContent="center">
-        <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 11 }}>
-          <Box
-            component="form"
-            sx={{ "& .MuiTextField-root": { width: "100%" } }}
-            noValidate
-            autoComplete="off"
-          >
-            <div>
+
+        {loading ?
+          <Stack spacing={2} sx={{ color: 'grey.500' }} direction="row" alignItems="center">
+            <CircularProgress color="inherit" size={200} thickness={2} />
+          </Stack>
+          :
+          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 11 }}>
+            <Box
+              component="form"
+              sx={{ "& .MuiTextField-root": { width: "100%" } }}
+              noValidate
+              autoComplete="off"
+            >
+
               <Grid
                 container
                 spacing={2}
@@ -214,7 +205,7 @@ export default function ReportLogPage() {
                   mb: 3,
                 }}
               >
-                <Grid size={5}>
+                <Grid size={6}>
                   <TextField
                     id="outlined-multiline-flexible"
                     label="Search ALL"
@@ -226,20 +217,26 @@ export default function ReportLogPage() {
                 <Grid size={5} sx={{ mb: 1 }}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DemoContainer components={['DatePicker', 'DatePicker']}>
-                      <DatePicker label="Form"
-                        value={startDate}
-                        onChange={(newValue) => setStartDate(newValue)}
-                        slotProps={{ textField: { size: 'small' } }} disableFuture />
-                      <DatePicker
-                        label="TO"
-                        value={endDate}
-                        onChange={(newValue) => setEndDate(newValue)}
-                        sx={{
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                        slotProps={{ textField: { size: 'small' } }} disableFuture
-                      />
+                      <Grid container spacing={4}>
+                        <Grid size={6} >
+                          <DatePicker
+                            label="Form"
+                            value={startDate}
+                            onChange={(newValue) => setStartDate(newValue)}
+                            slotProps={{ textField: { size: 'small', fullWidth: true } }}
+                            disableFuture
+                          />
+                        </Grid>
+                        <Grid size={6}>
+                          <DatePicker
+                            label="TO"
+                            value={endDate}
+                            onChange={(newValue) => setEndDate(newValue)}
+                            slotProps={{ textField: { size: 'small', fullWidth: true } }}
+                            disableFuture
+                          />
+                        </Grid>
+                      </Grid>
                     </DemoContainer>
                   </LocalizationProvider>
                 </Grid>
@@ -255,46 +252,48 @@ export default function ReportLogPage() {
                   </Button>
                 </Grid>
               </Grid>
-            </div>
-          </Box>
-          <hr />
-          <h2>Report Log DCC & DUC</h2>
-          <Paper sx={{ height: 400, width: "100%" }}>
-            <DataGrid
-              getRowId={(row) => row.id.toString()}
-              rows={data}
-              columns={columns}
-              initialState={{ pagination: { paginationModel } }}
-              pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
-              checkboxSelection
-              onRowSelectionModelChange={(newSelection) =>
-                setSelectionModel(newSelection)
-              }
-              getRowClassName={(params) =>
-                params.row.unauthorized == "Y" ||
-                  params.row.download_more_10_files_day == "Y" ||
-                  params.row.employee_resigning_within_one_month == "Y"
-                  ? "row--highlight"
-                  : ""
-              }
-              sx={{
-                // ถ้าต้องการให้ "ทั้งแถว" สีเขียว (พื้นหลัง + ตัวอักษร)
-                "& .row--highlight": {
-                  bgcolor: "rgba(255,165,0,0.1)", // พื้นหลังเขียวอ่อน (ปรับได้)
-                  color: "orange", // สีตัวอักษร
-                  "&:hover": { bgcolor: "rgba(0, 128, 0, 0.15)" }, // hover color
-                },
-                fontSize: "12px",
-              }}
-            />
-          </Paper>
-          <Box display="flex" justifyContent="center" mt={2}>
-            <Button variant="contained" color="success" onClick={hendleSubmit}>
-              <SaveIcon />
-              submit to save
-            </Button>
-          </Box>
-        </Grid>
+            </Box>
+            <hr />
+            <h2>Report Log DCC & DUC</h2>
+
+            <Paper sx={{ width: "100%" }}>
+              <DataGrid
+                getRowId={(row) => row.id.toString()}
+                loading={loadingDataGrid}
+                rows={data}
+                columns={columns}
+                initialState={{ pagination: { paginationModel } }}
+                pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
+                checkboxSelection
+                onRowSelectionModelChange={(newSelection) =>
+                  setSelectionModel(newSelection)
+                }
+                getRowClassName={(params) =>
+                  params.row.unauthorized == "Y" ||
+                    params.row.download_more_10_files_day == "Y" ||
+                    params.row.employee_resigning_within_one_month == "Y"
+                    ? "row--highlight"
+                    : ""
+                }
+                sx={{
+                  // ถ้าต้องการให้ "ทั้งแถว" สีเขียว (พื้นหลัง + ตัวอักษร)
+                  "& .row--highlight": {
+                    bgcolor: "rgba(255,165,0,0.1)", // พื้นหลังเขียวอ่อน (ปรับได้)
+                    color: "orange", // สีตัวอักษร
+                    "&:hover": { bgcolor: "rgba(0, 128, 0, 0.15)" }, // hover color
+                  },
+                  fontSize: "12px",
+                }}
+              />
+            </Paper>
+            <Box display="flex" justifyContent="center" mt={2}>
+              <Button variant="contained" color="success" onClick={hendleSubmit}>
+                <SaveIcon />
+                submit to save
+              </Button>
+            </Box>
+          </Grid>
+        }
       </Grid>
     </Container>
   );
