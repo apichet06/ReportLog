@@ -129,10 +129,10 @@ export default function ReportLogPage() {
 
   const fetchDUC = useCallback(async () => {
     try {
-      // setLoading(true)
+      setLoadnigDataGrid(true)
       const res = await reportLogService.GetReportLogService({ tapData });
       SetData(res.data.result);
-      // setLoading(false)
+      setLoadnigDataGrid(false)
     } catch (err) {
       console.log(err);
     }
