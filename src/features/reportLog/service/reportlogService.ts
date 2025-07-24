@@ -24,11 +24,29 @@ const SearchReportLogService = (
   return axiosInstance.get("/DUC_DCC/ReportLog", { params });
 };
 
+const exportExcel = (searchData: SearchData): Promise<AxiosResponse<Blob>> => {
+  const params = {
+    Search: searchData.Search,
+    startDate: searchData.startDate
+      ? searchData.startDate.format("YYYY-MM-DD")
+      : undefined,
+    endDate: searchData.endDate
+      ? searchData.endDate.format("YYYY-MM-DD")
+      : undefined,
+  };
+  return axiosInstance.get("/DUC_DCC/ExportExcelLog", {
+    params,
+    responseType: "blob",
+  });
+};
+
 const ApprovedReportLogService = (Id: number[]) =>
   axiosInstance.put("/DUC_DCC", { Id });
+
 const reportLogService = {
   GetReportLogService,
   ApprovedReportLogService,
   SearchReportLogService,
+  exportExcel,
 };
 export default reportLogService;

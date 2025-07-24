@@ -25,9 +25,26 @@ const SearchSaveReportLogService = (
   return axiosInstance.get("/DUC_DCC/SaveReportLog", { params });
 };
 
+const exportExcel = (searchData: SearchData): Promise<AxiosResponse<Blob>> => {
+  const params = {
+    Search: searchData.Search,
+    startDate: searchData.startDate
+      ? searchData.startDate.format("YYYY-MM-DD")
+      : undefined,
+    endDate: searchData.endDate
+      ? searchData.endDate.format("YYYY-MM-DD")
+      : undefined,
+  };
+  return axiosInstance.get("/DUC_DCC/ExportExcelLogAccept", {
+    params,
+    responseType: "blob",
+  });
+};
+
 const reportSaveLog = {
   GetSaveReportLogService,
   SearchSaveReportLogService,
+  exportExcel,
 };
 
 export default reportSaveLog;

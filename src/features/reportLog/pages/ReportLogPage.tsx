@@ -10,7 +10,7 @@ import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type SyntheticEvent } from "react";
 import reportLogService from "../service/reportlogService";
 import type { ReportLog } from "../types/reportlog";
 import Swal from "sweetalert2";
@@ -18,22 +18,33 @@ import datetime from "@/shared/utils/handleDatetime";
 import SearchIcon from "@mui/icons-material/Search";
 import SaveIcon from "@mui/icons-material/Save";
 import { fNumber } from "@/shared/utils/formatNumber";
-
+import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { Dayjs } from "dayjs";
 import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
+import Tab from '@mui/material/Tab';
+import TabContext from '@mui/lab/TabContext';
+import TabList from '@mui/lab/TabList';
+import TabPanel from '@mui/lab/TabPanel';
+
 export default function ReportLogPage() {
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>(
     [] as unknown as GridRowSelectionModel
   );
 
+  const [value, setValue] = useState('1');
+
+  const handleChange = (_event: SyntheticEvent, newValue: string) => {
+    setValue(newValue);
+  };
+
 
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [loadingDataGrid, setLoadnigDataGrid] = useState(false);
 
   const [data, SetData] = useState<ReportLog[]>();
@@ -79,7 +90,7 @@ export default function ReportLogPage() {
       headerName: "EVENT TYPE",
       width: 140,
       renderCell: (params) => {
-        const even_type = params.value as string; // 👈 ยืนยันว่าเป็น number
+        const even_type = params.value as string;
         return (
           <span
             style={{ color: even_type == "Unusual Event" ? "red" : "inherit" }}
@@ -111,7 +122,6 @@ export default function ReportLogPage() {
     try {
       setLoading(true)
       const res = await reportLogService.GetReportLogService();
-      console.log(res.data.result);
       SetData(res.data.result);
       setLoading(false)
     } catch (err) {
@@ -130,10 +140,48 @@ export default function ReportLogPage() {
     }
   }, [textSearch, startDate, endDate]);
 
+
+  const handleExportExcel = useCallback(async () => {
+
+    try {
+
+      const res = await reportLogService.exportExcel({ Search: textSearch, startDate, endDate });
+
+      const blob = res.data;
+
+      // ดึงชื่อไฟล์จาก header 'content-disposition'
+      const contentDisposition = res.headers['content-disposition'];
+      let fileName = `${new Date().getTime()} report.xlsx`; // Default filename
+      if (contentDisposition) {
+        const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (fileNameMatch && fileNameMatch.length > 1) {
+          fileName = decodeURIComponent(fileNameMatch[1]);
+        }
+      }
+
+      // สร้าง URL ชั่วคราวสำหรับดาวน์โหลด
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', fileName);
+
+      // เพิ่ม link เข้าไปใน DOM, กด, และลบออก
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.log(err);
+    }
+
+  }, [textSearch, startDate, endDate])
+
+
+
+
   useEffect(() => {
     fetchDUC();
   }, [fetchDUC]);
-
 
 
   const paginationModel = { page: 0, pageSize: 5 };
@@ -179,15 +227,26 @@ export default function ReportLogPage() {
 
 
   return (
-    <Container maxWidth="xl" sx={{ mt: 2 }}>
+    <Container maxWidth="lg" sx={{ mt: 2 }}>
       <Grid container spacing={2} justifyContent="center">
-
-        {!loading ?
+        {loading ?
           <Stack spacing={2} sx={{ color: 'grey.500' }} direction="row" alignItems="center">
             <CircularProgress color="inherit" size={200} thickness={2} />
           </Stack>
           :
-          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 11 }}>
+          <Grid size={{ xs: 12 }}>
+            <Box sx={{ width: '100%', typography: 'body1' }}>
+              <TabContext value={value}>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                  <TabList onChange={handleChange} aria-label="lab API tabs example">
+                    <Tab label="DUC Log" value="1" />
+                    <Tab label="DCC" value="2" />
+                  </TabList>
+                </Box>
+                <TabPanel value="1">Item One</TabPanel>
+                <TabPanel value="2">Item Two</TabPanel>
+              </TabContext>
+            </Box>
             <Box
               component="form"
               sx={{ "& .MuiTextField-root": { width: "100%" } }}
@@ -209,7 +268,6 @@ export default function ReportLogPage() {
                     onChange={(e) => SetTextSearch(e.target.value)}
                   />
                 </Grid>
-
                 <Grid size={{ xs: 12, sm: 6, md: 6 }}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <Grid container spacing={2}>
@@ -251,9 +309,35 @@ export default function ReportLogPage() {
               </Grid>
             </Box>
             <hr />
-            <h2>Report Log DCC & DUC</h2>
-
-            <Paper sx={{ width: "100%" }}>
+            <Box
+              component="form"
+              sx={{ "& .MuiTextField-root": { width: "100%" } }}
+              noValidate
+              autoComplete="off"
+            >
+              <Grid
+                container
+                spacing={2}
+                justifyContent="start"
+                alignItems="start"
+              >
+                <Grid size={{ xs: 11, sm: 11, md: 11, lg: 8 }} >
+                  <h2>Report Log DCC & DUC</h2>
+                </Grid>
+                <Grid size={{ xs: 1, sm: 1, md: 1, lg: 2 }} mt={3}>
+                  <Button variant="contained" color="success" onClick={hendleSubmit}>
+                    <SaveIcon />
+                    submit to save
+                  </Button>
+                </Grid>
+                <Grid size={{ xs: 1, sm: 1, md: 1, lg: 2 }} mt={3}>
+                  <Button variant="outlined" startIcon={<SystemUpdateAltIcon />} onClick={handleExportExcel}>
+                    Export Excel
+                  </Button>
+                </Grid>
+              </Grid>
+            </Box>
+            <Paper sx={{ width: "100%", overflowX: "auto" }}>
               <DataGrid
                 getRowId={(row) => row.id.toString()}
                 loading={loadingDataGrid}
@@ -273,9 +357,8 @@ export default function ReportLogPage() {
                     : ""
                 }
                 sx={{
-                  // ถ้าต้องการให้ "ทั้งแถว" สีเขียว (พื้นหลัง + ตัวอักษร)
                   "& .row--highlight": {
-                    bgcolor: "rgba(255,165,0,0.1)", // พื้นหลังเขียวอ่อน (ปรับได้)
+                    bgcolor: "rgba(255,165,0,0.1)",
                     color: "orange", // สีตัวอักษร
                     "&:hover": { bgcolor: "rgba(0, 128, 0, 0.15)" }, // hover color
                   },
@@ -283,12 +366,7 @@ export default function ReportLogPage() {
                 }}
               />
             </Paper>
-            <Box display="flex" justifyContent="center" mt={2}>
-              <Button variant="contained" color="success" onClick={hendleSubmit}>
-                <SaveIcon />
-                submit to save
-              </Button>
-            </Box>
+
           </Grid>
         }
       </Grid>

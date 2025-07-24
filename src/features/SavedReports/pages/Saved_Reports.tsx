@@ -11,22 +11,16 @@ import reportSaveLog from "../service/saveReposrtService";
 import type { ReportSaveLog } from "../types/reportsavelog";
 import type { Dayjs } from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-// import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
+
+import Container from '@mui/material/Container';
 import { fNumber } from "@/shared/utils/formatNumber";
 
-import { Container, useMediaQuery, useTheme } from "@mui/material";
-
 export default function Saved_Reports() {
-  const theme = useTheme();
-
-  const isLgUp = useMediaQuery(theme.breakpoints.up("lg"));
-
-  const containerMaxWidth = isLgUp ? "lg" : "xl";
-
 
   const [data, SetData] = useState<ReportSaveLog[]>();
   const [textSearch, SetTextSearch] = useState<string>("");
@@ -38,10 +32,10 @@ export default function Saved_Reports() {
 
   const fetchDUC = useCallback(async () => {
     try {
-      setLoadnigDataGrid(true)
+      setLoading(true)
       const res = await reportSaveLog.GetSaveReportLogService();
       SetData(res.data.result);
-      setLoadnigDataGrid(false)
+      setLoading(false)
     } catch (err) {
       console.log(err);
     }
@@ -49,10 +43,10 @@ export default function Saved_Reports() {
 
   const handleSearch = useCallback(async () => {
     try {
-      setLoading(true)
+      setLoadnigDataGrid(true)
       const res = await reportSaveLog.SearchSaveReportLogService({ Search: textSearch, startDate, endDate });
       SetData(res.data.result)
-      setLoading(false)
+      setLoadnigDataGrid(false)
     } catch (err) {
       console.log(err);
     }
@@ -61,6 +55,42 @@ export default function Saved_Reports() {
   useEffect(() => {
     fetchDUC();
   }, [fetchDUC]);
+
+
+  const handleExportExcel = useCallback(async () => {
+
+    try {
+
+      const res = await reportSaveLog.exportExcel({ Search: textSearch, startDate, endDate });
+
+      const blob = res.data;
+
+      // ดึงชื่อไฟล์จาก header 'content-disposition'
+      const contentDisposition = res.headers['content-disposition'];
+      let fileName = `${new Date().getTime()}reportAccept.xlsx`; // Default filename
+      if (contentDisposition) {
+        const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (fileNameMatch && fileNameMatch.length > 1) {
+          fileName = decodeURIComponent(fileNameMatch[1]);
+        }
+      }
+
+      // สร้าง URL ชั่วคราวสำหรับดาวน์โหลด
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', fileName);
+
+      // เพิ่ม link เข้าไปใน DOM, กด, และลบออก
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.log(err);
+    }
+
+  }, [textSearch, startDate, endDate])
 
 
 
@@ -99,7 +129,7 @@ export default function Saved_Reports() {
       headerName: "EVENT TYPE",
       width: 140,
       renderCell: (params) => {
-        const even_type = params.value as string; // 👈 ยืนยันว่าเป็น number
+        const even_type = params.value as string;
         return (
           <span
             style={{ color: even_type == "Unusual Event" ? "red" : "inherit" }}
@@ -144,7 +174,7 @@ export default function Saved_Reports() {
   const paginationModel = { page: 0, pageSize: 5 };
 
   return (
-    <Container maxWidth={containerMaxWidth} sx={{ mt: 2 }}>
+    <Container maxWidth="lg" sx={{ mt: 2 }}>
       <Grid container spacing={2} justifyContent="center">
         {loading ? (
           <Stack
@@ -207,7 +237,6 @@ export default function Saved_Reports() {
                     </Grid>
                   </LocalizationProvider>
                 </Grid>
-
                 <Grid size={{ xs: 12, sm: 12, md: 2 }}>
                   <Button
                     variant="contained"
@@ -219,38 +248,57 @@ export default function Saved_Reports() {
                 </Grid>
               </Grid>
             </Box>
-
             <hr />
-            <h2>Saved DCC & DUC Reports</h2>
 
+            <Box
+              component="form"
+              sx={{ "& .MuiTextField-root": { width: "100%" } }}
+              noValidate
+              autoComplete="off"
+            >
+              <Grid
+                container
+                spacing={2}
+                justifyContent="start"
+                alignItems="start"
+              >
+                <Grid size={{ xs: 11, sm: 11, md: 11, lg: 10 }} >
+                  <h2>Saved DCC & DUC Reports</h2>
+                </Grid>
+                <Grid size={{ xs: 1, sm: 1, md: 1, lg: 2 }} mt={3}>
+                  <Button variant="outlined" startIcon={<SystemUpdateAltIcon />} onClick={handleExportExcel}>
+                    Export Excel
+                  </Button>
+                </Grid>
+              </Grid>
+            </Box>
             <Paper sx={{ width: "100%", overflowX: "auto" }}>
-              <Box sx={{ minWidth: 600 }}>
-                <DataGrid
-                  rows={data}
-                  loading={loadingDataGrid}
-                  columns={columns}
-                  initialState={{ pagination: { paginationModel } }}
-                  pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
-                  getRowClassName={(params) =>
-                    params.row.unauthorized === "Y" ||
-                      params.row.download_more_10_files_day === "Y" ||
-                      params.row.employee_resigning_within_one_month === "Y"
-                      ? "row--highlight"
-                      : ""
-                  }
-                  sx={{
-                    "& .row--highlight": {
-                      bgcolor: "rgba(255,165,0,0.1)",
-                      color: "orange",
-                      "&:hover": { bgcolor: "rgba(0, 128, 0, 0.15)" },
-                    },
-                    fontSize: "12px",
-                    "& .MuiDataGrid-columnHeaders": {
-                      fontSize: "14px",
-                    },
-                  }}
-                />
-              </Box>
+              <DataGrid
+                rows={data}
+                loading={loadingDataGrid}
+                columns={columns}
+                initialState={{ pagination: { paginationModel } }}
+                pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
+                getRowClassName={(params) =>
+                  params.row.unauthorized === "Y" ||
+                    params.row.download_more_10_files_day === "Y" ||
+                    params.row.employee_resigning_within_one_month === "Y"
+                    ? "row--highlight"
+                    : ""
+                }
+                sx={{
+                  "& .row--highlight": {
+                    bgcolor: "rgba(255,165,0,0.1)",
+                    color: "orange",
+                    "&:hover": { bgcolor: "rgba(0, 128, 0, 0.15)" },
+                  },
+                  fontSize: "12px",
+                  "& .MuiDataGrid-columnHeaders": {
+                    fontSize: "14px",
+                  },
+                }}
+              />
+
             </Paper>
           </Grid>
         )}
