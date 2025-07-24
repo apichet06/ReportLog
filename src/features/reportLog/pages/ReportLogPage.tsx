@@ -28,6 +28,9 @@ import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
+import CancelPresentation from '@mui/icons-material/CancelPresentation';
+
+
 
 export default function ReportLogPage() {
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>(
@@ -118,27 +121,33 @@ export default function ReportLogPage() {
   ];
 
 
+  const handleClear = () => {
+    SetTextSearch('');
+    setStartDate(null);
+    setEndDate(null);
+  }
+
   const fetchDUC = useCallback(async () => {
     try {
       // setLoading(true)
-      const res = await reportLogService.GetReportLogService();
+      const res = await reportLogService.GetReportLogService({ tapData });
       SetData(res.data.result);
       // setLoading(false)
     } catch (err) {
       console.log(err);
     }
-  }, []);
+  }, [tapData]);
 
   const handleSearch = useCallback(async () => {
     try {
       setLoadnigDataGrid(true)
-      const res = await reportLogService.SearchReportLogService({ Search: textSearch, startDate, endDate });
+      const res = await reportLogService.SearchReportLogService({ Search: textSearch, startDate, endDate, tapData });
       SetData(res.data.result)
       setLoadnigDataGrid(false)
     } catch (err) {
       console.log(err);
     }
-  }, [textSearch, startDate, endDate]);
+  }, [textSearch, startDate, endDate, tapData]);
 
 
   const handleExportExcel = useCallback(async () => {
@@ -230,7 +239,6 @@ export default function ReportLogPage() {
       <Container disableGutters maxWidth={false}>
         <Grid container spacing={2} justifyContent="center">
           <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }} mt={2} mb={2}>
-
             <Box
               component="form"
               sx={{ "& .MuiTextField-root": { width: "100%" } }}
@@ -244,22 +252,23 @@ export default function ReportLogPage() {
                 alignItems="center"
                 mb={3}
               >
-                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+                <Grid size={{ xs: 12, sm: 6, md: 6 }}>
                   <TextField
                     label="Search ALL"
                     type="search"
                     size="small"
+                    value={textSearch}
                     onChange={(e) => SetTextSearch(e.target.value)}
                   />
                 </Grid>
-                <Grid size={{ xs: 12, sm: 6, md: 6 }}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <Grid container spacing={2}>
                       <Grid size={{ xs: 6 }}>
                         <DatePicker
                           label="From"
                           value={startDate}
-                          onChange={(newValue) => setStartDate(newValue)}
+                          onChange={(newValue) => setStartDate(newValue ?? null)}
                           slotProps={{
                             textField: { size: "small", fullWidth: true },
                           }}
@@ -270,7 +279,7 @@ export default function ReportLogPage() {
                         <DatePicker
                           label="To"
                           value={endDate}
-                          onChange={(newValue) => setEndDate(newValue)}
+                          onChange={(newValue) => setEndDate(newValue ?? null)}
                           slotProps={{
                             textField: { size: "small", fullWidth: true },
                           }}
@@ -280,16 +289,27 @@ export default function ReportLogPage() {
                     </Grid>
                   </LocalizationProvider>
                 </Grid>
-
-                <Grid size={{ xs: 12, sm: 12, md: 2 }}>
+                <Grid size={{ xs: 12, sm: 12, md: 1 }}>
                   <Button
                     variant="contained"
                     onClick={() => handleSearch()}
                     fullWidth
+
                   >
                     <SearchIcon />
                   </Button>
                 </Grid>
+                <Grid size={{ xs: 12, sm: 12, md: 1 }}>
+                  <Button
+                    variant="contained"
+                    onClick={() => handleClear()}
+                    fullWidth
+                    color="error"
+                  >
+                    <CancelPresentation />
+                  </Button>
+                </Grid>
+
               </Grid>
             </Box>
             <hr />
@@ -323,8 +343,8 @@ export default function ReportLogPage() {
                   <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <TabList onChange={handleChange} textColor="secondary"
                       indicatorColor="secondary">
-                      <Tab label="DUC Log" value="1" onClick={() => setTapData('DUC')} />
-                      <Tab label="DCC Log" value="2" onClick={() => setTapData('DCC')} />
+                      <Tab label={`DUC Log (${data ? data.length : 0})`} value="1" onClick={() => setTapData('DUC')} />
+                      <Tab label={`DCC Log (${data ? data.length : 0})`} value="2" onClick={() => setTapData('DCC')} />
                     </TabList>
                   </Box>
                   <TabPanel value="1">

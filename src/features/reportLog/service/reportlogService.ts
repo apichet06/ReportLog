@@ -1,5 +1,5 @@
 import axiosInstance from "@/shared/utils/axiosInstance";
-import type { ReportLog, SearchData } from "../types/reportlog";
+import type { ReportLog, SearchData, TabDataState } from "../types/reportlog";
 import type { AxiosResponse } from "axios";
 // import type { ReportLog, SearchData } from "../types/reportlog";
 
@@ -7,7 +7,10 @@ interface ApiListResponse {
   result: ReportLog[];
 }
 
-const GetReportLogService = () => axiosInstance.get("/DUC_DCC/ReportLog");
+const GetReportLogService = (data: TabDataState) =>
+  axiosInstance.get("/DUC_DCC/ReportLog", {
+    params: { tapData: data.tapData },
+  });
 
 const SearchReportLogService = (
   searchData: SearchData
@@ -20,6 +23,7 @@ const SearchReportLogService = (
     endDate: searchData.endDate
       ? searchData.endDate.format("YYYY-MM-DD")
       : undefined,
+    tapData: searchData.tapData, // Include tapData in the request parameters
   };
   return axiosInstance.get("/DUC_DCC/ReportLog", { params });
 };

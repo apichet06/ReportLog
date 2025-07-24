@@ -21,4 +21,9 @@ export interface SearchData {
   Search?: string;
   startDate?: Dayjs | null;
   endDate?: Dayjs | null;
+  tapData?: string; // Additional field for tap data
+}
+
+export interface TabDataState {
+  tapData?: string;
 }
