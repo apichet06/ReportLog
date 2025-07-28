@@ -1,5 +1,5 @@
 // src/layouts/MainLayout.tsx
-import { type ReactNode, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -24,8 +24,12 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 // import MailIcon from '@mui/icons-material/Mail';
 import DescriptionIcon from "@mui/icons-material/Description";
-import { Link as RouterLink } from "react-router-dom";
+import { Outlet, Link as RouterLink, useNavigate } from "react-router-dom";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { login } from "@/features/auth/services/authService";
+import { getUserIdFromCookie } from "@/features/auth/services/authFuntion";
+import { useAuthContext } from "@/shared/context/AuthContext";
+import Cookies from "js-cookie";
 const drawerWidth = 240;
 
 /* ---------- styled components ---------- */
@@ -70,15 +74,22 @@ const DrawerHeader = styled("div")(({ theme }) => ({
     justifyContent: "flex-end",
 }));
 
-/* ---------- component ---------- */
-type MainLayoutProps = {
-    /** React elements that will be rendered inside <Main> */
-    children: ReactNode;
-};
 
-const MainLayout = ({ children }: MainLayoutProps) => {
+const MainLayout = ({ children }: { children?: React.ReactNode }) => {
     const theme = useTheme();
     const [open, setOpen] = useState(false);
+    const navigate = useNavigate();
+
+    const hendleLogout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        setTimeout(() => {
+
+            navigate('/login');
+        }, 100); // delay สั้น ๆ เพื่อให้ลบเสร็จแน่นอน
+    };
+
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -96,16 +107,43 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         { label: "Save Report", icon: <DescriptionIcon />, path: "/saved_report" },
     ];
 
-    // const extraItems = [
-    //     { label: 'All mail', icon: <MailIcon />, path: '/all-mail' },
-    //     { label: 'Trash', icon: <InboxIcon />, path: '/trash' },
-    //     { label: 'Spam', icon: <MailIcon />, path: '/spam' },
-    // ];
+    const { setToken, setUser } = useAuthContext();
+    const [isAppInitialized, setIsAppInitialized] = useState(false);
+
+    const userId = getUserIdFromCookie();
+
+
+    const handlelogin = useCallback(async () => {
+        if (!userId) {
+            setIsAppInitialized(true);
+            return;
+        }
+        const response = await login({ username: userId });
+        if (response.isSuccess) {
+            localStorage.setItem("token", response.token);
+            localStorage.setItem("user", JSON.stringify(response.result));
+            await setToken(response.token);
+            await setUser(response.result);
+            await Cookies.remove("authToken");
+            await navigate('/reportlog');
+        } else {
+            navigate('/ErrorPermissionPage');
+        }
+        setIsAppInitialized(true);
+    }, [navigate, setToken, setUser, userId]);
+
+    useEffect(() => {
+        handlelogin();
+    }, [handlelogin]);
+
+    // ⏳ ระหว่างรอ login เสร็จ
+    if (!isAppInitialized) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <Box sx={{ display: "flex" }}>
             <CssBaseline />
-
             {/* ---------- Top AppBar ---------- */}
             <AppBar position="fixed" open={open} color="success">
                 <Toolbar>
@@ -149,7 +187,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                             onClose={handleClose}
                         >
                             <MenuItem onClick={handleClose}>Mr.Apichet Singnakrong</MenuItem>
-                            <MenuItem onClick={handleClose}>Logout</MenuItem>
+                            <MenuItem onClick={hendleLogout}>Logout</MenuItem>
                         </Menu>
                     </>
                 </Toolbar>
@@ -210,7 +248,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             {/* ---------- Main Content ---------- */}
             <Main open={open}>
                 <DrawerHeader /> {/* pushes content below AppBar */}
-                {children}
+                {children ?? <Outlet />}
             </Main>
         </Box>
     );

@@ -1,14 +1,16 @@
 import type { SearchData } from "@/features/reportLog/types/reportlog";
 import axiosInstance from "@/shared/utils/axiosInstance";
 import type { AxiosResponse } from "axios";
-import type { ReportSaveLog } from "../types/reportsavelog";
+import type { ReportSaveLog, TabDataState } from "../types/reportsavelog";
 
 interface ApiListResponse {
   result: ReportSaveLog[];
 }
 
-const GetSaveReportLogService = () =>
-  axiosInstance.get("/DUC_DCC/SaveReportLog");
+const GetSaveReportLogService = (data: TabDataState) =>
+  axiosInstance.get("/DUC_DCC/SaveReportLog", {
+    params: { tapData: data.tapData },
+  });
 
 const SearchSaveReportLogService = (
   searchData: SearchData
@@ -21,6 +23,7 @@ const SearchSaveReportLogService = (
     endDate: searchData.endDate
       ? searchData.endDate.format("YYYY-MM-DD")
       : undefined,
+    tapData: searchData.tapData,
   };
   return axiosInstance.get("/DUC_DCC/SaveReportLog", { params });
 };
@@ -34,6 +37,7 @@ const exportExcel = (searchData: SearchData): Promise<AxiosResponse<Blob>> => {
     endDate: searchData.endDate
       ? searchData.endDate.format("YYYY-MM-DD")
       : undefined,
+    tapData: searchData.tapData,
   };
   return axiosInstance.get("/DUC_DCC/ExportExcelLogAccept", {
     params,

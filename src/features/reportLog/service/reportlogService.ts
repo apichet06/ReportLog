@@ -37,6 +37,7 @@ const exportExcel = (searchData: SearchData): Promise<AxiosResponse<Blob>> => {
     endDate: searchData.endDate
       ? searchData.endDate.format("YYYY-MM-DD")
       : undefined,
+    tapData: searchData.tapData,
   };
   return axiosInstance.get("/DUC_DCC/ExportExcelLog", {
     params,

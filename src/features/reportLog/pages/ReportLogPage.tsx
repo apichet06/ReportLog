@@ -31,7 +31,6 @@ import TabPanel from '@mui/lab/TabPanel';
 import CancelPresentation from '@mui/icons-material/CancelPresentation';
 
 
-
 export default function ReportLogPage() {
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>(
     [] as unknown as GridRowSelectionModel
@@ -50,9 +49,11 @@ export default function ReportLogPage() {
 
   const [loadingDataGrid, setLoadnigDataGrid] = useState(false);
 
-  const [data, SetData] = useState<ReportLog[]>();
+  const [dataDuc, SetDataDUC] = useState<ReportLog[]>();
+  const [dataDcc, SetDataDCC] = useState<ReportLog[]>();
   const [textSearch, SetTextSearch] = useState<string>("");
-  const columns: GridColDef[] = [
+
+  const columnsDuc: GridColDef[] = [
     {
       field: "no",
       headerName: "ID",
@@ -120,6 +121,78 @@ export default function ReportLogPage() {
     },
   ];
 
+  const columnsDCC: GridColDef[] = [
+    {
+      field: "no",
+      headerName: "ID",
+
+      align: "center",
+      headerAlign: "center", flex: 0.5,
+      renderCell: (params: GridRenderCellParams) => {
+        const sortedRowIds = params.api.getSortedRowIds();
+        const rowIndex = sortedRowIds.indexOf(params.id);
+        return fNumber(rowIndex + 1);
+      },
+    },
+    { field: "group_name", headerName: "GROUP NAME", flex: 2 },
+    { field: "username", headerName: "USERNAME", flex: 2 },
+    {
+      field: "action",
+      headerName: "ACTION",
+
+    },
+    {
+      field: "action_date_time",
+      headerName: "ACTION DATE TIME",
+      description: "This column has a value getter and is not sortable.",
+      sortable: false, flex: 2,
+
+      renderCell: (params) => (datetime.DateTimeLongTH(params.row.action_date_time))
+    },
+    { field: "detail", headerName: "DETAIL", flex: 5 },
+    { field: "bu", headerName: "BU", flex: 1, },
+    { field: "position", headerName: "POSITION", flex: 2, },
+    {
+      field: "resigned_date", headerName: "RESINGNED DATE", flex: 2,
+      renderCell: (params) => (params.row.resigned_date ? datetime.DateLongTH(params.row.resigned_date) : '')
+    },
+    { field: "days_after_action", headerName: "DAY AFTER ACTION", flex: 2 },
+    {
+      field: "event_type",
+      headerName: "EVENT TYPE", flex: 2,
+
+      renderCell: (params) => {
+        const even_type = params.value as string;
+        return (
+          <span
+            style={{ color: even_type == "Unusual Event" ? "red" : "inherit" }}
+          >
+            {even_type}
+          </span>
+        );
+      },
+    },
+    {
+      field: "download_more_10_files_day",
+      headerName: "DOWNLOAD MORE 10 FILES DAY", flex: 2,
+
+    },
+    {
+      field: "unauthorized",
+      headerName: "UNAUTHORIZED", flex: 2,
+
+    },
+    {
+      field: "employee_resigning_within_one_month",
+      headerName: "EMPLOYEE RESINGING WITHHIN ONE MONTH", flex: 2,
+
+    },
+    {
+      field: "is_not_dcc",
+      headerName: "Is_Not_DCC", flex: 2,
+
+    },
+  ];
 
   const handleClear = () => {
     SetTextSearch('');
@@ -130,19 +203,35 @@ export default function ReportLogPage() {
   const fetchDUC = useCallback(async () => {
     try {
       setLoadnigDataGrid(true)
-      const res = await reportLogService.GetReportLogService({ tapData });
-      SetData(res.data.result);
+      const res = await reportLogService.GetReportLogService({ tapData: "DUC" });
+      SetDataDUC(res.data.result);
       setLoadnigDataGrid(false)
     } catch (err) {
       console.log(err);
     }
-  }, [tapData]);
+  }, []);
+
+  const fetchDCC = useCallback(async () => {
+    try {
+      setLoadnigDataGrid(true)
+      const res = await reportLogService.GetReportLogService({ tapData: "DCC" });
+      SetDataDCC(res.data.result);
+      setLoadnigDataGrid(false)
+    } catch (err) {
+      console.log(err);
+    }
+  }, []);
+
+
 
   const handleSearch = useCallback(async () => {
     try {
       setLoadnigDataGrid(true)
       const res = await reportLogService.SearchReportLogService({ Search: textSearch, startDate, endDate, tapData });
-      SetData(res.data.result)
+      if (tapData === 'DUC')
+        SetDataDUC(res.data.result)
+      else
+        SetDataDCC(res.data.result)
       setLoadnigDataGrid(false)
     } catch (err) {
       console.log(err);
@@ -151,10 +240,8 @@ export default function ReportLogPage() {
 
 
   const handleExportExcel = useCallback(async () => {
-
     try {
-
-      const res = await reportLogService.exportExcel({ Search: textSearch, startDate, endDate });
+      const res = await reportLogService.exportExcel({ Search: textSearch, startDate, endDate, tapData });
 
       const blob = res.data;
 
@@ -183,16 +270,17 @@ export default function ReportLogPage() {
       console.log(err);
     }
 
-  }, [textSearch, startDate, endDate])
+  }, [textSearch, startDate, endDate, tapData])
 
 
 
   useEffect(() => {
     fetchDUC();
-  }, [fetchDUC]);
+    fetchDCC()
+  }, [fetchDCC, fetchDUC]);
 
 
-  const paginationModel = { page: 0, pageSize: 10 };
+  const paginationModel = { page: 0, pageSize: 5 };
 
   const hendleSubmit = async () => {
     const rawData = Array.isArray(selectionModel)
@@ -224,6 +312,7 @@ export default function ReportLogPage() {
           });
           await reportLogService.ApprovedReportLogService(numericIds);
           fetchDUC();
+          fetchDCC()
         }
       });
 
@@ -326,16 +415,7 @@ export default function ReportLogPage() {
                 alignItems="start"
               >
                 <Grid size={{ xs: 11, sm: 11, md: 11, lg: 8, xl: 8 }} >
-                  <h2>Report Log DCC & DUC</h2>
-                </Grid>
-                <Grid size={{ xs: 1, sm: 1, md: 1, lg: 4, xl: 4 }} mt={3} justifyContent="flex-end" display="flex">
-                  <Button variant="contained" color="success" onClick={hendleSubmit}>
-                    <SaveIcon />
-                    submit to save
-                  </Button>
-                  <Button variant="outlined" startIcon={<SystemUpdateAltIcon />} onClick={handleExportExcel} sx={{ ml: 2 }}>
-                    Export Excel
-                  </Button>
+                  <h2>Log Report DCC & DUC</h2>
                 </Grid>
               </Grid>
               <Grid size={12} >
@@ -343,16 +423,27 @@ export default function ReportLogPage() {
                   <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <TabList onChange={handleChange} textColor="secondary"
                       indicatorColor="secondary">
-                      <Tab label={`DUC Log (${data ? data.length : 0})`} value="1" onClick={() => setTapData('DUC')} />
-                      <Tab label={`DCC Log (${data ? data.length : 0})`} value="2" onClick={() => setTapData('DCC')} />
+                      <Tab label={`DUC Log (${dataDuc ? dataDuc.length : 0})`} value="1" onClick={() => setTapData('DUC')} />
+                      <Tab label={`DCC Log (${dataDcc ? dataDcc.length : 0})`} value="2" onClick={() => setTapData('DCC')} />
                     </TabList>
                   </Box>
                   <TabPanel value="1">
+                    <Grid
+                      container
+                      spacing={2}
+                      justifyContent="start"
+                      alignItems="end"
+                    >
+                      <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }} mb={3} justifyContent="flex-end" display="flex">
+                        <Button variant="contained" color="success" onClick={hendleSubmit}><SaveIcon /> Save Duc</Button>
+                        <Button variant="outlined" startIcon={<SystemUpdateAltIcon />} onClick={handleExportExcel} sx={{ ml: 2 }}> Export DUC </Button>
+                      </Grid>
+                    </Grid>
                     <DataGrid
                       getRowId={(row) => row.id.toString()}
                       loading={loadingDataGrid}
-                      rows={data}
-                      columns={columns}
+                      rows={dataDuc}
+                      columns={columnsDuc}
                       initialState={{ pagination: { paginationModel } }}
                       pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
                       checkboxSelection
@@ -377,11 +468,23 @@ export default function ReportLogPage() {
                     />
                   </TabPanel>
                   <TabPanel value="2">
+                    <Grid
+                      container
+                      spacing={2}
+                      justifyContent="start"
+                      alignItems="end"
+                    >
+                      <Grid size={{ xs: 1, sm: 1, md: 1, lg: 4, xl: 12 }} mb={3} justifyContent="flex-end" display="flex">
+                        <Button variant="contained" color="success" onClick={hendleSubmit}><SaveIcon /> Save DCC</Button>
+                        <Button variant="outlined" startIcon={<SystemUpdateAltIcon />} onClick={handleExportExcel} sx={{ ml: 2 }}> Export DCC </Button>
+                      </Grid>
+                    </Grid>
+
                     <DataGrid
                       getRowId={(row) => row.id.toString()}
                       loading={loadingDataGrid}
-                      rows={data}
-                      columns={columns}
+                      rows={dataDcc}
+                      columns={columnsDCC}
                       initialState={{ pagination: { paginationModel } }}
                       pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
                       checkboxSelection
@@ -406,7 +509,6 @@ export default function ReportLogPage() {
                     />
                   </TabPanel>
                 </TabContext>
-
               </Grid>
             </Box>
           </Grid>
