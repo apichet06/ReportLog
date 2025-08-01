@@ -48,6 +48,9 @@ export default function ReportLogPage() {
   const [tapData, setTapData] = useState('DUC');
 
   const [loadingDataGrid, setLoadnigDataGrid] = useState(false);
+  const [loadingExport, setLoadingExport] = useState(false)
+
+
 
   const [dataDuc, SetDataDUC] = useState<ReportLog[]>();
   const [dataDcc, SetDataDCC] = useState<ReportLog[]>();
@@ -189,7 +192,7 @@ export default function ReportLogPage() {
     },
     {
       field: "is_not_dcc",
-      headerName: "Is_Not_DCC", flex: 2,
+      headerName: "IS BU DCC", flex: 2,
 
     },
   ];
@@ -241,13 +244,13 @@ export default function ReportLogPage() {
 
   const handleExportExcel = useCallback(async () => {
     try {
+      await setLoadingExport(true)
       const res = await reportLogService.exportExcel({ Search: textSearch, startDate, endDate, tapData });
-
       const blob = res.data;
 
       // ดึงชื่อไฟล์จาก header 'content-disposition'
       const contentDisposition = res.headers['content-disposition'];
-      let fileName = `${new Date().getTime()} report.xlsx`; // Default filename
+      let fileName = `${new Date().getTime()} ${tapData} report.xlsx`; // Default filename
       if (contentDisposition) {
         const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
         if (fileNameMatch && fileNameMatch.length > 1) {
@@ -266,6 +269,9 @@ export default function ReportLogPage() {
       link.click();
       link.parentNode?.removeChild(link);
       window.URL.revokeObjectURL(url);
+
+      await setLoadingExport(false)
+
     } catch (err) {
       console.log(err);
     }
@@ -280,7 +286,7 @@ export default function ReportLogPage() {
   }, [fetchDCC, fetchDUC]);
 
 
-  const paginationModel = { page: 0, pageSize: 5 };
+  const paginationModel = { page: 0, pageSize: 10 };
 
   const hendleSubmit = async () => {
     const rawData = Array.isArray(selectionModel)
@@ -435,8 +441,8 @@ export default function ReportLogPage() {
                       alignItems="end"
                     >
                       <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }} mb={3} justifyContent="flex-end" display="flex">
-                        <Button variant="contained" color="success" onClick={hendleSubmit}><SaveIcon /> Save Duc</Button>
-                        <Button variant="outlined" startIcon={<SystemUpdateAltIcon />} onClick={handleExportExcel} sx={{ ml: 2 }}> Export DUC </Button>
+                        <Button variant="contained" color="success" onClick={hendleSubmit} startIcon={<SaveIcon />}> Save Duc</Button>
+                        <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={() => handleExportExcel()} sx={{ ml: 2 }}> Export DUC </Button>
                       </Grid>
                     </Grid>
                     <DataGrid
@@ -474,9 +480,9 @@ export default function ReportLogPage() {
                       justifyContent="start"
                       alignItems="end"
                     >
-                      <Grid size={{ xs: 1, sm: 1, md: 1, lg: 4, xl: 12 }} mb={3} justifyContent="flex-end" display="flex">
-                        <Button variant="contained" color="success" onClick={hendleSubmit}><SaveIcon /> Save DCC</Button>
-                        <Button variant="outlined" startIcon={<SystemUpdateAltIcon />} onClick={handleExportExcel} sx={{ ml: 2 }}> Export DCC </Button>
+                      <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }} mb={3} justifyContent="flex-end" display="flex">
+                        <Button variant="contained" color="success" onClick={hendleSubmit} startIcon={<SaveIcon />}> Save DCC</Button>
+                        <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={() => handleExportExcel()} sx={{ ml: 2 }}> Export DCC </Button>
                       </Grid>
                     </Grid>
 

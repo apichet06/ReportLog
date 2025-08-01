@@ -20,9 +20,7 @@ const AppRouter = () => {
         <Route path="/saved_report" element={<Saved_Reports />} />
         <Route path="*" element={<Navigate to="/reportlog" />} />
       </Route>
-      <Route
-        path="*"
-        element={<Navigate to="/ErrorPermissionPage" replace />}
+      <Route path="*" element={<Navigate to="/ErrorPermissionPage" replace />}
       />
 
     </Routes>

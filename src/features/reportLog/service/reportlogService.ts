@@ -12,33 +12,26 @@ const GetReportLogService = (data: TabDataState) =>
     params: { tapData: data.tapData },
   });
 
+const buildSearchParams = (searchData: SearchData) => ({
+  Search: searchData.Search,
+  startDate: searchData.startDate
+    ? searchData.startDate.format("YYYY-MM-DD")
+    : undefined,
+  endDate: searchData.endDate
+    ? searchData.endDate.format("YYYY-MM-DD")
+    : undefined,
+  tapData: searchData.tapData,
+});
+
 const SearchReportLogService = (
   searchData: SearchData
 ): Promise<AxiosResponse<ApiListResponse>> => {
-  const params = {
-    Search: searchData.Search,
-    startDate: searchData.startDate
-      ? searchData.startDate.format("YYYY-MM-DD")
-      : undefined,
-    endDate: searchData.endDate
-      ? searchData.endDate.format("YYYY-MM-DD")
-      : undefined,
-    tapData: searchData.tapData, // Include tapData in the request parameters
-  };
+  const params = buildSearchParams(searchData);
   return axiosInstance.get("/DUC_DCC/ReportLog", { params });
 };
 
 const exportExcel = (searchData: SearchData): Promise<AxiosResponse<Blob>> => {
-  const params = {
-    Search: searchData.Search,
-    startDate: searchData.startDate
-      ? searchData.startDate.format("YYYY-MM-DD")
-      : undefined,
-    endDate: searchData.endDate
-      ? searchData.endDate.format("YYYY-MM-DD")
-      : undefined,
-    tapData: searchData.tapData,
-  };
+  const params = buildSearchParams(searchData);
   return axiosInstance.get("/DUC_DCC/ExportExcelLog", {
     params,
     responseType: "blob",

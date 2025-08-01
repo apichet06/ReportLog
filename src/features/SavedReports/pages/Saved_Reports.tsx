@@ -21,7 +21,7 @@ import Container from '@mui/material/Container';
 import { fNumber } from "@/shared/utils/formatNumber";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
-import { Tab } from "@mui/material";
+import Tab from '@mui/material/Tab';
 import TabPanel from "@mui/lab/TabPanel";
 
 export default function Saved_Reports() {
@@ -39,6 +39,7 @@ export default function Saved_Reports() {
   const [tapData, setTapData] = useState('DUC');
 
   const [loadingDataGrid, setLoadnigDataGrid] = useState(false);
+  const [loadingExport, setLoadingExport] = useState(false)
 
   const [dataDuc, SetDataDUC] = useState<ReportSaveLog[]>();
   const [dataDcc, SetDataDCC] = useState<ReportSaveLog[]>();
@@ -193,18 +194,15 @@ export default function Saved_Reports() {
     },
     {
       field: "is_not_dcc",
-      headerName: "Is_Not_DCC", flex: 2,
-
+      headerName: "IS BU DCC", flex: 2,
     },
     {
       field: "users_action",
       headerName: "USERS ACCEPT", flex: 2,
-
     },
     {
       field: "user_action_date",
       headerName: "USER ACCEPT DATE", flex: 2,
-
     },
   ];
 
@@ -255,6 +253,7 @@ export default function Saved_Reports() {
 
   const handleExportExcel = useCallback(async () => {
     try {
+      await setLoadingExport(true)
       const res = await reportSaveLog.exportExcel({ Search: textSearch, startDate, endDate, tapData });
 
       const blob = res.data;
@@ -280,6 +279,9 @@ export default function Saved_Reports() {
       link.click();
       link.parentNode?.removeChild(link);
       window.URL.revokeObjectURL(url);
+
+      await setLoadingExport(false)
+
     } catch (err) {
       console.log(err);
     }
@@ -294,7 +296,7 @@ export default function Saved_Reports() {
   }, [fetchDCC, fetchDUC]);
 
 
-  const paginationModel = { page: 0, pageSize: 5 };
+  const paginationModel = { page: 0, pageSize: 10 };
 
 
 
@@ -411,8 +413,7 @@ export default function Saved_Reports() {
                       alignItems="end"
                     >
                       <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }} mb={3} justifyContent="flex-end" display="flex">
-                        {/* <Button variant="contained" color="success" onClick={hendleSubmit}><SaveIcon /> Save Duc</Button> */}
-                        <Button variant="outlined" startIcon={<SystemUpdateAltIcon />} onClick={handleExportExcel} sx={{ ml: 2 }}> Export DUC </Button>
+                        <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={handleExportExcel} sx={{ ml: 2 }}> Export DUC </Button>
                       </Grid>
                     </Grid>
                     <DataGrid
@@ -446,9 +447,8 @@ export default function Saved_Reports() {
                       justifyContent="start"
                       alignItems="end"
                     >
-                      <Grid size={{ xs: 1, sm: 1, md: 1, lg: 4, xl: 12 }} mb={3} justifyContent="flex-end" display="flex">
-                        {/* <Button variant="contained" color="success" onClick={hendleSubmit}><SaveIcon /> Save DCC</Button> */}
-                        <Button variant="outlined" startIcon={<SystemUpdateAltIcon />} onClick={handleExportExcel} sx={{ ml: 2 }}> Export DCC </Button>
+                      <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }} mb={3} justifyContent="flex-end" display="flex">
+                        <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={handleExportExcel} sx={{ ml: 2 }}> Export DCC </Button>
                       </Grid>
                     </Grid>
 
