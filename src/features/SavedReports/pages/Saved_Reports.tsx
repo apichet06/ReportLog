@@ -24,6 +24,7 @@ import TabList from "@mui/lab/TabList";
 import Tab from '@mui/material/Tab';
 import TabPanel from "@mui/lab/TabPanel";
 
+
 export default function Saved_Reports() {
 
 
@@ -99,27 +100,57 @@ export default function Saved_Reports() {
     {
       field: "download_more_10_files_day",
       headerName: "DOWNLOAD MORE 10 FILES DAY", flex: 2,
-
+      renderCell: (params) => {
+        const download_more_10_files_day = params.value as string;
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+            {download_more_10_files_day == "Y" ?
+              <img src={"img/alert.png"} width={"20px"} height={"20px"} />
+              : <img src={"img/success.png"} width={"20px"} height={"20px"} />}
+          </Box>
+        );
+      },
+      align: 'center'
     },
     {
       field: "unauthorized",
       headerName: "UNAUTHORIZED", flex: 2,
-
+      renderCell: (params) => {
+        const unauthorized = params.value as string;
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+            {unauthorized == "Y" ?
+              <img src={"img/alert.png"} width={"20px"} height={"20px"} />
+              : <img src={"img/success.png"} width={"20px"} height={"20px"} />}
+          </Box>
+        );
+      },
+      align: 'center'
     },
     {
       field: "employee_resigning_within_one_month",
       headerName: "EMPLOYEE RESINGING WITHHIN ONE MONTH", flex: 2,
-
+      renderCell: (params) => {
+        const employee_resigning_within_one_month = params.value as string;
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+            {employee_resigning_within_one_month == "Y" ?
+              <img src={"img/alert.png"} width={"20px"} height={"20px"} />
+              : <img src={"img/success.png"} width={"20px"} height={"20px"} />}
+          </Box>
+        );
+      },
+      align: 'center'
     },
+
     {
-      field: "users_action",
+      field: "users_accept",
       headerName: "USERS ACCEPT", flex: 2,
-
     },
     {
-      field: "user_action_date",
+      field: "user_accept_date",
       headerName: "USER ACCEPT DATE", flex: 2,
-
+      renderCell: (params) => (datetime.DateTimeLongTH(params.row.user_accept_date))
     },
   ];
 
@@ -127,6 +158,7 @@ export default function Saved_Reports() {
 
 
   const columnsDCC: GridColDef[] = [
+
     {
       field: "no",
       headerName: "ID",
@@ -165,7 +197,6 @@ export default function Saved_Reports() {
     {
       field: "event_type",
       headerName: "EVENT TYPE", flex: 2,
-
       renderCell: (params) => {
         const even_type = params.value as string;
         return (
@@ -180,29 +211,71 @@ export default function Saved_Reports() {
     {
       field: "download_more_10_files_day",
       headerName: "DOWNLOAD MORE 10 FILES DAY", flex: 2,
-
+      renderCell: (params) => {
+        const download_more_10_files_day = params.value as string;
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+            {download_more_10_files_day == "Y" ?
+              <img src={"img/alert.png"} width={"20px"} height={"20px"} />
+              : <img src={"img/success.png"} width={"20px"} height={"20px"} />}
+          </Box>
+        );
+      },
+      align: 'center'
     },
     {
       field: "unauthorized",
       headerName: "UNAUTHORIZED", flex: 2,
-
+      renderCell: (params) => {
+        const unauthorized = params.value as string;
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+            {unauthorized == "Y" ?
+              <img src={"img/alert.png"} width={"20px"} height={"20px"} />
+              : <img src={"img/success.png"} width={"20px"} height={"20px"} />}
+          </Box>
+        );
+      },
+      align: 'center'
     },
     {
       field: "employee_resigning_within_one_month",
       headerName: "EMPLOYEE RESINGING WITHHIN ONE MONTH", flex: 2,
-
+      renderCell: (params) => {
+        const employee_resigning_within_one_month = params.value as string;
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+            {employee_resigning_within_one_month == "Y" ?
+              <img src={"img/alert.png"} width={"20px"} height={"20px"} />
+              : <img src={"img/success.png"} width={"20px"} height={"20px"} />}
+          </Box>
+        );
+      },
+      align: 'center'
     },
     {
-      field: "is_not_dcc",
+      field: "is_bu_dcc",
       headerName: "IS BU DCC", flex: 2,
+      renderCell: (params) => {
+        const is_bu_dcc = params.value as string;
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+            {is_bu_dcc === "Y"
+              ? <img src={"/img/alert.png"} width={"20px"} height={"20px"} alt="Alert" />
+              : <img src={"/img/success.png"} width={"20px"} height={"20px"} alt="Success" />}
+          </Box>
+        );
+      },
+      align: 'center'
     },
     {
-      field: "users_action",
+      field: "users_accept",
       headerName: "USERS ACCEPT", flex: 2,
     },
     {
-      field: "user_action_date",
+      field: "user_accept_date",
       headerName: "USER ACCEPT DATE", flex: 2,
+      renderCell: (params) => (datetime.DateTimeLongTH(params.row.user_accept_date))
     },
   ];
 

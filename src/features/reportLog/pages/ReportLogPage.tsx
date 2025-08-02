@@ -10,7 +10,7 @@ import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
 import Grid from '@mui/material/Grid';
-import { useCallback, useEffect, useState, type SyntheticEvent } from "react";
+import { Fragment, useCallback, useEffect, useState, type ChangeEvent, type SyntheticEvent } from "react";
 import reportLogService from "../service/reportlogService";
 import type { ReportLog } from "../types/reportlog";
 import Swal from "sweetalert2";
@@ -30,6 +30,26 @@ import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import CancelPresentation from '@mui/icons-material/CancelPresentation';
 
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import { useTheme } from '@mui/material';
+import useMediaQuery from '@mui/material/useMediaQuery';
+
+
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import type { GridRowId } from "@mui/x-data-grid";
+
+
+
+
+
+
 
 export default function ReportLogPage() {
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>(
@@ -42,6 +62,29 @@ export default function ReportLogPage() {
     setValue(newValue);
   };
 
+  const [open, setOpen] = useState(false);
+  const [rowDatas, setRowDatas] = useState<GridRowId[]>([]);
+
+
+  const handleClickOpen = () => {
+    const rawData = Array.isArray(selectionModel)
+      ? selectionModel
+      : Array.from(selectionModel.ids);
+
+    if (rawData.length === 0) {
+      Swal.fire({
+        title: "No rows selected!",
+        icon: "error",
+      });
+      return;
+    }
+    setRowDatas(rawData)
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
@@ -51,10 +94,19 @@ export default function ReportLogPage() {
   const [loadingExport, setLoadingExport] = useState(false)
 
 
-
   const [dataDuc, SetDataDUC] = useState<ReportLog[]>();
   const [dataDcc, SetDataDCC] = useState<ReportLog[]>();
   const [textSearch, SetTextSearch] = useState<string>("");
+
+  const [conment, setComment] = useState<string>("");
+
+
+  const [valueRedio, setValueRedio] = useState('Usual');
+  const handleChangeRedio = (event: ChangeEvent<HTMLInputElement>) => {
+    setValueRedio((event.target as HTMLInputElement).value);
+  };
+
+
 
   const columnsDuc: GridColDef[] = [
     {
@@ -74,7 +126,7 @@ export default function ReportLogPage() {
     {
       field: "action",
       headerName: "ACTION",
-
+      flex: 2,
     },
     {
       field: "action_date_time",
@@ -95,7 +147,6 @@ export default function ReportLogPage() {
     {
       field: "event_type",
       headerName: "EVENT TYPE", flex: 2,
-
       renderCell: (params) => {
         const even_type = params.value as string;
         return (
@@ -110,25 +161,54 @@ export default function ReportLogPage() {
     {
       field: "download_more_10_files_day",
       headerName: "DOWNLOAD MORE 10 FILES DAY", flex: 2,
-
+      renderCell: (params) => {
+        const download_more_10_files_day = params.value as string;
+        return (
+          <span >
+            {download_more_10_files_day == "Y" ?
+              <img src={"img/alert.png"} width={"20px"} height={"20px"} />
+              : <img src={"img/success.png"} width={"20px"} height={"20px"} />}
+          </span>
+        );
+      },
+      align: 'center'
     },
     {
       field: "unauthorized",
       headerName: "UNAUTHORIZED", flex: 2,
-
+      renderCell: (params) => {
+        const unauthorized = params.value as string;
+        return (
+          <span >
+            {unauthorized == "Y" ?
+              <img src={"img/alert.png"} width={"20px"} height={"20px"} />
+              : <img src={"img/success.png"} width={"20px"} height={"20px"} />}
+          </span>
+        );
+      },
+      align: 'center'
     },
     {
       field: "employee_resigning_within_one_month",
       headerName: "EMPLOYEE RESINGING WITHHIN ONE MONTH", flex: 2,
-
-    },
+      renderCell: (params) => {
+        const employee_resigning_within_one_month = params.value as string;
+        return (
+          <span >
+            {employee_resigning_within_one_month == "Y" ?
+              <img src={"img/alert.png"} width={"20px"} height={"20px"} />
+              : <img src={"img/success.png"} width={"20px"} height={"20px"} />}
+          </span>
+        );
+      },
+      align: 'center'
+    }
   ];
 
   const columnsDCC: GridColDef[] = [
     {
       field: "no",
       headerName: "ID",
-
       align: "center",
       headerAlign: "center", flex: 0.5,
       renderCell: (params: GridRenderCellParams) => {
@@ -142,19 +222,18 @@ export default function ReportLogPage() {
     {
       field: "action",
       headerName: "ACTION",
-
+      flex: 2.2
     },
     {
       field: "action_date_time",
       headerName: "ACTION DATE TIME",
       description: "This column has a value getter and is not sortable.",
       sortable: false, flex: 2,
-
       renderCell: (params) => (datetime.DateTimeLongTH(params.row.action_date_time))
     },
     { field: "detail", headerName: "DETAIL", flex: 5 },
-    { field: "bu", headerName: "BU", flex: 1, },
-    { field: "position", headerName: "POSITION", flex: 2, },
+    { field: "bu", headerName: "BU", flex: 3, },
+    { field: "position", headerName: "POSITION", flex: 2 },
     {
       field: "resigned_date", headerName: "RESINGNED DATE", flex: 2,
       renderCell: (params) => (params.row.resigned_date ? datetime.DateLongTH(params.row.resigned_date) : '')
@@ -178,22 +257,62 @@ export default function ReportLogPage() {
     {
       field: "download_more_10_files_day",
       headerName: "DOWNLOAD MORE 10 FILES DAY", flex: 2,
-
+      renderCell: (params) => {
+        const download_more_10_files_day = params.value as string;
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+            {download_more_10_files_day == "Y" ?
+              <img src={"img/alert.png"} width={"20px"} height={"20px"} />
+              : <img src={"img/success.png"} width={"20px"} height={"20px"} />}
+          </Box>
+        );
+      },
+      align: 'center'
     },
     {
       field: "unauthorized",
       headerName: "UNAUTHORIZED", flex: 2,
-
+      renderCell: (params) => {
+        const unauthorized = params.value as string;
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+            {unauthorized == "Y" ?
+              <img src={"img/alert.png"} width={"20px"} height={"20px"} />
+              : <img src={"img/success.png"} width={"20px"} height={"20px"} />}
+          </Box>
+        );
+      },
+      align: 'center'
     },
     {
       field: "employee_resigning_within_one_month",
       headerName: "EMPLOYEE RESINGING WITHHIN ONE MONTH", flex: 2,
-
+      renderCell: (params) => {
+        const employee_resigning_within_one_month = params.value as string;
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+            {employee_resigning_within_one_month == "Y" ?
+              <img src={"img/alert.png"} width={"20px"} height={"20px"} />
+              : <img src={"img/success.png"} width={"20px"} height={"20px"} />}
+          </Box>
+        );
+      },
+      align: 'center'
     },
     {
-      field: "is_not_dcc",
-      headerName: "IS BU DCC", flex: 2,
-
+      field: "is_bu_dcc",
+      headerName: "IS BU DCC", flex: 1.5,
+      renderCell: (params) => {
+        const is_bu_dcc = params.value as string;
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+            {is_bu_dcc == "Y" ?
+              <img src={"img/alert.png"} width={"20px"} height={"20px"} />
+              : <img src={"img/success.png"} width={"20px"} height={"20px"} />}
+          </Box>
+        );
+      },
+      align: 'center'
     },
   ];
 
@@ -289,18 +408,8 @@ export default function ReportLogPage() {
   const paginationModel = { page: 0, pageSize: 10 };
 
   const hendleSubmit = async () => {
-    const rawData = Array.isArray(selectionModel)
-      ? selectionModel
-      : Array.from(selectionModel.ids);
 
-    if (rawData.length === 0) {
-      Swal.fire({
-        title: "No rows selected!",
-        icon: "error",
-      });
-      return;
-    }
-    const numericIds = rawData.map((id) => Number(id));
+    const numericIds = rowDatas.map((id) => Number(id));
 
     try {
       Swal.fire({
@@ -327,8 +436,8 @@ export default function ReportLogPage() {
 
     }
   };
-
-
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   return (
     <>
       <Container disableGutters maxWidth={false}>
@@ -389,7 +498,6 @@ export default function ReportLogPage() {
                     variant="contained"
                     onClick={() => handleSearch()}
                     fullWidth
-
                   >
                     <SearchIcon />
                   </Button>
@@ -456,6 +564,13 @@ export default function ReportLogPage() {
                       onRowSelectionModelChange={(newSelection) =>
                         setSelectionModel(newSelection)
                       }
+                      showToolbar={true}
+                      slotProps={{
+                        toolbar: {
+                          csvOptions: { disableToolbarButton: true },
+                          printOptions: { disableToolbarButton: true },
+                        },
+                      }}
                       getRowClassName={(params) =>
                         params.row.unauthorized === "Y" ||
                           params.row.download_more_10_files_day === "Y" ||
@@ -481,38 +596,48 @@ export default function ReportLogPage() {
                       alignItems="end"
                     >
                       <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }} mb={3} justifyContent="flex-end" display="flex">
-                        <Button variant="contained" color="success" onClick={hendleSubmit} startIcon={<SaveIcon />}> Save DCC</Button>
+                        <Button variant="contained" color="success" onClick={handleClickOpen} startIcon={<SaveIcon />}> Save DCC</Button>
                         <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={() => handleExportExcel()} sx={{ ml: 2 }}> Export DCC </Button>
                       </Grid>
                     </Grid>
+                    <Box style={{ width: '100%' }}>
+                      <DataGrid
+                        getRowId={(row) => row.id.toString()}
+                        loading={loadingDataGrid}
+                        rows={dataDcc}
+                        columns={columnsDCC}
+                        initialState={{ pagination: { paginationModel } }}
+                        pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
+                        checkboxSelection
+                        onRowSelectionModelChange={(newSelection) =>
+                          setSelectionModel(newSelection)
+                        }
+                        showToolbar={true}
+                        slotProps={{
+                          toolbar: {
+                            csvOptions: { disableToolbarButton: true },
+                            printOptions: { disableToolbarButton: true },
+                            // showQuickFilter: false,
+                          },
+                        }}
+                        getRowClassName={(params) =>
+                          params.row.unauthorized === "Y" ||
+                            params.row.download_more_10_files_day === "Y" ||
+                            params.row.employee_resigning_within_one_month === "Y"
+                            ? "row--highlight"
+                            : ""
+                        }
+                        sx={{
+                          "& .row--highlight": {
+                            bgcolor: "rgba(255,165,0,0.1)",
+                            color: "orange",
+                            "&:hover": { bgcolor: "rgba(0, 128, 0, 0.15)" },
+                          },
+                          fontSize: "12px",
+                        }}
+                      />
+                    </Box>
 
-                    <DataGrid
-                      getRowId={(row) => row.id.toString()}
-                      loading={loadingDataGrid}
-                      rows={dataDcc}
-                      columns={columnsDCC}
-                      initialState={{ pagination: { paginationModel } }}
-                      pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
-                      checkboxSelection
-                      onRowSelectionModelChange={(newSelection) =>
-                        setSelectionModel(newSelection)
-                      }
-                      getRowClassName={(params) =>
-                        params.row.unauthorized === "Y" ||
-                          params.row.download_more_10_files_day === "Y" ||
-                          params.row.employee_resigning_within_one_month === "Y"
-                          ? "row--highlight"
-                          : ""
-                      }
-                      sx={{
-                        "& .row--highlight": {
-                          bgcolor: "rgba(255,165,0,0.1)",
-                          color: "orange",
-                          "&:hover": { bgcolor: "rgba(0, 128, 0, 0.15)" },
-                        },
-                        fontSize: "12px",
-                      }}
-                    />
                   </TabPanel>
                 </TabContext>
               </Grid>
@@ -520,6 +645,58 @@ export default function ReportLogPage() {
           </Grid>
         </Grid>
       </Container >
+
+
+      <Fragment>
+
+        <Dialog
+          fullScreen={fullScreen}
+          open={open}
+          fullWidth={true}
+          maxWidth="md"
+          onClose={handleClose}
+          aria-labelledby="responsive-dialog-title"
+        >
+          <DialogTitle id="responsive-dialog-title">
+            Form Accept
+          </DialogTitle>
+          <DialogContent dividers>
+            <FormControl>
+              <FormLabel>Confirm Event</FormLabel>
+              <RadioGroup
+                row
+                aria-labelledby="demo-row-radio-buttons-group-label"
+                name="row-radio-buttons-group"
+                value={valueRedio}
+                onChange={handleChangeRedio}
+              >
+                <FormControlLabel value="Usual" control={<Radio />} label="Usual Event" />
+                <FormControlLabel value="Unusual" control={<Radio />} label="Unusual Event" />
+              </RadioGroup>
+            </FormControl>
+            <TextField
+              id="standard-multiline-static"
+              label="Comment"
+              multiline
+              rows={4}
+              placeholder="Please Comment accept..."
+              variant="filled"
+              fullWidth
+              color="success"
+            />
+
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={hendleSubmit}>
+              save
+            </Button>
+            <Button onClick={handleClose} autoFocus>
+              cancle
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Fragment>
+
     </>
   );
 }

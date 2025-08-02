@@ -13,8 +13,8 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
+// import Menu from '@mui/material/Menu';
+// import MenuItem from '@mui/material/MenuItem';
 import MuiAppBar, {
     type AppBarProps as MuiAppBarProps,
 } from "@mui/material/AppBar";
@@ -25,11 +25,12 @@ import InboxIcon from "@mui/icons-material/MoveToInbox";
 // import MailIcon from '@mui/icons-material/Mail';
 import DescriptionIcon from "@mui/icons-material/Description";
 import { Outlet, Link as RouterLink, useNavigate } from "react-router-dom";
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+// import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { login } from "@/features/auth/services/authService";
 import { getUserIdFromCookie } from "@/features/auth/services/authFuntion";
 import { useAuthContext } from "@/shared/context/AuthContext";
 import Cookies from "js-cookie";
+import Button from '@mui/material/Button';
 const drawerWidth = 240;
 
 /* ---------- styled components ---------- */
@@ -91,14 +92,14 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
     };
 
 
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    // const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-    const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
+    // const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    //     setAnchorEl(event.currentTarget);
+    // };
+    // const handleClose = () => {
+    //     setAnchorEl(null);
+    // };
     const handleDrawerOpen = () => setOpen(true);
     const handleDrawerClose = () => setOpen(false);
 
@@ -136,7 +137,7 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
         handlelogin();
     }, [handlelogin]);
 
-    // ⏳ ระหว่างรอ login เสร็จ
+    // ระหว่างรอ login เสร็จ
     if (!isAppInitialized) {
         return <div>Loading...</div>;
     }
@@ -161,7 +162,7 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
                     </Typography>
                     {/* <Button color="inherit">Login</Button> */}
                     <>
-                        <IconButton
+                        {/* <IconButton
                             size="large"
                             aria-label="account of current user"
                             aria-controls="menu-appbar"
@@ -188,7 +189,14 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
                         >
                             <MenuItem onClick={handleClose}>Mr.Apichet Singnakrong</MenuItem>
                             <MenuItem onClick={hendleLogout}>Logout</MenuItem>
-                        </Menu>
+                        </Menu> */}
+                        <List>
+                            <ListItem>
+                                <ListItemText>Mr.Apichet Singnakrong</ListItemText>
+                            </ListItem>
+                        </List>
+                        <Button color="inherit" onClick={hendleLogout}>Logout</Button>
+
                     </>
                 </Toolbar>
             </AppBar>
@@ -233,16 +241,7 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
 
                 <Divider />
 
-                {/*  <List>
-                    {extraItems.map(({ label, icon, path }) => (
-                        <ListItem key={label} disablePadding>
-                            <ListItemButton component={RouterLink} to={path} onClick={handleDrawerClose}>
-                                <ListItemIcon>{icon}</ListItemIcon>
-                                <ListItemText primary={label} />
-                            </ListItemButton>
-                        </ListItem>
-                    ))}
-                </List> */}
+
             </Drawer>
 
             {/* ---------- Main Content ---------- */}
