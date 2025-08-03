@@ -5,27 +5,28 @@ import {
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
-import TextField from "@mui/material/TextField";
+// import TextField from "@mui/material/TextField";
 import Grid from '@mui/material/Grid';
 import { useCallback, useEffect, useState, type ChangeEvent, type SyntheticEvent } from "react";
 import reportLogService from "../service/reportlogService";
 import type { ReportLog } from "../types/reportlog";
 import Swal from "sweetalert2";
 import datetime from "@/shared/utils/handleDatetime";
-import SearchIcon from "@mui/icons-material/Search";
+// import SearchIcon from "@mui/icons-material/Search";
 import SaveIcon from "@mui/icons-material/Save";
 import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
 import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
-import CancelPresentation from '@mui/icons-material/CancelPresentation';
+// import CancelPresentation from '@mui/icons-material/CancelPresentation';
 import type { GridRowId } from "@mui/x-data-grid";
 import type { User } from "@/layouts/userType";
 import { columnsDuc } from "../constants/reportLogDucColumns";
 import { columnsDCC } from "../constants/reportLogDccColumns";
 import ReportLogDialog from "../components/ReportLogDialog";
 import { ButtonGroup } from "@mui/material";
+import ReportLogToolbar from "../components/ReportLogToolbar";
 
 type MUIColor = 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning' | 'inherit';
 
@@ -102,6 +103,8 @@ export default function ReportLogPage() {
 
   const handleClear = () => {
     SetTextSearch('');
+    fetchDCC();
+    fetchDUC();
     // setStartDate(null);
     // setEndDate(null);
   }
@@ -300,6 +303,14 @@ export default function ReportLogPage() {
               noValidate
               autoComplete="off"
             >
+
+              <ReportLogToolbar
+                textSearch={textSearch}
+                onSearchChange={SetTextSearch}
+                onSearchClick={handleSearch}
+                onClearClick={handleClear}
+              />
+              {/* 
               <Grid
                 container
                 spacing={2}
@@ -336,7 +347,7 @@ export default function ReportLogPage() {
                   </Button>
                 </Grid>
 
-              </Grid>
+              </Grid> */}
             </Box>
             <hr />
             <Box
