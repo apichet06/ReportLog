@@ -31,6 +31,11 @@ import { getUserIdFromCookie } from "@/features/auth/services/authFuntion";
 import { useAuthContext } from "@/shared/context/AuthContext";
 import Cookies from "js-cookie";
 import Button from '@mui/material/Button';
+import type { User } from "./userType";
+
+
+
+
 const drawerWidth = 240;
 
 /* ---------- styled components ---------- */
@@ -76,30 +81,30 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 }));
 
 
+
+
 const MainLayout = ({ children }: { children?: React.ReactNode }) => {
     const theme = useTheme();
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
+    const userDataString = localStorage.getItem("user");
+
+    const resultData: User | null = userDataString
+        ? JSON.parse(userDataString)
+        : null;
+
 
     const hendleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
 
         setTimeout(() => {
-
             navigate('/login');
         }, 100); // delay สั้น ๆ เพื่อให้ลบเสร็จแน่นอน
     };
 
 
-    // const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-    // const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
-    //     setAnchorEl(event.currentTarget);
-    // };
-    // const handleClose = () => {
-    //     setAnchorEl(null);
-    // };
     const handleDrawerOpen = () => setOpen(true);
     const handleDrawerClose = () => setOpen(false);
 
@@ -117,6 +122,13 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
     const handlelogin = useCallback(async () => {
         if (!userId) {
             setIsAppInitialized(true);
+            //ถ้า userId ของ cookies ไม่มีแล้วให้มาเช็ค Tokenต่อ ถ้า Token ไม่มีให้ login ใหม่
+            const token = localStorage.getItem("token");
+            if (!token) {
+                setIsAppInitialized(false);
+                navigate("/login");
+            }
+
             return;
         }
         const response = await login({ username: userId });
@@ -135,7 +147,7 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
 
     useEffect(() => {
         handlelogin();
-    }, [handlelogin]);
+    }, [handlelogin, navigate]);
 
     // ระหว่างรอ login เสร็จ
     if (!isAppInitialized) {
@@ -192,7 +204,7 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
                         </Menu> */}
                         <List>
                             <ListItem>
-                                <ListItemText>Mr.Apichet Singnakrong</ListItemText>
+                                <ListItemText>{resultData?.fristname} {resultData?.lastname}</ListItemText>
                             </ListItem>
                         </List>
                         <Button color="inherit" onClick={hendleLogout}>Logout</Button>

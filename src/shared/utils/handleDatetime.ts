@@ -19,8 +19,14 @@ const DateTimeLongTH = (date: Date) => {
   return dayjs(date).format("DD/MM/YYYY HH:mm");
 };
 
+const DateSearch = (date: Date) => {
+  dayjs.locale("th");
+  return dayjs(date).format("YYYY-MM-DD");
+};
+
 const datetime = {
   DateLongTH,
   DateTimeLongTH,
+  DateSearch,
 };
 export default datetime;

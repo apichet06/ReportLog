@@ -1,53 +1,33 @@
 import {
   DataGrid,
-  type GridColDef,
-  type GridRenderCellParams,
   type GridRowSelectionModel,
 } from "@mui/x-data-grid";
-
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
 import Grid from '@mui/material/Grid';
-import { Fragment, useCallback, useEffect, useState, type ChangeEvent, type SyntheticEvent } from "react";
+import { useCallback, useEffect, useState, type ChangeEvent, type SyntheticEvent } from "react";
 import reportLogService from "../service/reportlogService";
 import type { ReportLog } from "../types/reportlog";
 import Swal from "sweetalert2";
 import datetime from "@/shared/utils/handleDatetime";
 import SearchIcon from "@mui/icons-material/Search";
 import SaveIcon from "@mui/icons-material/Save";
-import { fNumber } from "@/shared/utils/formatNumber";
 import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { Dayjs } from "dayjs";
-
 import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import CancelPresentation from '@mui/icons-material/CancelPresentation';
-
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import { useTheme } from '@mui/material';
-import useMediaQuery from '@mui/material/useMediaQuery';
-
-
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
 import type { GridRowId } from "@mui/x-data-grid";
+import type { User } from "@/layouts/userType";
+import { columnsDuc } from "../constants/reportLogDucColumns";
+import { columnsDCC } from "../constants/reportLogDccColumns";
+import ReportLogDialog from "../components/ReportLogDialog";
+import { ButtonGroup } from "@mui/material";
 
-
-
-
+type MUIColor = 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning' | 'inherit';
 
 
 
@@ -55,6 +35,11 @@ export default function ReportLogPage() {
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>(
     [] as unknown as GridRowSelectionModel
   );
+  const userDataString = localStorage.getItem("user");
+  const resultData: User | null = userDataString
+    ? JSON.parse(userDataString)
+    : null;
+
 
   const [value, setValue] = useState('1');
 
@@ -86,8 +71,7 @@ export default function ReportLogPage() {
     setOpen(false);
   };
 
-  const [startDate, setStartDate] = useState<Dayjs | null>(null);
-  const [endDate, setEndDate] = useState<Dayjs | null>(null);
+
   const [tapData, setTapData] = useState('DUC');
 
   const [loadingDataGrid, setLoadnigDataGrid] = useState(false);
@@ -99,7 +83,13 @@ export default function ReportLogPage() {
   const [textSearch, SetTextSearch] = useState<string>("");
 
   const [conment, setComment] = useState<string>("");
+  const [colerTodayduc, setColerTodayDuc] = useState<MUIColor>("secondary");
+  const [colerHistoryduc, setColerHistoryDuc] = useState<MUIColor>("info");
+  const [colerTodaydcc, setColerTodayDcc] = useState<MUIColor>("secondary");
+  const [colerHistorydcc, setColerHistoryDcc] = useState<MUIColor>("info");
 
+  const [dayHisDateduc, setsDayHisDateDuc] = useState(1);
+  const [dayHisDatedcc, setsDayHisDateDcc] = useState(1);
 
   const [valueRedio, setValueRedio] = useState('Usual');
   const handleChangeRedio = (event: ChangeEvent<HTMLInputElement>) => {
@@ -108,248 +98,76 @@ export default function ReportLogPage() {
 
 
 
-  const columnsDuc: GridColDef[] = [
-    {
-      field: "no",
-      headerName: "ID",
 
-      align: "center",
-      headerAlign: "center", flex: 0.5,
-      renderCell: (params: GridRenderCellParams) => {
-        const sortedRowIds = params.api.getSortedRowIds();
-        const rowIndex = sortedRowIds.indexOf(params.id);
-        return fNumber(rowIndex + 1);
-      },
-    },
-    { field: "group_name", headerName: "GROUP NAME", flex: 2 },
-    { field: "username", headerName: "USERNAME", flex: 2 },
-    {
-      field: "action",
-      headerName: "ACTION",
-      flex: 2,
-    },
-    {
-      field: "action_date_time",
-      headerName: "ACTION DATE TIME",
-      description: "This column has a value getter and is not sortable.",
-      sortable: false, flex: 2,
-
-      renderCell: (params) => (datetime.DateTimeLongTH(params.row.action_date_time))
-    },
-    { field: "detail", headerName: "DETAIL", flex: 5 },
-    { field: "bu", headerName: "BU", flex: 1, },
-    { field: "position", headerName: "POSITION", flex: 2, },
-    {
-      field: "resigned_date", headerName: "RESINGNED DATE", flex: 2,
-      renderCell: (params) => (params.row.resigned_date ? datetime.DateLongTH(params.row.resigned_date) : '')
-    },
-    { field: "days_after_action", headerName: "DAY AFTER ACTION", flex: 2 },
-    {
-      field: "event_type",
-      headerName: "EVENT TYPE", flex: 2,
-      renderCell: (params) => {
-        const even_type = params.value as string;
-        return (
-          <span
-            style={{ color: even_type == "Unusual Event" ? "red" : "inherit" }}
-          >
-            {even_type}
-          </span>
-        );
-      },
-    },
-    {
-      field: "download_more_10_files_day",
-      headerName: "DOWNLOAD MORE 10 FILES DAY", flex: 2,
-      renderCell: (params) => {
-        const download_more_10_files_day = params.value as string;
-        return (
-          <span >
-            {download_more_10_files_day == "Y" ?
-              <img src={"img/alert.png"} width={"20px"} height={"20px"} />
-              : <img src={"img/success.png"} width={"20px"} height={"20px"} />}
-          </span>
-        );
-      },
-      align: 'center'
-    },
-    {
-      field: "unauthorized",
-      headerName: "UNAUTHORIZED", flex: 2,
-      renderCell: (params) => {
-        const unauthorized = params.value as string;
-        return (
-          <span >
-            {unauthorized == "Y" ?
-              <img src={"img/alert.png"} width={"20px"} height={"20px"} />
-              : <img src={"img/success.png"} width={"20px"} height={"20px"} />}
-          </span>
-        );
-      },
-      align: 'center'
-    },
-    {
-      field: "employee_resigning_within_one_month",
-      headerName: "EMPLOYEE RESINGING WITHHIN ONE MONTH", flex: 2,
-      renderCell: (params) => {
-        const employee_resigning_within_one_month = params.value as string;
-        return (
-          <span >
-            {employee_resigning_within_one_month == "Y" ?
-              <img src={"img/alert.png"} width={"20px"} height={"20px"} />
-              : <img src={"img/success.png"} width={"20px"} height={"20px"} />}
-          </span>
-        );
-      },
-      align: 'center'
-    }
-  ];
-
-  const columnsDCC: GridColDef[] = [
-    {
-      field: "no",
-      headerName: "ID",
-      align: "center",
-      headerAlign: "center", flex: 0.5,
-      renderCell: (params: GridRenderCellParams) => {
-        const sortedRowIds = params.api.getSortedRowIds();
-        const rowIndex = sortedRowIds.indexOf(params.id);
-        return fNumber(rowIndex + 1);
-      },
-    },
-    { field: "group_name", headerName: "GROUP NAME", flex: 2 },
-    { field: "username", headerName: "USERNAME", flex: 2 },
-    {
-      field: "action",
-      headerName: "ACTION",
-      flex: 2.2
-    },
-    {
-      field: "action_date_time",
-      headerName: "ACTION DATE TIME",
-      description: "This column has a value getter and is not sortable.",
-      sortable: false, flex: 2,
-      renderCell: (params) => (datetime.DateTimeLongTH(params.row.action_date_time))
-    },
-    { field: "detail", headerName: "DETAIL", flex: 5 },
-    { field: "bu", headerName: "BU", flex: 3, },
-    { field: "position", headerName: "POSITION", flex: 2 },
-    {
-      field: "resigned_date", headerName: "RESINGNED DATE", flex: 2,
-      renderCell: (params) => (params.row.resigned_date ? datetime.DateLongTH(params.row.resigned_date) : '')
-    },
-    { field: "days_after_action", headerName: "DAY AFTER ACTION", flex: 2 },
-    {
-      field: "event_type",
-      headerName: "EVENT TYPE", flex: 2,
-
-      renderCell: (params) => {
-        const even_type = params.value as string;
-        return (
-          <span
-            style={{ color: even_type == "Unusual Event" ? "red" : "inherit" }}
-          >
-            {even_type}
-          </span>
-        );
-      },
-    },
-    {
-      field: "download_more_10_files_day",
-      headerName: "DOWNLOAD MORE 10 FILES DAY", flex: 2,
-      renderCell: (params) => {
-        const download_more_10_files_day = params.value as string;
-        return (
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-            {download_more_10_files_day == "Y" ?
-              <img src={"img/alert.png"} width={"20px"} height={"20px"} />
-              : <img src={"img/success.png"} width={"20px"} height={"20px"} />}
-          </Box>
-        );
-      },
-      align: 'center'
-    },
-    {
-      field: "unauthorized",
-      headerName: "UNAUTHORIZED", flex: 2,
-      renderCell: (params) => {
-        const unauthorized = params.value as string;
-        return (
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-            {unauthorized == "Y" ?
-              <img src={"img/alert.png"} width={"20px"} height={"20px"} />
-              : <img src={"img/success.png"} width={"20px"} height={"20px"} />}
-          </Box>
-        );
-      },
-      align: 'center'
-    },
-    {
-      field: "employee_resigning_within_one_month",
-      headerName: "EMPLOYEE RESINGING WITHHIN ONE MONTH", flex: 2,
-      renderCell: (params) => {
-        const employee_resigning_within_one_month = params.value as string;
-        return (
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-            {employee_resigning_within_one_month == "Y" ?
-              <img src={"img/alert.png"} width={"20px"} height={"20px"} />
-              : <img src={"img/success.png"} width={"20px"} height={"20px"} />}
-          </Box>
-        );
-      },
-      align: 'center'
-    },
-    {
-      field: "is_bu_dcc",
-      headerName: "IS BU DCC", flex: 1.5,
-      renderCell: (params) => {
-        const is_bu_dcc = params.value as string;
-        return (
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-            {is_bu_dcc == "Y" ?
-              <img src={"img/alert.png"} width={"20px"} height={"20px"} />
-              : <img src={"img/success.png"} width={"20px"} height={"20px"} />}
-          </Box>
-        );
-      },
-      align: 'center'
-    },
-  ];
 
   const handleClear = () => {
     SetTextSearch('');
-    setStartDate(null);
-    setEndDate(null);
+    // setStartDate(null);
+    // setEndDate(null);
   }
 
   const fetchDUC = useCallback(async () => {
     try {
       setLoadnigDataGrid(true)
-      const res = await reportLogService.GetReportLogService({ tapData: "DUC" });
+
+      let dateToday = "";
+      let dateEndDate = "";
+
+      if (dayHisDateduc == 1) {
+        dateToday = datetime.DateSearch(new Date());
+        dateEndDate = datetime.DateSearch(new Date());
+
+      } else if (dayHisDateduc == 0) {
+
+        const targetDate = new Date("2025-07-14");
+        targetDate.setDate(targetDate.getDate() - 1); // ลบ 1 วัน เพราะใน C# +1 วัน
+        dateEndDate = datetime.DateSearch(targetDate);
+      }
+
+      const res = await reportLogService.GetReportLogService({ tapData: "DUC", startDate: dateToday, endDate: dateEndDate });
       SetDataDUC(res.data.result);
       setLoadnigDataGrid(false)
     } catch (err) {
       console.log(err);
     }
-  }, []);
+  }, [dayHisDateduc]);
+
+
 
   const fetchDCC = useCallback(async () => {
     try {
       setLoadnigDataGrid(true)
-      const res = await reportLogService.GetReportLogService({ tapData: "DCC" });
+      let dateToday = "";
+      let dateEndDate = "";
+
+      if (dayHisDatedcc == 1) {
+        dateToday = datetime.DateSearch(new Date());
+        dateEndDate = datetime.DateSearch(new Date());
+
+      } else if (dayHisDatedcc == 0) {
+
+        const targetDate = new Date()
+        targetDate.setDate(targetDate.getDate() - 1); // ลบ 1 วัน เพราะใน C# +1 วัน
+        dateEndDate = datetime.DateSearch(targetDate);
+      }
+
+
+      const res = await reportLogService.GetReportLogService({ tapData: "DCC", startDate: dateToday, endDate: dateEndDate });
       SetDataDCC(res.data.result);
       setLoadnigDataGrid(false)
     } catch (err) {
       console.log(err);
     }
-  }, []);
+  }, [dayHisDatedcc]);
+
 
 
 
   const handleSearch = useCallback(async () => {
     try {
       setLoadnigDataGrid(true)
-      const res = await reportLogService.SearchReportLogService({ Search: textSearch, startDate, endDate, tapData });
+
+      const res = await reportLogService.SearchReportLogService({ Search: textSearch, tapData });
       if (tapData === 'DUC')
         SetDataDUC(res.data.result)
       else
@@ -358,13 +176,42 @@ export default function ReportLogPage() {
     } catch (err) {
       console.log(err);
     }
-  }, [textSearch, startDate, endDate, tapData]);
+  }, [textSearch, tapData]);
 
 
   const handleExportExcel = useCallback(async () => {
     try {
+
+      const rawData = Array.isArray(selectionModel)
+        ? selectionModel
+        : Array.from(selectionModel.ids);
+
+      if (rawData.length === 0) {
+        Swal.fire({
+          title: "No rows selected!",
+          icon: "error",
+        });
+        return;
+      }
+
       await setLoadingExport(true)
-      const res = await reportLogService.exportExcel({ Search: textSearch, startDate, endDate, tapData });
+
+      let dateToday = "";
+      let dateEndDate = "";
+
+      if (dayHisDatedcc == 1 || dayHisDateduc == 1) {
+        dateToday = datetime.DateSearch(new Date());
+        dateEndDate = datetime.DateSearch(new Date());
+
+      } else if (dayHisDatedcc == 0 || dayHisDateduc == 0) {
+
+        const targetDate = new Date()
+        targetDate.setDate(targetDate.getDate() - 1); // ลบ 1 วัน เพราะใน C# +1 วัน
+        dateEndDate = datetime.DateSearch(targetDate);
+      }
+
+
+      const res = await reportLogService.exportExcel({ Search: textSearch, startDate: dateToday, endDate: dateEndDate, tapData });
       const blob = res.data;
 
       // ดึงชื่อไฟล์จาก header 'content-disposition'
@@ -395,22 +242,24 @@ export default function ReportLogPage() {
       console.log(err);
     }
 
-  }, [textSearch, startDate, endDate, tapData])
+  }, [selectionModel, dayHisDatedcc, dayHisDateduc, textSearch, tapData])
 
 
 
   useEffect(() => {
     fetchDUC();
     fetchDCC()
-  }, [fetchDCC, fetchDUC]);
+  }, [fetchDCC, fetchDUC, dayHisDatedcc, dayHisDateduc]);
 
 
-  const paginationModel = { page: 0, pageSize: 10 };
+
+
+
 
   const hendleSubmit = async () => {
 
     const numericIds = rowDatas.map((id) => Number(id));
-
+    const email = resultData?.emp_email ?? "";
     try {
       Swal.fire({
         title: "Are you sure?",
@@ -425,7 +274,8 @@ export default function ReportLogPage() {
             title: "Success!",
             icon: "success",
           });
-          await reportLogService.ApprovedReportLogService(numericIds);
+          await reportLogService.ApprovedReportLogService(numericIds, email, valueRedio, conment);
+
           fetchDUC();
           fetchDCC()
         }
@@ -436,8 +286,9 @@ export default function ReportLogPage() {
 
     }
   };
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+
+  const paginationModel = { page: 0, pageSize: 10 };
+
   return (
     <>
       <Container disableGutters maxWidth={false}>
@@ -456,7 +307,7 @@ export default function ReportLogPage() {
                 alignItems="center"
                 mb={3}
               >
-                <Grid size={{ xs: 12, sm: 6, md: 6 }}>
+                <Grid size={{ xs: 12, sm: 12, md: 10, lg: 10, xl: 10 }}>
                   <TextField
                     label="Search ALL"
                     type="search"
@@ -464,34 +315,6 @@ export default function ReportLogPage() {
                     value={textSearch}
                     onChange={(e) => SetTextSearch(e.target.value)}
                   />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <Grid container spacing={2}>
-                      <Grid size={{ xs: 6 }}>
-                        <DatePicker
-                          label="From"
-                          value={startDate}
-                          onChange={(newValue) => setStartDate(newValue ?? null)}
-                          slotProps={{
-                            textField: { size: "small", fullWidth: true },
-                          }}
-                          disableFuture
-                        />
-                      </Grid>
-                      <Grid size={{ xs: 6 }}>
-                        <DatePicker
-                          label="To"
-                          value={endDate}
-                          onChange={(newValue) => setEndDate(newValue ?? null)}
-                          slotProps={{
-                            textField: { size: "small", fullWidth: true },
-                          }}
-                          disableFuture
-                        />
-                      </Grid>
-                    </Grid>
-                  </LocalizationProvider>
                 </Grid>
                 <Grid size={{ xs: 12, sm: 12, md: 1 }}>
                   <Button
@@ -548,8 +371,19 @@ export default function ReportLogPage() {
                       justifyContent="start"
                       alignItems="end"
                     >
-                      <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }} mb={3} justifyContent="flex-end" display="flex">
-                        <Button variant="contained" color="success" onClick={hendleSubmit} startIcon={<SaveIcon />}> Save Duc</Button>
+                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3} justifyContent="flex-start" display="flex">
+                        <ButtonGroup
+                          disableElevation
+                          variant="outlined"
+                          aria-label="Disabled button group"
+                        >
+                          <Button variant="contained" color={colerTodayduc} onClick={() => (setsDayHisDateDuc(1), setColerTodayDuc("secondary"), setColerHistoryDuc("primary"))} >Today</Button>
+                          <Button variant="contained" color={colerHistoryduc} onClick={() => (setsDayHisDateDuc(0), setColerTodayDuc("primary"), setColerHistoryDuc("secondary"))}>History</Button>
+                        </ButtonGroup>
+                      </Grid>
+
+                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3} justifyContent="flex-end" display="flex">
+                        <Button variant="contained" color="success" onClick={handleClickOpen} startIcon={<SaveIcon />}> Save Duc</Button>
                         <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={() => handleExportExcel()} sx={{ ml: 2 }}> Export DUC </Button>
                       </Grid>
                     </Grid>
@@ -595,7 +429,18 @@ export default function ReportLogPage() {
                       justifyContent="start"
                       alignItems="end"
                     >
-                      <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }} mb={3} justifyContent="flex-end" display="flex">
+                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3} justifyContent="flex-start" display="flex">
+                        <ButtonGroup
+                          disableElevation
+                          variant="outlined"
+                          aria-label="Disabled button group"
+                        >
+                          <Button variant="contained" color={colerTodaydcc} onClick={() => (setsDayHisDateDcc(1), setColerTodayDcc("secondary"), setColerHistoryDcc("primary"))} >Today</Button>
+                          <Button variant="contained" color={colerHistorydcc} onClick={() => (setsDayHisDateDcc(0), setColerTodayDcc("primary"), setColerHistoryDcc("secondary"))}>History</Button>
+                        </ButtonGroup>
+                      </Grid>
+
+                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3} justifyContent="flex-end" display="flex">
                         <Button variant="contained" color="success" onClick={handleClickOpen} startIcon={<SaveIcon />}> Save DCC</Button>
                         <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={() => handleExportExcel()} sx={{ ml: 2 }}> Export DCC </Button>
                       </Grid>
@@ -645,58 +490,15 @@ export default function ReportLogPage() {
           </Grid>
         </Grid>
       </Container >
-
-
-      <Fragment>
-
-        <Dialog
-          fullScreen={fullScreen}
-          open={open}
-          fullWidth={true}
-          maxWidth="md"
-          onClose={handleClose}
-          aria-labelledby="responsive-dialog-title"
-        >
-          <DialogTitle id="responsive-dialog-title">
-            Form Accept
-          </DialogTitle>
-          <DialogContent dividers>
-            <FormControl>
-              <FormLabel>Confirm Event</FormLabel>
-              <RadioGroup
-                row
-                aria-labelledby="demo-row-radio-buttons-group-label"
-                name="row-radio-buttons-group"
-                value={valueRedio}
-                onChange={handleChangeRedio}
-              >
-                <FormControlLabel value="Usual" control={<Radio />} label="Usual Event" />
-                <FormControlLabel value="Unusual" control={<Radio />} label="Unusual Event" />
-              </RadioGroup>
-            </FormControl>
-            <TextField
-              id="standard-multiline-static"
-              label="Comment"
-              multiline
-              rows={4}
-              placeholder="Please Comment accept..."
-              variant="filled"
-              fullWidth
-              color="success"
-            />
-
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={hendleSubmit}>
-              save
-            </Button>
-            <Button onClick={handleClose} autoFocus>
-              cancle
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </Fragment>
-
+      <ReportLogDialog
+        open={open}
+        onClose={handleClose}
+        valueRedio={valueRedio}
+        comment={conment}
+        onSubmit={hendleSubmit}
+        onRadioChange={handleChangeRedio}
+        onCommentChange={setComment}
+      />
     </>
   );
 }

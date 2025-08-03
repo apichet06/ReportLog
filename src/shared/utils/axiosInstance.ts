@@ -5,4 +5,17 @@ const axiosInstance = axios.create({
   // baseURL: "https://fits/CRUDLogs/dccduc_Api_new/api",
   timeout: 5000,
 });
+
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // ถ้าใช้ react-router-dom v6+ แนะนำวิธีนี้
+      window.localStorage.removeItem("token");
+      window.location.href = "/login"; // redirect ไปหน้า login
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default axiosInstance;

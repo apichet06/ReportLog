@@ -4,6 +4,7 @@ import Saved_Reports from "@/features/SavedReports/pages/Saved_Reports";
 import ReportLogPage from "@/features/reportLog/pages/ReportLogPage";
 import ErrorPermissionPage from "@/features/permession/ErrorPermissionPage";
 import LoginPage from "@/features/auth/page/LoginPage";
+import ReportLogPages from "@/features/report-log/pages/ReportLogPage";
 
 
 
@@ -17,6 +18,7 @@ const AppRouter = () => {
       <Route element={<MainLayout />}>
         <Route path="/" element={<Navigate to="/reportlog" replace />} />
         <Route path="/reportlog" element={<ReportLogPage />} />
+        <Route path="/report-log" element={<ReportLogPages />} />
         <Route path="/saved_report" element={<Saved_Reports />} />
         <Route path="*" element={<Navigate to="/reportlog" />} />
       </Route>
