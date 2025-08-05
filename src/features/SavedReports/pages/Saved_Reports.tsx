@@ -1,7 +1,7 @@
 // import { useTheme } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Grid from "@mui/material/Grid";
-import { type GridRowSelectionModel } from "@mui/x-data-grid";
+// import { type GridRowSelectionModel } from "@mui/x-data-grid";
 
 import datetime from "@/shared/utils/handleDatetime";
 import Box from '@mui/material/Box';
@@ -22,22 +22,17 @@ import ReportLogToolbar from "../components/ReportLogToolbar";
 import { getColumnsDCC } from "../constants/constants/reportLogDccColumns";
 import { getColumnsDUC } from "../constants/constants/reportLogDucColumns"; // หมายเหตุ: columnsDuc อาจต้องปรับแก้ในลักษณะเดียวกันถ้ามีปุ่ม action
 import ButtonGroup from '@mui/material/ButtonGroup';
-import { DataGridPro } from '@mui/x-data-grid-pro';
-
+import { DataGridPremium, type GridPaginationModel } from '@mui/x-data-grid-premium';
 
 
 
 export default function Saved_Reports() {
 
-  const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>(
-    [] as unknown as GridRowSelectionModel
-  );
 
-  const [paginationModel, setPaginationModel] = useState({
-    page: 0,
-    pageSize: 10,
-  });
-
+  // const [paginationModel, setPaginationModel] = useState({
+  //   page: 0,
+  //   pageSize: 10,
+  // });
 
 
   const [value, setValue] = useState('1');
@@ -58,7 +53,7 @@ export default function Saved_Reports() {
   const [loadingExport, setLoadingExport] = useState(false)
 
   const [dataDuc, SetDataDUC] = useState<ReportSaveLog[]>([]);
-  const [dataDcc, SetDataDCC] = useState<ReportSaveLog[]>([]);
+  const [dataDcc, SetDataDCC] = useState<ReportSaveLog[]>();
   const [textSearch, SetTextSearch] = useState<string>("");
 
   const [dayHisDateduc, setsDayHisDateDuc] = useState(1);
@@ -230,7 +225,7 @@ export default function Saved_Reports() {
     }
 
 
-  }, [selectionModel, dayHisDatedcc, dayHisDateduc, textSearch, tapData])
+  }, [dayHisDatedcc, dayHisDateduc, textSearch, tapData])
 
 
   useEffect(() => {
@@ -291,6 +286,11 @@ export default function Saved_Reports() {
 
     }
   };
+
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    pageSize: 10,
+    page: 0,
+  });
 
   // สร้าง config ของคอลัมน์ DCC โดยส่ง handler เข้าไป
   const dccColumns = useMemo(() => getColumnsDCC(handleEditClick), [handleEditClick]);
@@ -368,15 +368,15 @@ export default function Saved_Reports() {
                     </Grid>
                     {/* {window.innerWidth} */}
                     <Container fixed disableGutters maxWidth={isExtraLargeScreen ? 'xl' : 'lg'}>
-                      <DataGridPro
+                      <DataGridPremium
                         getRowId={(row) => row.id.toString()}
                         loading={loadingDataGrid}
                         rows={dataDuc}
                         columns={ducColumns}
+                        pagination
                         initialState={{ pinnedColumns: { left: ['no'], right: ['manage'] } }}
                         paginationModel={paginationModel}
                         onPaginationModelChange={setPaginationModel}
-                        onRowSelectionModelChange={(newSelection) => setSelectionModel(newSelection)}
                         pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
                         getRowClassName={(params) =>
                           params.row.unauthorized === "Y" ||
@@ -419,16 +419,15 @@ export default function Saved_Reports() {
                       </Grid>
                     </Grid>
                     <Container fixed disableGutters maxWidth={isExtraLargeScreen ? 'xl' : 'lg'}>
-                      <DataGridPro
-                        getRowId={(row) => row.id.toString()}
-                        loading={loadingDataGrid}
+                      <DataGridPremium
                         rows={dataDcc}
                         columns={dccColumns}
-                        initialState={{ pinnedColumns: { left: ['no'], right: ['manage'] } }}
+                        getRowId={(row) => row.id.toString()}
+                        pagination
                         paginationModel={paginationModel}
-                        onPaginationModelChange={setPaginationModel}
-                        pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
-                        onRowSelectionModelChange={(newSelection) => setSelectionModel(newSelection)}
+                        onPaginationModelChange={(model) => setPaginationModel(model)}
+                        pageSizeOptions={[5, 10, 15, 20]}
+                        initialState={{ pinnedColumns: { left: ['no'], right: ['manage'] } }}
                         getRowClassName={(params) =>
                           params.row.unauthorized === "Y" ||
                             params.row.download_more_10_files_day === "Y" ||
@@ -437,7 +436,7 @@ export default function Saved_Reports() {
                             : ""
                         }
                         sx={{
-                          marginInline: '-9%',  // เพิ่ม margin ซ้าย-ขวา เป็นค่าลบ 10%
+                          marginInline: '-9%',
                           "& .row--highlight": {
                             bgcolor: "rgba(255,165,0,0.1)",
                             color: "orange",
@@ -446,8 +445,6 @@ export default function Saved_Reports() {
                           fontSize: "12px",
                         }}
                       />
-
-
                     </Container>
                   </TabPanel>
                 </TabContext>

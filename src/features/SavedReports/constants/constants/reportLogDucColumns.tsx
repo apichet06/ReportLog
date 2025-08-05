@@ -2,19 +2,11 @@
 import { fNumber } from "@/shared/utils/formatNumber";
 import datetime from "@/shared/utils/handleDatetime";
 import Button from '@mui/material/Button';
-import Box from '@mui/material/Box';
-import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid-premium";
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
+import { StatusIconCell } from "@/features/reportLog/components/StatusIconCell";
 
-const StatusIconCell = ({ value }: { value: string }) => (
-  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-    {value === "Y" ? (
-      <img src={"/img/alert.png"} width={"20px"} height={"20px"} alt="Alert" />
-    ) : (
-      <img src={"/img/success.png"} width={"20px"} height={"20px"} alt="Success" />
-    )}
-  </Box>
-);
+
 
 
 export const getColumnsDUC = (handleSubmit: (id: number) => void): GridColDef[] => [
@@ -44,7 +36,7 @@ export const getColumnsDUC = (handleSubmit: (id: number) => void): GridColDef[] 
 
     renderCell: (params) => (datetime.DateTimeLongTH(params.row.action_date_time))
   },
-  { field: "detail", headerName: "DETAIL", flex: 5, minWidth: 240, },
+  { field: "detail", headerName: "DETAIL", flex: 5, minWidth: 500, },
   { field: "bu", headerName: "BU", flex: 1, minWidth: 140 },
   { field: "position", headerName: "POSITION", flex: 2, minWidth: 220, },
   {
@@ -60,9 +52,7 @@ export const getColumnsDUC = (handleSubmit: (id: number) => void): GridColDef[] 
     renderCell: (params) => {
       const event_type = params.value as string;
       return (
-        <span
-          style={{ color: event_type === "Unusual Event" ? "red" : "inherit" }}
-        >
+        <span style={{ color: event_type === "Unusual Event" ? "red" : "inherit" }}>
           {event_type}
         </span>
       );

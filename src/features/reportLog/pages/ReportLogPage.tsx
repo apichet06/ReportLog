@@ -1,5 +1,5 @@
 import {
-  DataGrid,
+
   type GridRowSelectionModel,
 } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
@@ -28,6 +28,7 @@ import ReportLogDialog from "../components/ReportLogDialog";
 import ButtonGroup from '@mui/material/ButtonGroup';
 import ReportLogToolbar from "../components/ReportLogToolbar";
 import { DataGridPro } from "@mui/x-data-grid-pro";
+import { useMediaQuery } from "@mui/system";
 
 type MUIColor = 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning' | 'inherit';
 
@@ -295,7 +296,7 @@ export default function ReportLogPage() {
   };
 
   const paginationModel = { page: 0, pageSize: 10 };
-
+  const isExtraLargeScreen = useMediaQuery('(min-width:1537px)');
   return (
     <>
       <Container disableGutters maxWidth={false}>
@@ -314,44 +315,6 @@ export default function ReportLogPage() {
                 onSearchClick={handleSearch}
                 onClearClick={handleClear}
               />
-              {/* 
-              <Grid
-                container
-                spacing={2}
-                justifyContent="center"
-                alignItems="center"
-                mb={3}
-              >
-                <Grid size={{ xs: 12, sm: 12, md: 10, lg: 10, xl: 10 }}>
-                  <TextField
-                    label="Search ALL"
-                    type="search"
-                    size="small"
-                    value={textSearch}
-                    onChange={(e) => SetTextSearch(e.target.value)}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 1 }}>
-                  <Button
-                    variant="contained"
-                    onClick={() => handleSearch()}
-                    fullWidth
-                  >
-                    <SearchIcon />
-                  </Button>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 12, md: 1 }}>
-                  <Button
-                    variant="contained"
-                    onClick={() => handleClear()}
-                    fullWidth
-                    color="error"
-                  >
-                    <CancelPresentation />
-                  </Button>
-                </Grid>
-
-              </Grid> */}
             </Box>
             <hr />
             <Box
@@ -402,40 +365,44 @@ export default function ReportLogPage() {
                         <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={() => handleExportExcel()} sx={{ ml: 2 }}> Export DUC </Button>
                       </Grid>
                     </Grid>
-                    <DataGridPro
-                      getRowId={(row) => row.id.toString()}
-                      loading={loadingDataGrid}
-                      rows={dataDuc}
-                      columns={columnsDuc}
-                      initialState={{ pagination: { paginationModel }, pinnedColumns: { left: ['no'] } }}
-                      pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
-                      checkboxSelection
-                      onRowSelectionModelChange={(newSelection) =>
-                        setSelectionModel(newSelection)
-                      }
-                      showToolbar={true}
-                      slotProps={{
-                        toolbar: {
-                          csvOptions: { disableToolbarButton: true },
-                          printOptions: { disableToolbarButton: true },
-                        },
-                      }}
-                      getRowClassName={(params) =>
-                        params.row.unauthorized === "Y" ||
-                          params.row.download_more_10_files_day === "Y" ||
-                          params.row.employee_resigning_within_one_month === "Y"
-                          ? "row--highlight"
-                          : ""
-                      }
-                      sx={{
-                        "& .row--highlight": {
-                          bgcolor: "rgba(255,165,0,0.1)",
-                          color: "orange",
-                          "&:hover": { bgcolor: "rgba(0, 128, 0, 0.15)" },
-                        },
-                        fontSize: "12px",
-                      }}
-                    />
+                    <Container fixed disableGutters maxWidth={isExtraLargeScreen ? 'xl' : 'lg'}>
+                      <DataGridPro
+                        getRowId={(row) => row.id.toString()}
+                        loading={loadingDataGrid}
+                        rows={dataDuc}
+                        columns={columnsDuc}
+                        pagination
+                        initialState={{ pagination: { paginationModel }, pinnedColumns: { left: ['__check__', 'no'], right: ['event_type'] } }}
+                        pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
+                        checkboxSelection
+                        onRowSelectionModelChange={(newSelection) =>
+                          setSelectionModel(newSelection)
+                        }
+                        showToolbar={true}
+                        slotProps={{
+                          toolbar: {
+                            csvOptions: { disableToolbarButton: true },
+                            printOptions: { disableToolbarButton: true },
+                          },
+                        }}
+                        getRowClassName={(params) =>
+                          params.row.unauthorized === "Y" ||
+                            params.row.download_more_10_files_day === "Y" ||
+                            params.row.employee_resigning_within_one_month === "Y"
+                            ? "row--highlight"
+                            : ""
+                        }
+                        sx={{
+                          marginInline: '-9%',
+                          "& .row--highlight": {
+                            bgcolor: "rgba(255,165,0,0.1)",
+                            color: "orange",
+                            "&:hover": { bgcolor: "rgba(0, 128, 0, 0.15)" },
+                          },
+                          fontSize: "12px",
+                        }}
+                      />
+                    </Container>
                   </TabPanel>
                   <TabPanel value="2">
                     <Grid
@@ -460,13 +427,14 @@ export default function ReportLogPage() {
                         <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={() => handleExportExcel()} sx={{ ml: 2 }}> Export DCC </Button>
                       </Grid>
                     </Grid>
-                    <Box style={{ width: '100%' }}>
+                    <Container fixed disableGutters maxWidth={isExtraLargeScreen ? 'xl' : 'lg'}>
                       <DataGridPro
                         getRowId={(row) => row.id.toString()}
                         loading={loadingDataGrid}
                         rows={dataDcc}
                         columns={columnsDCC}
-                        initialState={{ pagination: { paginationModel } }}
+                        pagination
+                        initialState={{ pagination: { paginationModel }, pinnedColumns: { left: ['__check__', 'no'], right: ['event_type'] } }}
                         pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
                         checkboxSelection
                         onRowSelectionModelChange={(newSelection) =>
@@ -488,6 +456,7 @@ export default function ReportLogPage() {
                             : ""
                         }
                         sx={{
+                          marginInline: '-9%',
                           "& .row--highlight": {
                             bgcolor: "rgba(255,165,0,0.1)",
                             color: "orange",
@@ -496,7 +465,7 @@ export default function ReportLogPage() {
                           fontSize: "12px",
                         }}
                       />
-                    </Box>
+                    </Container>
 
                   </TabPanel>
                 </TabContext>

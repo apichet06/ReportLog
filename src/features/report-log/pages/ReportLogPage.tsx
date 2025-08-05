@@ -1,201 +1,240 @@
  
-import DeleteIcon from '@mui/icons-material/Delete';
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import EditIcon from '@mui/icons-material/Edit';
+// import DeleteIcon from '@mui/icons-material/Delete';
+// import { useTheme } from '@mui/material/styles';
+// import useMediaQuery from '@mui/material/useMediaQuery';
+// import EditIcon from '@mui/icons-material/Edit';
+// import {
+//   DataGridPro,
+//   type GridColDef,
+//   type GridRowsProp,
+//   GridActionsCellItem,
+// } from '@mui/x-data-grid-pro';
+// import {
+//   randomCreatedDate,
+//   randomTraderName,
+//   randomEmail,
+//   randomUpdatedDate,
+// } from '@mui/x-data-grid-generator';
+
+
+// import Container from '@mui/material/Container';
+
+import   { useState } from "react";
 import {
-  DataGridPro,
+  DataGridPremium,
   type GridColDef,
-  type GridRowsProp,
-  GridActionsCellItem,
-} from '@mui/x-data-grid-pro';
-import {
-  randomCreatedDate,
-  randomTraderName,
-  randomEmail,
-  randomUpdatedDate,
-} from '@mui/x-data-grid-generator';
-
-
-import Container from '@mui/material/Container';
-
-
+  type GridPaginationModel,
+} from "@mui/x-data-grid-premium";
 export default function ReportLogPages() {
-const columns: GridColDef[] = [
-  { field: 'name', headerName: 'Name', width: 160, editable: true },
-  { field: 'email', headerName: 'Email', width: 200, editable: true },
-  { field: 'age', headerName: 'Age', type: 'number', editable: true },
-  {
-    field: 'dateCreated',
-    headerName: 'Date Created',
-    type: 'date',
-    width: 180,
-    editable: true,
-  },
-  {
-    field: 'lastLogin',
-    headerName: 'Last Login',
-    type: 'dateTime',
-    width: 220,
-    editable: true,
-  },
-  { field: 'email', headerName: 'Email', width: 200, editable: true },
-  { field: 'age', headerName: 'Age', type: 'number', editable: true },
-  {
-    field: 'dateCreated',
-    headerName: 'Date Created',
-    type: 'date',
-    width: 180,
-    editable: true,
-  },
-  {
-    field: 'lastLogin',
-    headerName: 'Last Login',
-    type: 'dateTime',
-    width: 220,
-    editable: true,
-  },{ field: 'email', headerName: 'Email', width: 200, editable: true },
-  { field: 'age', headerName: 'Age', type: 'number', editable: true },
-  {
-    field: 'dateCreated',
-    headerName: 'Date Created',
-    type: 'date',
-    width: 180,
-    editable: true,
-  },
-  {
-    field: 'lastLogin',
-    headerName: 'Last Login',
-    type: 'dateTime',
-    width: 220,
-    editable: true,
-  },{ field: 'email', headerName: 'Email', width: 200, editable: true },
-  { field: 'age', headerName: 'Age', type: 'number', editable: true },
-  {
-    field: 'dateCreated',
-    headerName: 'Date Created',
-    type: 'date',
-    width: 180,
-    editable: true,
-  },
-  {
-    field: 'lastLogin',
-    headerName: 'Last Login',
-    type: 'dateTime',
-    width: 220,
-    editable: true,
-  },
-  {
-    field: 'actions',
-    type: 'actions',
-    width: 100,
-    getActions: () => [
-      <GridActionsCellItem icon={<EditIcon />} label="Edit" />,
-      <GridActionsCellItem icon={<DeleteIcon />} label="Delete" />,
-    ],
-  },
+
+ 
+const dataDcc = Array.from({ length: 50 }, (_, i) => ({
+  id: i + 1,
+  name: `Item ${i + 1}`,
+  value: (i + 1) * 100,
+}));
+
+const dccColumns: GridColDef[] = [
+  { field: "id", headerName: "ID", width: 100 },
+  { field: "name", headerName: "Name", width: 200 },
+  { field: "value", headerName: "Value", width: 150 },
 ];
 
-const rows: GridRowsProp = [
-  {
-    id: 1,
-    name: randomTraderName(),
-    email: randomEmail(),
-    age: 25,
-    dateCreated: randomCreatedDate(),
-    lastLogin: randomUpdatedDate(),
-  },
-  {
-    id: 2,
-    name: randomTraderName(),
-    email: randomEmail(),
-    age: 36,
-    dateCreated: randomCreatedDate(),
-    lastLogin: randomUpdatedDate(),
-  },
-  {
-    id: 3,
-    name: randomTraderName(),
-    email: randomEmail(),
-    age: 19,
-    dateCreated: randomCreatedDate(),
-    lastLogin: randomUpdatedDate(),
-  },
-  {
-    id: 4,
-    name: randomTraderName(),
-    email: randomEmail(),
-    age: 28,
-    dateCreated: randomCreatedDate(),
-    lastLogin: randomUpdatedDate(),
-  },
-  {
-    id: 5,
-    name: randomTraderName(),
-    email: randomEmail(),
-    age: 23,
-    dateCreated: randomCreatedDate(),
-    lastLogin: randomUpdatedDate(),
-  },
-  {
-    id: 6,
-    name: randomTraderName(),
-    email: randomEmail(),
-    age: 27,
-    dateCreated: randomCreatedDate(),
-    lastLogin: randomUpdatedDate(),
-  },
-  {
-    id: 7,
-    name: randomTraderName(),
-    email: randomEmail(),
-    age: 18,
-    dateCreated: randomCreatedDate(),
-    lastLogin: randomUpdatedDate(),
-  },
-  {
-    id: 8,
-    name: randomTraderName(),
-    email: randomEmail(),
-    age: 31,
-    dateCreated: randomCreatedDate(),
-    lastLogin: randomUpdatedDate(),
-  },
-  {
-    id: 9,
-    name: randomTraderName(),
-    email: randomEmail(),
-    age: 24,
-    dateCreated: randomCreatedDate(),
-    lastLogin: randomUpdatedDate(),
-  },
-  {
-    id: 10,
-    name: randomTraderName(),
-    email: randomEmail(),
-    age: 35,
-    dateCreated: randomCreatedDate(),
-    lastLogin: randomUpdatedDate(),
-  },
-];
-  const theme = useTheme();
-  // ตรวจสอบว่าหน้าจอมีความกว้างตั้งแต่ breakpoint 'xl' (โดยปกติคือ 1536px) ขึ้นไปหรือไม่
-  const isExtraLargeScreen = useMediaQuery(theme.breakpoints.up('xl'));
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    pageSize: 10,
+    page: 0,
+  });
+
+return (
+    <DataGridPremium
+      rows={dataDcc}
+      columns={dccColumns}
+      getRowId={(row) => row.id.toString()}
+      pagination 
+      paginationModel={paginationModel}
+      onPaginationModelChange={(model) => setPaginationModel(model)}
+      pageSizeOptions={[5, 10, 15, 20]}  
+      initialState={{ pinnedColumns: { left: ['id'], right: ['value'] } }}
+       
+    />
+    )
+}
+// export default function ReportLogPages() {
+// const columns: GridColDef[] = [
+//   { field: 'name', headerName: 'Name', width: 160, editable: true },
+//   { field: 'email', headerName: 'Email', width: 200, editable: true },
+//   { field: 'age', headerName: 'Age', type: 'number', editable: true },
+//   {
+//     field: 'dateCreated',
+//     headerName: 'Date Created',
+//     type: 'date',
+//     width: 180,
+//     editable: true,
+//   },
+//   {
+//     field: 'lastLogin',
+//     headerName: 'Last Login',
+//     type: 'dateTime',
+//     width: 220,
+//     editable: true,
+//   },
+//   { field: 'email', headerName: 'Email', width: 200, editable: true },
+//   { field: 'age', headerName: 'Age', type: 'number', editable: true },
+//   {
+//     field: 'dateCreated',
+//     headerName: 'Date Created',
+//     type: 'date',
+//     width: 180,
+//     editable: true,
+//   },
+//   {
+//     field: 'lastLogin',
+//     headerName: 'Last Login',
+//     type: 'dateTime',
+//     width: 220,
+//     editable: true,
+//   },{ field: 'email', headerName: 'Email', width: 200, editable: true },
+//   { field: 'age', headerName: 'Age', type: 'number', editable: true },
+//   {
+//     field: 'dateCreated',
+//     headerName: 'Date Created',
+//     type: 'date',
+//     width: 180,
+//     editable: true,
+//   },
+//   {
+//     field: 'lastLogin',
+//     headerName: 'Last Login',
+//     type: 'dateTime',
+//     width: 220,
+//     editable: true,
+//   },{ field: 'email', headerName: 'Email', width: 200, editable: true },
+//   { field: 'age', headerName: 'Age', type: 'number', editable: true },
+//   {
+//     field: 'dateCreated',
+//     headerName: 'Date Created',
+//     type: 'date',
+//     width: 180,
+//     editable: true,
+//   },
+//   {
+//     field: 'lastLogin',
+//     headerName: 'Last Login',
+//     type: 'dateTime',
+//     width: 220,
+//     editable: true,
+//   },
+//   {
+//     field: 'actions',
+//     type: 'actions',
+//     width: 100,
+//     getActions: () => [
+//       <GridActionsCellItem icon={<EditIcon />} label="Edit" />,
+//       <GridActionsCellItem icon={<DeleteIcon />} label="Delete" />,
+//     ],
+//   },
+// ];
+
+// const rows: GridRowsProp = [
+//   {
+//     id: 1,
+//     name: randomTraderName(),
+//     email: randomEmail(),
+//     age: 25,
+//     dateCreated: randomCreatedDate(),
+//     lastLogin: randomUpdatedDate(),
+//   },
+//   {
+//     id: 2,
+//     name: randomTraderName(),
+//     email: randomEmail(),
+//     age: 36,
+//     dateCreated: randomCreatedDate(),
+//     lastLogin: randomUpdatedDate(),
+//   },
+//   {
+//     id: 3,
+//     name: randomTraderName(),
+//     email: randomEmail(),
+//     age: 19,
+//     dateCreated: randomCreatedDate(),
+//     lastLogin: randomUpdatedDate(),
+//   },
+//   {
+//     id: 4,
+//     name: randomTraderName(),
+//     email: randomEmail(),
+//     age: 28,
+//     dateCreated: randomCreatedDate(),
+//     lastLogin: randomUpdatedDate(),
+//   },
+//   {
+//     id: 5,
+//     name: randomTraderName(),
+//     email: randomEmail(),
+//     age: 23,
+//     dateCreated: randomCreatedDate(),
+//     lastLogin: randomUpdatedDate(),
+//   },
+//   {
+//     id: 6,
+//     name: randomTraderName(),
+//     email: randomEmail(),
+//     age: 27,
+//     dateCreated: randomCreatedDate(),
+//     lastLogin: randomUpdatedDate(),
+//   },
+//   {
+//     id: 7,
+//     name: randomTraderName(),
+//     email: randomEmail(),
+//     age: 18,
+//     dateCreated: randomCreatedDate(),
+//     lastLogin: randomUpdatedDate(),
+//   },
+//   {
+//     id: 8,
+//     name: randomTraderName(),
+//     email: randomEmail(),
+//     age: 31,
+//     dateCreated: randomCreatedDate(),
+//     lastLogin: randomUpdatedDate(),
+//   },
+//   {
+//     id: 9,
+//     name: randomTraderName(),
+//     email: randomEmail(),
+//     age: 24,
+//     dateCreated: randomCreatedDate(),
+//     lastLogin: randomUpdatedDate(),
+//   },
+//   {
+//     id: 10,
+//     name: randomTraderName(),
+//     email: randomEmail(),
+//     age: 35,
+//     dateCreated: randomCreatedDate(),
+//     lastLogin: randomUpdatedDate(),
+//   },
+// ];
+//   const theme = useTheme();
+//   // ตรวจสอบว่าหน้าจอมีความกว้างตั้งแต่ breakpoint 'xl' (โดยปกติคือ 1536px) ขึ้นไปหรือไม่
+//   const isExtraLargeScreen = useMediaQuery(theme.breakpoints.up('xl'));
  
 
- return (
+//  return (
    
-    <Container fixed disableGutters maxWidth={isExtraLargeScreen ? 'xl' : 'lg'}>
-        {/* <Container fixed disableGutters maxWidth={'md'}> */}
-      <DataGridPro
-        rows={rows}
-        columns={columns}
-        initialState={{ pinnedColumns: { left: ['name'], right: ['actions'] } }}
-      />
-    </Container>
-  );
+//     <Container fixed disableGutters maxWidth={isExtraLargeScreen ? 'xl' : 'lg'}>
+//         {/* <Container fixed disableGutters maxWidth={'md'}> */}
+//       <DataGridPro
+//         rows={rows}
+//         columns={columns}
+//         initialState={{ pinnedColumns: { left: ['name'], right: ['actions'] } }}
+//       />
+//     </Container>
+//   );
   
-}
+// }
 
 
 
