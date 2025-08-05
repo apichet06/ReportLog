@@ -1,5 +1,3 @@
-import type { Dayjs } from "dayjs";
-
 export interface ReportSaveLog {
   id: number;
   group_name: string;
@@ -16,17 +14,38 @@ export interface ReportSaveLog {
   download_more_10_files_day: string; // ดาวน์โหลดมากกว่า 10 files
   employee_resigning_within_one_month: string; //พนักงานลาออกภายในหนึ่งเดือน
   is_not_dcc: string;
-  users_action: string;
-  user_action_date: Date;
+  Admin_confirm: string;
+  admin_confirm_event: string;
+  admin_confirm_comment: string;
+  admin_confirm_date: Date;
+  admin_confirm_edit: string;
 }
 
 export interface SearchData {
   Search?: string;
-  startDate?: Dayjs | null;
-  endDate?: Dayjs | null;
+  startDate?: string;
+  endDate?: string;
   tapData?: string; // Additional field for tap data
 }
 
 export interface TabDataState {
   tapData?: string;
+  startDate?: string;
+  endDate?: string;
+  dayHisDate?: number;
 }
+
+export interface EditAccept {
+  Admin_confirm_edit: string;
+  Admin_confirm_comment: string;
+  Admin_confirm_event: string;
+}
+
+export type MUIColor =
+  | "primary"
+  | "secondary"
+  | "success"
+  | "error"
+  | "info"
+  | "warning"
+  | "inherit";

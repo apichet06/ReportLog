@@ -25,11 +25,11 @@ import type { User } from "@/layouts/userType";
 import { columnsDuc } from "../constants/reportLogDucColumns";
 import { columnsDCC } from "../constants/reportLogDccColumns";
 import ReportLogDialog from "../components/ReportLogDialog";
-import { ButtonGroup } from "@mui/material";
+import ButtonGroup from '@mui/material/ButtonGroup';
 import ReportLogToolbar from "../components/ReportLogToolbar";
+import { DataGridPro } from "@mui/x-data-grid-pro";
 
 type MUIColor = 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning' | 'inherit';
-
 
 
 export default function ReportLogPage() {
@@ -70,6 +70,8 @@ export default function ReportLogPage() {
 
   const handleClose = () => {
     setOpen(false);
+    setComment("");
+    setValueRedio('Usual');
   };
 
 
@@ -79,8 +81,8 @@ export default function ReportLogPage() {
   const [loadingExport, setLoadingExport] = useState(false)
 
 
-  const [dataDuc, SetDataDUC] = useState<ReportLog[]>();
-  const [dataDcc, SetDataDCC] = useState<ReportLog[]>();
+  const [dataDuc, SetDataDUC] = useState<ReportLog[]>([]);
+  const [dataDcc, SetDataDCC] = useState<ReportLog[]>([]);
   const [textSearch, SetTextSearch] = useState<string>("");
 
   const [conment, setComment] = useState<string>("");
@@ -266,6 +268,7 @@ export default function ReportLogPage() {
     try {
       Swal.fire({
         title: "Are you sure?",
+        html: `<b>Action:</b> ${valueRedio}<br/><b>Comment:</b> ${conment || '<i>No comment</i>'}`,
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
@@ -275,12 +278,13 @@ export default function ReportLogPage() {
         if (result.isConfirmed) {
           Swal.fire({
             title: "Success!",
+            text: `Report log total ${numericIds.length} items`,
             icon: "success",
           });
           await reportLogService.ApprovedReportLogService(numericIds, email, valueRedio, conment);
-
           fetchDUC();
-          fetchDCC()
+          fetchDCC();
+          handleClose();
         }
       });
 
@@ -398,12 +402,12 @@ export default function ReportLogPage() {
                         <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={() => handleExportExcel()} sx={{ ml: 2 }}> Export DUC </Button>
                       </Grid>
                     </Grid>
-                    <DataGrid
+                    <DataGridPro
                       getRowId={(row) => row.id.toString()}
                       loading={loadingDataGrid}
                       rows={dataDuc}
                       columns={columnsDuc}
-                      initialState={{ pagination: { paginationModel } }}
+                      initialState={{ pagination: { paginationModel }, pinnedColumns: { left: ['no'] } }}
                       pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
                       checkboxSelection
                       onRowSelectionModelChange={(newSelection) =>
@@ -457,7 +461,7 @@ export default function ReportLogPage() {
                       </Grid>
                     </Grid>
                     <Box style={{ width: '100%' }}>
-                      <DataGrid
+                      <DataGridPro
                         getRowId={(row) => row.id.toString()}
                         loading={loadingDataGrid}
                         rows={dataDcc}

@@ -32,7 +32,7 @@ export default function ReportLogDialog({
 }: Props) {
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-            <DialogTitle>Confirm Event Log</DialogTitle>
+            <DialogTitle>Edit Confirm Event Log</DialogTitle>
             <DialogContent dividers>
                 <FormControl>
                     <FormLabel>Confirm Event</FormLabel>

@@ -10,7 +10,6 @@ import ReportLogPages from "@/features/report-log/pages/ReportLogPage";
 
 const AppRouter = () => {
 
-
   return (
     <Routes>
       <Route path="/ErrorPermissionPage" element={<ErrorPermissionPage />} />

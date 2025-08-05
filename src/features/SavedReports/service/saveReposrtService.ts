@@ -1,7 +1,11 @@
 import type { SearchData } from "@/features/reportLog/types/reportlog";
 import axiosInstance from "@/shared/utils/axiosInstance";
 import type { AxiosResponse } from "axios";
-import type { ReportSaveLog, TabDataState } from "../types/reportsavelog";
+import type {
+  EditAccept,
+  ReportSaveLog,
+  TabDataState,
+} from "../types/reportsavelog";
 
 interface ApiListResponse {
   result: ReportSaveLog[];
@@ -9,36 +13,38 @@ interface ApiListResponse {
 
 const GetSaveReportLogService = (data: TabDataState) =>
   axiosInstance.get("/DUC_DCC/SaveReportLog", {
-    params: { tapData: data.tapData },
+    params: {
+      endDate: data.endDate,
+      startDate: data.startDate,
+      tapData: data.tapData,
+      dayHisDate: data.dayHisDate,
+    },
+  });
+
+const buildSearchParams = (searchData: SearchData) => ({
+  Search: searchData.Search,
+  startDate: searchData.startDate,
+  endDate: searchData.endDate,
+  tapData: searchData.tapData,
+  dayHisDate: searchData.dayHisDate,
+});
+
+const ApprovedReportLogEditService = (editingId: number, data: EditAccept) =>
+  axiosInstance.put(`/DUC_DCC/EditAccept/${editingId}`, {
+    Admin_confirm_edit: data.Admin_confirm_edit,
+    Admin_confirm_comment: data.Admin_confirm_comment,
+    Admin_confirm_event: data.Admin_confirm_event,
   });
 
 const SearchSaveReportLogService = (
   searchData: SearchData
 ): Promise<AxiosResponse<ApiListResponse>> => {
-  const params = {
-    Search: searchData.Search,
-    startDate: searchData.startDate
-      ? searchData.startDate.format("YYYY-MM-DD")
-      : undefined,
-    endDate: searchData.endDate
-      ? searchData.endDate.format("YYYY-MM-DD")
-      : undefined,
-    tapData: searchData.tapData,
-  };
+  const params = buildSearchParams(searchData);
   return axiosInstance.get("/DUC_DCC/SaveReportLog", { params });
 };
 
 const exportExcel = (searchData: SearchData): Promise<AxiosResponse<Blob>> => {
-  const params = {
-    Search: searchData.Search,
-    startDate: searchData.startDate
-      ? searchData.startDate.format("YYYY-MM-DD")
-      : undefined,
-    endDate: searchData.endDate
-      ? searchData.endDate.format("YYYY-MM-DD")
-      : undefined,
-    tapData: searchData.tapData,
-  };
+  const params = buildSearchParams(searchData);
   return axiosInstance.get("/DUC_DCC/ExportExcelLogAccept", {
     params,
     responseType: "blob",
@@ -49,6 +55,7 @@ const reportSaveLog = {
   GetSaveReportLogService,
   SearchSaveReportLogService,
   exportExcel,
+  ApprovedReportLogEditService,
 };
 
 export default reportSaveLog;

@@ -53,15 +53,15 @@ const exportExcel = (searchData: SearchData): Promise<AxiosResponse<Blob>> => {
 
 const ApprovedReportLogService = (
   Id: number[],
-  Users_accept: string,
+  Admin_confirm: string,
   valueRedio: string,
   commont: string
 ) =>
   axiosInstance.put("/DUC_DCC", {
     Id,
-    Users_accept,
+    Admin_confirm: Admin_confirm,
     Status_accept: valueRedio,
-    Users_accept_comment: commont,
+    Admin_accept_comment: commont,
   });
 
 const reportLogService = {
