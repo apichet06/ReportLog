@@ -300,7 +300,7 @@ export default function ReportLogPage() {
     }
   };
 
-  const paginationModel = { page: 0, pageSize: 10 };
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const isExtraLargeScreen = useMediaQuery('(min-width:1537px)');
   return (
     <>
@@ -372,12 +372,17 @@ export default function ReportLogPage() {
                     </Grid>
                     <Container fixed disableGutters maxWidth={isExtraLargeScreen ? 'xl' : 'lg'}>
                       <DataGridPremium
-                        getRowId={(row) => row.id.toString()}
+                        // getRowId={(row) => row.id.toString()}
+                        getRowId={(row) => row?.id ?? Math.random()}
                         loading={loadingDataGrid}
                         rows={dataDuc}
                         columns={columnsDuc}
                         pagination
-                        initialState={{ pagination: { paginationModel }, pinnedColumns: { left: ['__check__', 'no'], right: ['event_type'] } }}
+                        paginationModel={paginationModel}
+                        onPaginationModelChange={(model) => setPaginationModel(model)}
+                        initialState={{
+                          pinnedColumns: { left: ['__check__', 'no'], right: ['event_type'] }
+                        }}
                         pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
                         checkboxSelection
                         onRowSelectionModelChange={(newSelection) =>
@@ -434,12 +439,17 @@ export default function ReportLogPage() {
                     </Grid>
                     <Container fixed disableGutters maxWidth={isExtraLargeScreen ? 'xl' : 'lg'}>
                       <DataGridPremium
-                        getRowId={(row) => row.id.toString()}
+                        // getRowId={(row) => row.id.toString()}
+                        getRowId={(row) => row?.id ?? Math.random()}
                         loading={loadingDataGrid}
                         rows={dataDcc}
                         columns={columnsDCC}
                         pagination
-                        initialState={{ pagination: { paginationModel }, pinnedColumns: { left: ['__check__', 'no'], right: ['event_type'] } }}
+                        paginationModel={paginationModel}
+                        onPaginationModelChange={(model) => setPaginationModel(model)}
+                        initialState={{
+                          pinnedColumns: { left: ['__check__', 'no'], right: ['event_type'] }
+                        }}
                         pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
                         checkboxSelection
                         onRowSelectionModelChange={(newSelection) =>

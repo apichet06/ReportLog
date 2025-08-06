@@ -99,8 +99,8 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
         localStorage.removeItem("user");
 
         setTimeout(() => {
-            // navigate('/login');
-            window.location.href = 'https://fits/CRUDLogs/loginfrom/';
+            navigate('/login');
+            // window.location.href = 'https://fits/CRUDLogs/loginfrom/';
         }, 100); // delay สั้น ๆ เพื่อให้ลบเสร็จแน่นอน
     };
 
@@ -121,6 +121,7 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
 
 
     const handlelogin = useCallback(async () => {
+
         if (!userId) {
             setIsAppInitialized(true);
             //ถ้า userId ของ cookies ไม่มีแล้วให้มาเช็ค Tokenต่อ ถ้า Token ไม่มีให้ login ใหม่

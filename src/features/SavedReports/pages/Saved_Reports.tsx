@@ -46,7 +46,7 @@ export default function Saved_Reports() {
   const [loadingExport, setLoadingExport] = useState(false)
 
   const [dataDuc, SetDataDUC] = useState<ReportSaveLog[]>([]);
-  const [dataDcc, SetDataDCC] = useState<ReportSaveLog[]>();
+  const [dataDcc, SetDataDCC] = useState<ReportSaveLog[]>([]);
   const [textSearch, SetTextSearch] = useState<string>("");
 
   const [dayHisDateduc, setsDayHisDateDuc] = useState(1);
