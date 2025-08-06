@@ -99,7 +99,8 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
         localStorage.removeItem("user");
 
         setTimeout(() => {
-            navigate('/login');
+            // navigate('/login');
+            window.location.href = 'https://fits/CRUDLogs/loginfrom/';
         }, 100); // delay สั้น ๆ เพื่อให้ลบเสร็จแน่นอน
     };
 
@@ -137,7 +138,7 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
             localStorage.setItem("user", JSON.stringify(response.result));
             await setToken(response.token);
             await setUser(response.result);
-            await Cookies.remove("authToken");
+            await Cookies.remove("authToken"); //ปิดไวก่อน
             await navigate('/reportlog');
         } else {
             navigate('/ErrorPermissionPage');

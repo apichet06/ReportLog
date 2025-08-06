@@ -27,7 +27,7 @@ import { columnsDCC } from "../constants/reportLogDccColumns";
 import ReportLogDialog from "../components/ReportLogDialog";
 import ButtonGroup from '@mui/material/ButtonGroup';
 import ReportLogToolbar from "../components/ReportLogToolbar";
-import { DataGridPro } from "@mui/x-data-grid-pro";
+import { DataGridPremium } from "@mui/x-data-grid-premium";
 import { useMediaQuery } from "@mui/system";
 
 type MUIColor = 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning' | 'inherit';
@@ -120,13 +120,16 @@ export default function ReportLogPage() {
       let dateEndDate = "";
 
       if (dayHisDateduc == 1) {
-        dateToday = datetime.DateSearch(new Date());
-        dateEndDate = datetime.DateSearch(new Date());
+        const targetDate = new Date()
+        targetDate.setDate(targetDate.getDate() - 1)
+        dateToday = datetime.DateSearch(targetDate);
+        dateEndDate = datetime.DateSearch(targetDate);
 
       } else if (dayHisDateduc == 0) {
 
-        const targetDate = new Date("2025-07-14");
-        targetDate.setDate(targetDate.getDate() - 1); // ลบ 1 วัน เพราะใน C# +1 วัน
+        // const targetDate = new Date("2025-07-14");
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() - 2); // ลบ 1 วัน เพราะใน C# +1 วัน
         dateEndDate = datetime.DateSearch(targetDate);
       }
 
@@ -147,13 +150,15 @@ export default function ReportLogPage() {
       let dateEndDate = "";
 
       if (dayHisDatedcc == 1) {
-        dateToday = datetime.DateSearch(new Date());
-        dateEndDate = datetime.DateSearch(new Date());
+        const targetDate = new Date()
+        targetDate.setDate(targetDate.getDate() - 1)
+        dateToday = datetime.DateSearch(targetDate);
+        dateEndDate = datetime.DateSearch(targetDate);
 
       } else if (dayHisDatedcc == 0) {
 
         const targetDate = new Date()
-        targetDate.setDate(targetDate.getDate() - 1); // ลบ 1 วัน เพราะใน C# +1 วัน
+        targetDate.setDate(targetDate.getDate() - 2); // ลบ 2 วัน เพราะใน C# +1 วัน
         dateEndDate = datetime.DateSearch(targetDate);
       }
 
@@ -330,7 +335,7 @@ export default function ReportLogPage() {
                 alignItems="start"
               >
                 <Grid size={{ xs: 11, sm: 11, md: 11, lg: 8, xl: 8 }} >
-                  <h2>Log Report DCC & DUC</h2>
+                  <h2>Report Log</h2>
                 </Grid>
               </Grid>
               <Grid size={12} >
@@ -355,7 +360,7 @@ export default function ReportLogPage() {
                           variant="outlined"
                           aria-label="Disabled button group"
                         >
-                          <Button variant="contained" color={colerTodayduc} onClick={() => (setsDayHisDateDuc(1), setColerTodayDuc("secondary"), setColerHistoryDuc("primary"))} >Today</Button>
+                          <Button variant="contained" color={colerTodayduc} onClick={() => (setsDayHisDateDuc(1), setColerTodayDuc("secondary"), setColerHistoryDuc("primary"))} >Yesterday</Button>
                           <Button variant="contained" color={colerHistoryduc} onClick={() => (setsDayHisDateDuc(0), setColerTodayDuc("primary"), setColerHistoryDuc("secondary"))}>History</Button>
                         </ButtonGroup>
                       </Grid>
@@ -366,7 +371,7 @@ export default function ReportLogPage() {
                       </Grid>
                     </Grid>
                     <Container fixed disableGutters maxWidth={isExtraLargeScreen ? 'xl' : 'lg'}>
-                      <DataGridPro
+                      <DataGridPremium
                         getRowId={(row) => row.id.toString()}
                         loading={loadingDataGrid}
                         rows={dataDuc}
@@ -417,7 +422,7 @@ export default function ReportLogPage() {
                           variant="outlined"
                           aria-label="Disabled button group"
                         >
-                          <Button variant="contained" color={colerTodaydcc} onClick={() => (setsDayHisDateDcc(1), setColerTodayDcc("secondary"), setColerHistoryDcc("primary"))} >Today</Button>
+                          <Button variant="contained" color={colerTodaydcc} onClick={() => (setsDayHisDateDcc(1), setColerTodayDcc("secondary"), setColerHistoryDcc("primary"))} >Yesterday</Button>
                           <Button variant="contained" color={colerHistorydcc} onClick={() => (setsDayHisDateDcc(0), setColerTodayDcc("primary"), setColerHistoryDcc("secondary"))}>History</Button>
                         </ButtonGroup>
                       </Grid>
@@ -428,7 +433,7 @@ export default function ReportLogPage() {
                       </Grid>
                     </Grid>
                     <Container fixed disableGutters maxWidth={isExtraLargeScreen ? 'xl' : 'lg'}>
-                      <DataGridPro
+                      <DataGridPremium
                         getRowId={(row) => row.id.toString()}
                         loading={loadingDataGrid}
                         rows={dataDcc}

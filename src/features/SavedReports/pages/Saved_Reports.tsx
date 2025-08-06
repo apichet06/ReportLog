@@ -28,13 +28,6 @@ import { DataGridPremium, type GridPaginationModel } from '@mui/x-data-grid-prem
 
 export default function Saved_Reports() {
 
-
-  // const [paginationModel, setPaginationModel] = useState({
-  //   page: 0,
-  //   pageSize: 10,
-  // });
-
-
   const [value, setValue] = useState('1');
 
   const handleChange = (_event: SyntheticEvent, newValue: string) => {
@@ -157,7 +150,6 @@ export default function Saved_Reports() {
       console.log(err);
     }
   }, [dayHisDatedcc]);
-
 
 
   const handleSearch = useCallback(async () => {
@@ -331,7 +323,7 @@ export default function Saved_Reports() {
                 alignItems="start"
               >
                 <Grid size={{ xs: 11, sm: 11, md: 11, lg: 8, xl: 8 }} >
-                  <h2>Audited Log Report DUC&DCC</h2>
+                  <h2>Audited Log Report</h2>
                 </Grid>
 
               </Grid>
