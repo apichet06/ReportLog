@@ -61,7 +61,7 @@ const ApprovedReportLogService = (
     Id,
     Admin_confirm: Admin_confirm,
     Status_accept: valueRedio,
-    Admin_accept_comment: commont,
+    Admin_confirm_comment: commont,
   });
 
 const reportLogService = {

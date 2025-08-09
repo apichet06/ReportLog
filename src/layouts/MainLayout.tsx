@@ -32,9 +32,7 @@ import { useAuthContext } from "@/shared/context/AuthContext";
 import Cookies from "js-cookie";
 import Button from '@mui/material/Button';
 import type { User } from "./userType";
-
-
-
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const drawerWidth = 240;
 
@@ -80,6 +78,13 @@ const DrawerHeader = styled("div")(({ theme }) => ({
     justifyContent: "flex-end",
 }));
 
+const capitalize = (str?: string): string => {
+    if (!str) {
+        return "";
+    }
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
+
 
 
 
@@ -100,16 +105,15 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
 
         setTimeout(() => {
             navigate('/login');
-            // window.location.href = 'https://fits/CRUDLogs/loginfrom/';
-        }, 100); // delay สั้น ๆ เพื่อให้ลบเสร็จแน่นอน
+        }, 100);
     };
-
 
 
     const handleDrawerOpen = () => setOpen(true);
     const handleDrawerClose = () => setOpen(false);
 
     const menuItems = [
+        { label: "Dashboard", icon: <InboxIcon />, path: "/dashboard" },
         { label: "Report Log", icon: <InboxIcon />, path: "/reportlog" },
         { label: "Save Report", icon: <DescriptionIcon />, path: "/saved_report" },
     ];
@@ -119,18 +123,14 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
 
     const userId = getUserIdFromCookie();
 
-
     const handlelogin = useCallback(async () => {
-
         if (!userId) {
             setIsAppInitialized(true);
-            //ถ้า userId ของ cookies ไม่มีแล้วให้มาเช็ค Tokenต่อ ถ้า Token ไม่มีให้ login ใหม่
             const token = localStorage.getItem("token");
             if (!token) {
                 setIsAppInitialized(false);
                 navigate("/login");
             }
-
             return;
         }
         const response = await login({ username: userId });
@@ -139,8 +139,8 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
             localStorage.setItem("user", JSON.stringify(response.result));
             await setToken(response.token);
             await setUser(response.result);
-            await Cookies.remove("authToken"); //ปิดไวก่อน
-            await navigate('/reportlog');
+            Cookies.remove("authToken")
+
         } else {
             navigate('/ErrorPermissionPage');
         }
@@ -149,7 +149,7 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
 
     useEffect(() => {
         handlelogin();
-    }, [handlelogin, navigate]);
+    }, [navigate]);
 
     // ระหว่างรอ login เสร็จ
     if (!isAppInitialized) {
@@ -172,49 +172,18 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        Report Log
+                        Application Log
                     </Typography>
-                    {/* <Button color="inherit">Login</Button> */}
                     <>
-                        {/* <IconButton
-                            size="large"
-                            aria-label="account of current user"
-                            aria-controls="menu-appbar"
-                            aria-haspopup="true"
-                            onClick={handleMenu}
-                            color="inherit"
-                        >
-                            <AccountCircleIcon />
-                        </IconButton>
-                        <Menu
-                            id="menu-appbar"
-                            anchorEl={anchorEl}
-                            anchorOrigin={{
-                                vertical: "top",
-                                horizontal: "right",
-                            }}
-                            keepMounted
-                            transformOrigin={{
-                                vertical: "top",
-                                horizontal: "right",
-                            }}
-                            open={Boolean(anchorEl)}
-                            onClose={handleClose}
-                        >
-                            <MenuItem onClick={handleClose}>Mr.Apichet Singnakrong</MenuItem>
-                            <MenuItem onClick={hendleLogout}>Logout</MenuItem>
-                        </Menu> */}
                         <List>
                             <ListItem>
-                                <ListItemText>{resultData?.fristname} {resultData?.lastname}</ListItemText>
+                                <ListItemText>{capitalize(resultData?.firstname)} {capitalize(resultData?.lastname)}</ListItemText>
                             </ListItem>
                         </List>
-                        <Button color="inherit" onClick={hendleLogout}>Logout</Button>
-
+                        <Button color="inherit" onClick={hendleLogout} startIcon={<LogoutIcon />}>Logout</Button>
                     </>
                 </Toolbar>
             </AppBar>
-
             {/* ---------- Side Drawer ---------- */}
             <Drawer
                 sx={{
@@ -235,9 +204,7 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
                         )}
                     </IconButton>
                 </DrawerHeader>
-
                 <Divider />
-
                 <List>
                     {menuItems.map(({ label, icon, path }) => (
                         <ListItem key={label} disablePadding>
@@ -252,10 +219,7 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
                         </ListItem>
                     ))}
                 </List>
-
                 <Divider />
-
-
             </Drawer>
 
             {/* ---------- Main Content ---------- */}

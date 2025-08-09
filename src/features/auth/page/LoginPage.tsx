@@ -18,10 +18,8 @@ export default function LoginPage() {
 
     return (
         <Container>
-
-            {/* <form id="requestForm" target="_blank" action="https://localhost:7073/api/Authen/login" method="POST"> */}
-            {/* <form method="POST" action="https://fits/CRUDLogs/dccduc_Api_new/api/Authen/login" > */}
-            <form method="POST" action="https://localhost:7073/api/Authen/login" >
+            {/* <form method="POST" action="https://fits/CRUDLogs/dccduc_Api_new/api/Authen/login"> */}
+            <form method="POST" action="https://localhost:7073/api/Authen/login">
                 <Card sx={{ sx: 12, sm: 12, md: 12, lg: 12, xl: 12, mt: 5 }}>
                     <CardContent>
                         <Typography gutterBottom variant="h5" component="div" color="warning">

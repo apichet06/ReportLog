@@ -25,7 +25,6 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 import { DataGridPremium, type GridPaginationModel } from '@mui/x-data-grid-premium';
 
 
-
 export default function Saved_Reports() {
 
   const [value, setValue] = useState('1');
@@ -350,7 +349,7 @@ export default function Saved_Reports() {
                           variant="outlined"
                           aria-label="Disabled button group"
                         >
-                          <Button variant="contained" color={colerTodayduc} onClick={() => (setsDayHisDateDuc(1), setColerTodayDuc("secondary"), setColerHistoryDuc("primary"))} >Today</Button>
+                          <Button variant="contained" color={colerTodayduc} onClick={() => (setsDayHisDateDuc(1), setColerTodayDuc("secondary"), setColerHistoryDuc("primary"))} >Yesterday</Button>
                           <Button variant="contained" color={colerHistoryduc} onClick={() => (setsDayHisDateDuc(0), setColerTodayDuc("primary"), setColerHistoryDuc("secondary"))}>History</Button>
                         </ButtonGroup>
                       </Grid>
@@ -402,7 +401,7 @@ export default function Saved_Reports() {
                           variant="outlined"
                           aria-label="Disabled button group"
                         >
-                          <Button variant="contained" color={colerTodaydcc} onClick={() => (setsDayHisDateDcc(1), setColerTodayDcc("secondary"), setColerHistoryDcc("primary"))} >Today</Button>
+                          <Button variant="contained" color={colerTodaydcc} onClick={() => (setsDayHisDateDcc(1), setColerTodayDcc("secondary"), setColerHistoryDcc("primary"))} >Yesterday</Button>
                           <Button variant="contained" color={colerHistorydcc} onClick={() => (setsDayHisDateDcc(0), setColerTodayDcc("primary"), setColerHistoryDcc("secondary"))}>History</Button>
                         </ButtonGroup>
                       </Grid>

@@ -3,7 +3,7 @@ export interface User {
   emp_no: string;
   emp_email: string;
   username: string;
-  fristname: string;
+  firstname: string;
   lastname: string;
   is_accept: number;
   is_active: number;
