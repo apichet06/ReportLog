@@ -25,6 +25,7 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 import { DataGridPremium, type GridPaginationModel } from '@mui/x-data-grid-premium';
 
 
+
 export default function Saved_Reports() {
 
   const [value, setValue] = useState('1');
@@ -289,7 +290,13 @@ export default function Saved_Reports() {
   // const theme = useTheme();
   // const isExtraLargeScreen = useMediaQuery(theme.breakpoints.up('xl'));
 
-  const isExtraLargeScreen = useMediaQuery('(min-width:1537px)');
+
+  // const isBelow600 = useMediaQuery('(max-width:600px)');
+  // const isBetween601And900 = useMediaQuery('(min-width:601px) and (max-width:900px)');
+  // const isBetween901And1200 = useMediaQuery('(min-width:901px) and (max-width:1200px)');
+  const isBetween1201And1536 = useMediaQuery('(min-width:1201px) and (max-width:1536px)');
+  const isAbove1537 = useMediaQuery('(min-width:1537px)');
+
   return (
     <>
       <Container disableGutters maxWidth={false}>
@@ -358,7 +365,8 @@ export default function Saved_Reports() {
                       </Grid>
                     </Grid>
                     {/* {window.innerWidth} */}
-                    <Container fixed disableGutters maxWidth={isExtraLargeScreen ? 'xl' : 'lg'}>
+                    <Container fixed disableGutters maxWidth={isAbove1537 ? 'xl' : 'lg'}>
+
                       <DataGridPremium
                         getRowId={(row) => row.id.toString()}
                         loading={loadingDataGrid}
@@ -377,7 +385,8 @@ export default function Saved_Reports() {
                             : ""
                         }
                         sx={{
-                          marginInline: '-9%',
+                          ...(isAbove1537 ? { marginInline: '-9%' } : {}),
+                          ...(isBetween1201And1536 ? { marginInline: '-10%' } : {}),
                           "& .row--highlight": {
                             bgcolor: "rgba(255,165,0,0.1)",
                             color: "orange",
@@ -409,7 +418,7 @@ export default function Saved_Reports() {
                         <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={handleExportExcel} sx={{ ml: 2 }}> Export DCC </Button>
                       </Grid>
                     </Grid>
-                    <Container fixed disableGutters maxWidth={isExtraLargeScreen ? 'xl' : 'lg'}>
+                    <Container fixed disableGutters maxWidth={isAbove1537 ? 'xl' : 'lg'}>
                       <DataGridPremium
                         rows={dataDcc}
                         columns={dccColumns}
@@ -427,7 +436,8 @@ export default function Saved_Reports() {
                             : ""
                         }
                         sx={{
-                          marginInline: '-9%',
+                          ...(isAbove1537 ? { marginInline: '-9%' } : {}),
+                          ...(isBetween1201And1536 ? { marginInline: '-10%' } : {}),
                           "& .row--highlight": {
                             bgcolor: "rgba(255,165,0,0.1)",
                             color: "orange",

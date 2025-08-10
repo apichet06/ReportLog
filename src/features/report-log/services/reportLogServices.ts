@@ -17,17 +17,6 @@ const GetReportLogService = (data: TabDataState) =>
     },
   });
 
-// const buildSearchParams = (searchData: SearchData) => ({
-//   Search: searchData.Search,
-//   startDate: searchData.startDate
-//     ? searchData.startDate.format("YYYY-MM-DD")
-//     : undefined,
-//   endDate: searchData.endDate
-//     ? searchData.endDate.format("YYYY-MM-DD")
-//     : undefined,
-//   tapData: searchData.tapData,
-// });
-
 const buildSearchParams = (searchData: SearchData) => ({
   Search: searchData.Search,
   startDate: searchData.startDate,
@@ -53,15 +42,15 @@ const exportExcel = (searchData: SearchData): Promise<AxiosResponse<Blob>> => {
 
 const ApprovedReportLogService = (
   Id: number[],
-  Users_accept: string,
+  Admin_confirm: string,
   valueRedio: string,
   commont: string
 ) =>
   axiosInstance.put("/DUC_DCC", {
     Id,
-    Users_accept,
+    Admin_confirm: Admin_confirm,
     Status_accept: valueRedio,
-    Users_accept_comment: commont,
+    Admin_confirm_comment: commont,
   });
 
 const reportLogService = {

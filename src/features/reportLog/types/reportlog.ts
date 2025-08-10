@@ -33,3 +33,11 @@ export interface TabDataState {
   endDate?: string;
   dayHisDate?: number;
 }
+export type MUIColor =
+  | "primary"
+  | "secondary"
+  | "success"
+  | "error"
+  | "info"
+  | "warning"
+  | "inherit";

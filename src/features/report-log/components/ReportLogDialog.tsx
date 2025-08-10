@@ -1,7 +1,16 @@
-import {
-    Dialog, DialogTitle, DialogContent, DialogActions, Button,
-    TextField, RadioGroup, FormControlLabel, Radio, FormControl, FormLabel
-} from '@mui/material';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Radio from '@mui/material/Radio';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import type { ChangeEvent } from 'react';
+
 
 interface Props {
     open: boolean;
@@ -9,7 +18,7 @@ interface Props {
     comment: string;
     onClose: () => void;
     onSubmit: () => void;
-    onRadioChange: (val: string) => void;
+    onRadioChange: (event: ChangeEvent<HTMLInputElement>) => void;
     onCommentChange: (val: string) => void;
 }
 
@@ -24,14 +33,16 @@ export default function ReportLogDialog({
 }: Props) {
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-            <DialogTitle>Form Accept</DialogTitle>
+            <DialogTitle>Confirm Event Log</DialogTitle>
             <DialogContent dividers>
                 <FormControl>
                     <FormLabel>Confirm Event</FormLabel>
                     <RadioGroup
                         row
+                        aria-labelledby="demo-row-radio-buttons-group-label"
+                        name="row-radio-buttons-group"
                         value={valueRedio}
-                        onChange={(e) => onRadioChange(e.target.value)}
+                        onChange={onRadioChange}
                     >
                         <FormControlLabel value="Usual" control={<Radio />} label="Usual Event" />
                         <FormControlLabel value="Unusual" control={<Radio />} label="Unusual Event" />
@@ -42,15 +53,15 @@ export default function ReportLogDialog({
                     multiline
                     rows={4}
                     fullWidth
-                    variant="filled"
-                    color="success"
+                    variant="outlined"
+                    color="warning"
                     value={comment}
                     onChange={(e) => onCommentChange(e.target.value)}
                 />
             </DialogContent>
             <DialogActions>
-                <Button onClick={onSubmit}>Save</Button>
-                <Button onClick={onClose} autoFocus>Cancel</Button>
+                <Button variant='contained' color='success' size='small' onClick={onSubmit} autoFocus>Save</Button>
+                <Button onClick={onClose} size='small' >Cancel</Button>
             </DialogActions>
         </Dialog>
     );

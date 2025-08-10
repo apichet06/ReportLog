@@ -1,285 +1,212 @@
- 
-// import DeleteIcon from '@mui/icons-material/Delete';
-// import { useTheme } from '@mui/material/styles';
-// import useMediaQuery from '@mui/material/useMediaQuery';
-// import EditIcon from '@mui/icons-material/Edit';
-// import {
-//   DataGridPro,
-//   type GridColDef,
-//   type GridRowsProp,
-//   GridActionsCellItem,
-// } from '@mui/x-data-grid-pro';
-// import {
-//   randomCreatedDate,
-//   randomTraderName,
-//   randomEmail,
-//   randomUpdatedDate,
-// } from '@mui/x-data-grid-generator';
+import { Container, Grid, ButtonGroup, Button, useMediaQuery, Box, Tab } from "@mui/material";
+import SaveIcon from "@mui/icons-material/Save";
+import SystemUpdateAltIcon from "@mui/icons-material/SystemUpdateAlt";
+import { useReportLog } from "../hooks";
+import { ReportLogTable } from "../components/ReportLogTable";
+import type { User } from "@/layouts/userType";
+import ReportLogDialog from "../components/ReportLogDialog";
+import { columnsDuc } from "../constants/reportLogDucColumns";
+import { columnsDCC } from "../constants/reportLogDccColumns";
+import TabContext from "@mui/lab/TabContext";
+import TabList from "@mui/lab/TabList";
+import TabPanel from "@mui/lab/TabPanel";
+import { useReportLogState } from "../hooks/useReportLogState";
+import type { SyntheticEvent } from "react";
+import ReportLogToolbar from "../components/ReportLogToolbar";
 
 
-// import Container from '@mui/material/Container';
+export default function ReportLogPage() {
+  const state = useReportLogState();
+  const userDataString = localStorage.getItem("user");
+  const resultData: User | null = userDataString ? JSON.parse(userDataString) : null;
+  const {
+    ducData, dccData,
+    loadingDataGrid,
+    colerTodayduc, colerHistoryduc,
+    colerTodaydcc, colerHistorydcc,
+    setDayHisDatedcc, setDayHisDateduc,
+    setColerTodayDuc, setColerTodayDcc,
+    setColerHistoryDuc, setColerHistoryDcc,
+    handleClickOpen,
+    selectionModel,
+    setSelectionModel,
+    paginationModel,
+    setPaginationModel,
+    open, tapData, setOpen,
+    conment, setComment,
+    valueRedio, handleChangeRedio,
+    handleSubmit, setTapData,
+    loadingExport, textSearch, setTextSearch,
+    handleExportExcel, handleSearch, handleClear
+  } = useReportLog(resultData);
 
-import   { useState } from "react";
-import {
-  DataGridPremium,
-  type GridColDef,
-  type GridPaginationModel,
-} from "@mui/x-data-grid-premium";
-export default function ReportLogPages() {
+  const handleChange = (_event: SyntheticEvent, newValue: string) => {
+    state.setValue(newValue);
+  };
 
- 
-const dataDcc = Array.from({ length: 50 }, (_, i) => ({
-  id: i + 1,
-  name: `Item ${i + 1}`,
-  value: (i + 1) * 100,
-}));
 
-const dccColumns: GridColDef[] = [
-  { field: "id", headerName: "ID", width: 100 },
-  { field: "name", headerName: "Name", width: 200 },
-  { field: "value", headerName: "Value", width: 150 },
-];
+  const isExtraLargeScreen = useMediaQuery('(min-width:1537px)');
+  const isBetween1201And1536 = useMediaQuery('(min-width:1201px) and (max-width:1536px)');
+  const isAbove1537 = useMediaQuery('(min-width:1537px)');
+  return (
+    <>
+      <Container disableGutters maxWidth={false}>
+        <Grid container spacing={2} justifyContent="center">
+          <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }} mt={2} mb={2}>
+            <Box
+              component="form"
+              sx={{ "& .MuiTextField-root": { width: "100%" } }}
+              noValidate
+              autoComplete="off"
+            >
+              <ReportLogToolbar
+                textSearch={textSearch}
+                onSearchChange={setTextSearch}
+                onSearchClick={handleSearch}
+                onClearClick={handleClear}
+              />
+            </Box>
+            <hr />
+            <Box
+              component="form"
+              sx={{ "& .MuiTextField-root": { width: "100%" } }}
+              noValidate
+              autoComplete="off"
+            >
+              <Grid
+                container
+                spacing={2}
+                justifyContent="start"
+                alignItems="start"
+              >
+                <Grid size={{ xs: 11, sm: 11, md: 11, lg: 8, xl: 8 }} >
+                  <h2>Report Log</h2>
+                </Grid>
+              </Grid>
+              <Grid size={12} >
+                <TabContext value={state.value}>
+                  <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                    <TabList onChange={handleChange} textColor="secondary" indicatorColor="secondary">
+                      <Tab
+                        label={`DUC Log (${ducData?.length ?? 0})`}
+                        value="1"
+                        onClick={() => setTapData("DUC")}
+                      />
+                      <Tab
+                        label={`DCC Log (${dccData?.length ?? 0})`}
+                        value="2"
+                        onClick={() => setTapData("DCC")}
+                      />
+                    </TabList>
+                  </Box>
+                  <TabPanel value="1">
+                    <Grid
+                      container
+                      spacing={2}
+                      justifyContent="start"
+                      alignItems="end"
+                    >
+                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3} justifyContent="flex-start" display="flex">
+                        <ButtonGroup>
+                          <Button variant="contained" color={colerTodayduc} onClick={() => {
+                            setDayHisDateduc(1);
+                            setColerTodayDuc("secondary");
+                            setColerHistoryDuc("primary");
+                          }}>
+                            Yesterday
+                          </Button>
+                          <Button variant="contained" color={colerHistoryduc} onClick={() => {
+                            setDayHisDateduc(0);
+                            setColerTodayDuc("primary");
+                            setColerHistoryDuc("secondary");
+                          }}>
+                            History {tapData}
+                          </Button>
+                        </ButtonGroup>
+                      </Grid>
+                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3} justifyContent="flex-end" display="flex">
+                        <Button variant="contained" color="success" onClick={handleClickOpen} startIcon={<SaveIcon />}> Save Duc</Button>
+                        <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={() => handleExportExcel()} sx={{ ml: 2 }}> Export DUC </Button>
+                      </Grid>
+                    </Grid>
+                    <Container disableGutters maxWidth={isExtraLargeScreen ? 'xl' : 'lg'}>
+                      <ReportLogTable
+                        rows={ducData}
+                        columns={columnsDuc}
+                        loading={loadingDataGrid}
+                        selectionModel={selectionModel}
+                        setSelectionModel={setSelectionModel}
+                        paginationModel={paginationModel}
+                        setPaginationModel={setPaginationModel}
+                        isAbove1537={isAbove1537}
+                        isBetween1201And1536={isBetween1201And1536}
+                      />
+                    </Container>
+                  </TabPanel>
+                  <TabPanel value="2">
+                    <Grid
+                      container
+                      spacing={2}
+                      justifyContent="start"
+                      alignItems="end"
+                    >
+                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3} justifyContent="flex-start" display="flex">
+                        <ButtonGroup>
+                          <Button variant="contained" color={colerTodaydcc} onClick={() => {
+                            setDayHisDatedcc(1);
+                            setColerTodayDcc("secondary");
+                            setColerHistoryDcc("primary");
+                          }}>
+                            Yesterday
+                          </Button>
+                          <Button variant="contained" color={colerHistorydcc} onClick={() => {
+                            setDayHisDatedcc(0);
+                            setColerTodayDcc("primary");
+                            setColerHistoryDcc("secondary");
+                          }}>
+                            History{tapData}
+                          </Button>
 
-  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
-    pageSize: 10,
-    page: 0,
-  });
+                        </ButtonGroup>
+                      </Grid>
+                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3} justifyContent="flex-end" display="flex">
+                        <Button variant="contained" color="success" onClick={handleClickOpen} startIcon={<SaveIcon />}> Save DCC</Button>
+                        <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={() => handleExportExcel()} sx={{ ml: 2 }}> Export DCC </Button>
+                      </Grid>
+                    </Grid>
+                    <Container disableGutters maxWidth={isAbove1537 ? 'xl' : 'lg'}>
+                      <ReportLogTable
+                        rows={dccData}
+                        columns={columnsDCC}
+                        loading={loadingDataGrid}
+                        selectionModel={selectionModel}
+                        setSelectionModel={setSelectionModel}
+                        paginationModel={paginationModel}
+                        setPaginationModel={setPaginationModel}
+                        isAbove1537={isAbove1537}
+                        isBetween1201And1536={isBetween1201And1536}
+                      />
+                    </Container>
+                  </TabPanel>
+                </TabContext>
 
-return (
-    <DataGridPremium
-      rows={dataDcc}
-      columns={dccColumns}
-      getRowId={(row) => row.id.toString()}
-      pagination 
-      paginationModel={paginationModel}
-      onPaginationModelChange={(model) => setPaginationModel(model)}
-      pageSizeOptions={[5, 10, 15, 20]}  
-      initialState={{ pinnedColumns: { left: ['id'], right: ['value'] } }}
-       
-    />
-    )
+              </Grid>
+            </Box>
+
+          </Grid>
+        </Grid>
+      </Container>
+      <ReportLogDialog
+        open={open}
+        valueRedio={valueRedio}
+        comment={conment}
+        onClose={() => setOpen(false)}
+        onSubmit={handleSubmit}
+        onRadioChange={handleChangeRedio}
+        onCommentChange={setComment}
+      />
+
+    </>
+  )
 }
-// export default function ReportLogPages() {
-// const columns: GridColDef[] = [
-//   { field: 'name', headerName: 'Name', width: 160, editable: true },
-//   { field: 'email', headerName: 'Email', width: 200, editable: true },
-//   { field: 'age', headerName: 'Age', type: 'number', editable: true },
-//   {
-//     field: 'dateCreated',
-//     headerName: 'Date Created',
-//     type: 'date',
-//     width: 180,
-//     editable: true,
-//   },
-//   {
-//     field: 'lastLogin',
-//     headerName: 'Last Login',
-//     type: 'dateTime',
-//     width: 220,
-//     editable: true,
-//   },
-//   { field: 'email', headerName: 'Email', width: 200, editable: true },
-//   { field: 'age', headerName: 'Age', type: 'number', editable: true },
-//   {
-//     field: 'dateCreated',
-//     headerName: 'Date Created',
-//     type: 'date',
-//     width: 180,
-//     editable: true,
-//   },
-//   {
-//     field: 'lastLogin',
-//     headerName: 'Last Login',
-//     type: 'dateTime',
-//     width: 220,
-//     editable: true,
-//   },{ field: 'email', headerName: 'Email', width: 200, editable: true },
-//   { field: 'age', headerName: 'Age', type: 'number', editable: true },
-//   {
-//     field: 'dateCreated',
-//     headerName: 'Date Created',
-//     type: 'date',
-//     width: 180,
-//     editable: true,
-//   },
-//   {
-//     field: 'lastLogin',
-//     headerName: 'Last Login',
-//     type: 'dateTime',
-//     width: 220,
-//     editable: true,
-//   },{ field: 'email', headerName: 'Email', width: 200, editable: true },
-//   { field: 'age', headerName: 'Age', type: 'number', editable: true },
-//   {
-//     field: 'dateCreated',
-//     headerName: 'Date Created',
-//     type: 'date',
-//     width: 180,
-//     editable: true,
-//   },
-//   {
-//     field: 'lastLogin',
-//     headerName: 'Last Login',
-//     type: 'dateTime',
-//     width: 220,
-//     editable: true,
-//   },
-//   {
-//     field: 'actions',
-//     type: 'actions',
-//     width: 100,
-//     getActions: () => [
-//       <GridActionsCellItem icon={<EditIcon />} label="Edit" />,
-//       <GridActionsCellItem icon={<DeleteIcon />} label="Delete" />,
-//     ],
-//   },
-// ];
 
-// const rows: GridRowsProp = [
-//   {
-//     id: 1,
-//     name: randomTraderName(),
-//     email: randomEmail(),
-//     age: 25,
-//     dateCreated: randomCreatedDate(),
-//     lastLogin: randomUpdatedDate(),
-//   },
-//   {
-//     id: 2,
-//     name: randomTraderName(),
-//     email: randomEmail(),
-//     age: 36,
-//     dateCreated: randomCreatedDate(),
-//     lastLogin: randomUpdatedDate(),
-//   },
-//   {
-//     id: 3,
-//     name: randomTraderName(),
-//     email: randomEmail(),
-//     age: 19,
-//     dateCreated: randomCreatedDate(),
-//     lastLogin: randomUpdatedDate(),
-//   },
-//   {
-//     id: 4,
-//     name: randomTraderName(),
-//     email: randomEmail(),
-//     age: 28,
-//     dateCreated: randomCreatedDate(),
-//     lastLogin: randomUpdatedDate(),
-//   },
-//   {
-//     id: 5,
-//     name: randomTraderName(),
-//     email: randomEmail(),
-//     age: 23,
-//     dateCreated: randomCreatedDate(),
-//     lastLogin: randomUpdatedDate(),
-//   },
-//   {
-//     id: 6,
-//     name: randomTraderName(),
-//     email: randomEmail(),
-//     age: 27,
-//     dateCreated: randomCreatedDate(),
-//     lastLogin: randomUpdatedDate(),
-//   },
-//   {
-//     id: 7,
-//     name: randomTraderName(),
-//     email: randomEmail(),
-//     age: 18,
-//     dateCreated: randomCreatedDate(),
-//     lastLogin: randomUpdatedDate(),
-//   },
-//   {
-//     id: 8,
-//     name: randomTraderName(),
-//     email: randomEmail(),
-//     age: 31,
-//     dateCreated: randomCreatedDate(),
-//     lastLogin: randomUpdatedDate(),
-//   },
-//   {
-//     id: 9,
-//     name: randomTraderName(),
-//     email: randomEmail(),
-//     age: 24,
-//     dateCreated: randomCreatedDate(),
-//     lastLogin: randomUpdatedDate(),
-//   },
-//   {
-//     id: 10,
-//     name: randomTraderName(),
-//     email: randomEmail(),
-//     age: 35,
-//     dateCreated: randomCreatedDate(),
-//     lastLogin: randomUpdatedDate(),
-//   },
-// ];
-//   const theme = useTheme();
-//   // ตรวจสอบว่าหน้าจอมีความกว้างตั้งแต่ breakpoint 'xl' (โดยปกติคือ 1536px) ขึ้นไปหรือไม่
-//   const isExtraLargeScreen = useMediaQuery(theme.breakpoints.up('xl'));
- 
-
-//  return (
-   
-//     <Container fixed disableGutters maxWidth={isExtraLargeScreen ? 'xl' : 'lg'}>
-//         {/* <Container fixed disableGutters maxWidth={'md'}> */}
-//       <DataGridPro
-//         rows={rows}
-//         columns={columns}
-//         initialState={{ pinnedColumns: { left: ['name'], right: ['actions'] } }}
-//       />
-//     </Container>
-//   );
-  
-// }
-
-
-
-// import { useState } from "react";
-// import { Container } from "@mui/material";
-// import ReportLogToolbar from "../components/ReportLogToolbar";
-// import ReportLogDialog from "../components/ReportLogDialog";
-// // import ReportLogTabs from "../components/ReportLogTabs";
-
-// export default function ReportLogPages() {
-
-
-
-    
-//     const [textSearch, setTextSearch] = useState("");
-//     const [valueRedio, setValueRedio] = useState("Usual");
-//     const [comment, setComment] = useState("");
-//     const [open, setOpen] = useState(false);
-
-//     const handleSearch = () => { console.log("Search", textSearch); };
-//     const handleClear = () => setTextSearch("");
-//     const handleClose = () => setOpen(false);
-//     const handleSubmit = () => {
-//         console.log("Submit", { valueRedio, comment });
-//         setOpen(false);
-//     };
-
-//     return (
-//         <Container maxWidth="xl">
-//             <ReportLogToolbar
-//                 textSearch={textSearch}
-//                 onSearchChange={setTextSearch}
-//                 onSearchClick={handleSearch}
-//                 onClearClick={handleClear}
-//             />
-//             {/* <ReportLogTabs /> */}
-//             <ReportLogDialog
-//                 open={open}
-//                 valueRedio={valueRedio}
-//                 comment={comment}
-//                 onClose={handleClose}
-//                 onSubmit={handleSubmit}
-//                 onRadioChange={setValueRedio}
-//                 onCommentChange={setComment}
-//             />
-//         </Container>
-//     );
-// }

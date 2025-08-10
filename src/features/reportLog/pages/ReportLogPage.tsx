@@ -5,21 +5,19 @@ import {
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
-// import TextField from "@mui/material/TextField";
 import Grid from '@mui/material/Grid';
 import { useCallback, useEffect, useState, type ChangeEvent, type SyntheticEvent } from "react";
 import reportLogService from "../service/reportlogService";
-import type { ReportLog } from "../types/reportlog";
+import type { MUIColor, ReportLog } from "../types/reportlog";
 import Swal from "sweetalert2";
 import datetime from "@/shared/utils/handleDatetime";
-// import SearchIcon from "@mui/icons-material/Search";
+
 import SaveIcon from "@mui/icons-material/Save";
 import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
 import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
-// import CancelPresentation from '@mui/icons-material/CancelPresentation';
 import type { GridRowId } from "@mui/x-data-grid";
 import type { User } from "@/layouts/userType";
 import { columnsDuc } from "../constants/reportLogDucColumns";
@@ -30,7 +28,8 @@ import ReportLogToolbar from "../components/ReportLogToolbar";
 import { DataGridPremium } from "@mui/x-data-grid-premium";
 import { useMediaQuery } from "@mui/system";
 
-type MUIColor = 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning' | 'inherit';
+
+
 
 
 export default function ReportLogPage() {
@@ -41,6 +40,7 @@ export default function ReportLogPage() {
   const resultData: User | null = userDataString
     ? JSON.parse(userDataString)
     : null;
+
 
 
   const [value, setValue] = useState('1');
@@ -108,8 +108,7 @@ export default function ReportLogPage() {
     SetTextSearch('');
     fetchDCC();
     fetchDUC();
-    // setStartDate(null);
-    // setEndDate(null);
+
   }
 
   const fetchDUC = useCallback(async () => {
@@ -193,31 +192,19 @@ export default function ReportLogPage() {
   const handleExportExcel = useCallback(async () => {
     try {
 
-      const rawData = Array.isArray(selectionModel)
-        ? selectionModel
-        : Array.from(selectionModel.ids);
-
-      if (rawData.length === 0) {
-        Swal.fire({
-          title: "No rows selected!",
-          icon: "error",
-        });
-        return;
-      }
-
       await setLoadingExport(true)
 
       let dateToday = "";
       let dateEndDate = "";
 
-      if (dayHisDatedcc == 1 || dayHisDateduc == 1) {
+      if (dayHisDatedcc == 1 && dayHisDateduc == 1) {
         dateToday = datetime.DateSearch(new Date());
         dateEndDate = datetime.DateSearch(new Date());
 
-      } else if (dayHisDatedcc == 0 || dayHisDateduc == 0) {
+      } else if (dayHisDatedcc == 0 && dayHisDateduc == 0) {
 
         const targetDate = new Date()
-        targetDate.setDate(targetDate.getDate() - 1); // ลบ 1 วัน เพราะใน C# +1 วัน
+        targetDate.setDate(targetDate.getDate() - 2); // ลบ 2 วัน เพราะใน C# +1 วัน
         dateEndDate = datetime.DateSearch(targetDate);
       }
 
@@ -253,11 +240,12 @@ export default function ReportLogPage() {
       console.log(err);
     }
 
-  }, [selectionModel, dayHisDatedcc, dayHisDateduc, textSearch, tapData])
+  }, [dayHisDatedcc, dayHisDateduc, textSearch, tapData])
 
 
 
   useEffect(() => {
+
     fetchDUC();
     fetchDCC()
   }, [fetchDCC, fetchDUC, dayHisDatedcc, dayHisDateduc]);
@@ -367,13 +355,12 @@ export default function ReportLogPage() {
 
                       <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3} justifyContent="flex-end" display="flex">
                         <Button variant="contained" color="success" onClick={handleClickOpen} startIcon={<SaveIcon />}> Save Duc</Button>
-                        <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={() => handleExportExcel()} sx={{ ml: 2 }}> Export DUC </Button>
+                        <Button variant="outlined" loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={() => handleExportExcel()} sx={{ ml: 2 }}> Export DUC </Button>
                       </Grid>
                     </Grid>
-                    <Container fixed disableGutters maxWidth={isExtraLargeScreen ? 'xl' : 'lg'}>
+                    <Container disableGutters maxWidth={isExtraLargeScreen ? 'xl' : 'lg'}>
                       <DataGridPremium
-                        // getRowId={(row) => row.id.toString()}
-                        getRowId={(row) => row?.id ?? Math.random()}
+                        getRowId={(row) => row.id.toString()}
                         loading={loadingDataGrid}
                         rows={dataDuc}
                         columns={columnsDuc}
@@ -403,7 +390,7 @@ export default function ReportLogPage() {
                             : ""
                         }
                         sx={{
-                          marginInline: '-9%',
+                          ...(isExtraLargeScreen ? { marginInline: '-9%' } : {}),
                           "& .row--highlight": {
                             bgcolor: "rgba(255,165,0,0.1)",
                             color: "orange",
@@ -437,10 +424,9 @@ export default function ReportLogPage() {
                         <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={() => handleExportExcel()} sx={{ ml: 2 }}> Export DCC </Button>
                       </Grid>
                     </Grid>
-                    <Container fixed disableGutters maxWidth={isExtraLargeScreen ? 'xl' : 'lg'}>
+                    <Container disableGutters maxWidth={isExtraLargeScreen ? 'xl' : 'lg'}>
                       <DataGridPremium
-                        // getRowId={(row) => row.id.toString()}
-                        getRowId={(row) => row?.id ?? Math.random()}
+                        getRowId={(row) => row.id.toString()}
                         loading={loadingDataGrid}
                         rows={dataDcc}
                         columns={columnsDCC}
@@ -471,7 +457,7 @@ export default function ReportLogPage() {
                             : ""
                         }
                         sx={{
-                          marginInline: '-9%',
+                          ...(isExtraLargeScreen ? { marginInline: '-9%' } : {}),
                           "& .row--highlight": {
                             bgcolor: "rgba(255,165,0,0.1)",
                             color: "orange",

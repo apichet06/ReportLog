@@ -114,7 +114,7 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
 
     const menuItems = [
         { label: "Dashboard", icon: <InboxIcon />, path: "/dashboard" },
-        { label: "Report Log", icon: <InboxIcon />, path: "/reportlog" },
+        { label: "Report Log", icon: <InboxIcon />, path: "/report-log" },
         { label: "Save Report", icon: <DescriptionIcon />, path: "/saved_report" },
     ];
 
@@ -149,7 +149,7 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
 
     useEffect(() => {
         handlelogin();
-    }, [navigate]);
+    }, [handlelogin, navigate]);
 
     // ระหว่างรอ login เสร็จ
     if (!isAppInitialized) {
@@ -224,7 +224,7 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
 
             {/* ---------- Main Content ---------- */}
             <Main open={open}>
-                <DrawerHeader /> {/* pushes content below AppBar */}
+                <DrawerHeader />
                 {children ?? <Outlet />}
             </Main>
         </Box>
