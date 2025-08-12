@@ -27,6 +27,7 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 import ReportLogToolbar from "../components/ReportLogToolbar";
 import { DataGridPremium } from "@mui/x-data-grid-premium";
 import { useMediaQuery } from "@mui/system";
+import { useParams } from "react-router-dom";
 
 
 
@@ -40,7 +41,7 @@ export default function ReportLogPage() {
   const resultData: User | null = userDataString
     ? JSON.parse(userDataString)
     : null;
-
+  const { id, tap } = useParams<{ id: string, tap: string }>();
 
 
   const [value, setValue] = useState('1');
@@ -242,15 +243,50 @@ export default function ReportLogPage() {
 
   }, [dayHisDatedcc, dayHisDateduc, textSearch, tapData])
 
+  console.log(tap);
 
 
   useEffect(() => {
+    const searchById = async (searchId: string) => {
+      setLoadnigDataGrid(true);
+      try {
 
-    fetchDUC();
-    fetchDCC()
-  }, [fetchDCC, fetchDUC, dayHisDatedcc, dayHisDateduc]);
+        var result = await reportLogService.SearchReportLogService({ Search: searchId, tapData: tap });
+
+        if (tap == "DUC") {
+          setValue("1")
+          SetDataDUC(result.data.result);
+        } else {
+          setValue("2")
+          SetDataDCC(result.data.result);
+        }
 
 
+
+      } catch (err) {
+        console.error("Failed to search by ID:", err);
+      } finally {
+        setLoadnigDataGrid(false);
+      }
+    };
+
+    if (id && tap) {
+      // ถ้ามี id ใน URL, ให้ใช้ id นั้นในการค้นหา
+      SetTextSearch(id); // อัปเดตค่าในช่องค้นหา
+      searchById(id);
+      setTapData(tap)
+    } else {
+      // ถ้าไม่มี id, ให้ใช้ logic การดึงข้อมูลแบบเดิม
+      fetchDUC();
+      fetchDCC();
+    }
+  }, [id, tap, fetchDUC, fetchDCC, dayHisDatedcc, dayHisDateduc]); // ให้ useEffect ทำงานเมื่อ id, fetchDUC, หรือ fetchDCC เปลี่ยน
+
+
+  // useEffect(() => {
+  //   fetchDUC();
+  //   fetchDCC()
+  // }, [fetchDCC, fetchDUC, dayHisDatedcc, dayHisDateduc]);
 
 
 

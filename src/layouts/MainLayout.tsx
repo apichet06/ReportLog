@@ -33,6 +33,8 @@ import Cookies from "js-cookie";
 import Button from '@mui/material/Button';
 import type { User } from "./userType";
 import LogoutIcon from '@mui/icons-material/Logout';
+import InsertChartIcon from '@mui/icons-material/InsertChart';
+
 
 const drawerWidth = 240;
 
@@ -113,9 +115,9 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
     const handleDrawerClose = () => setOpen(false);
 
     const menuItems = [
-        { label: "Dashboard", icon: <InboxIcon />, path: "/dashboard" },
+        { label: "Dashboard Chart", icon: <InsertChartIcon />, path: "/dashboard" },
         { label: "Report Log", icon: <InboxIcon />, path: "/report-log" },
-        { label: "Save Report", icon: <DescriptionIcon />, path: "/saved_report" },
+        { label: "Audited Log", icon: <DescriptionIcon />, path: "/saved_report" },
     ];
 
     const { setToken, setUser } = useAuthContext();

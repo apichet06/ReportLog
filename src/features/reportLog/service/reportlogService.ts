@@ -60,7 +60,7 @@ const ApprovedReportLogService = (
   axiosInstance.put("/DUC_DCC", {
     Id,
     Admin_confirm: Admin_confirm,
-    Status_accept: valueRedio,
+    Admin_confirm_event: valueRedio,
     Admin_confirm_comment: commont,
   });
 

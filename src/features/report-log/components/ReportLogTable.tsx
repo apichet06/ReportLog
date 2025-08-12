@@ -38,6 +38,13 @@ export function ReportLogTable({ rows, loading, setSelectionModel, paginationMod
                     ? "row--highlight"
                     : ""
             }
+            showToolbar={true}
+            slotProps={{
+                toolbar: {
+                    csvOptions: { disableToolbarButton: true },
+                    printOptions: { disableToolbarButton: true },
+                },
+            }}
             sx={{
                 ...(isAbove1537 ? { marginInline: '-9%' } : {}),
                 ...(isBetween1201And1536 ? { marginInline: '-10%' } : {}),

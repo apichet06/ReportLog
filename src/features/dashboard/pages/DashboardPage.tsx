@@ -29,22 +29,36 @@ ChartJS.register(
     ChartDataLabels
 );
 import { colors } from '../components/utils';
-// import { Box } from '@mui/material';
-
-
+// import Box from '@mui/material/Box';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Select, { type SelectChangeEvent } from '@mui/material/Select';
 
 
 const DashboardPage = () => {
     const [chartData, setChartData] = useState<ChartJsData<'pie'>>(initialChartData);
     const [chartBar, setChartBar] = useState<ChartJsData<'bar'>>(initialChartBarData);
+    const [data, setData] = useState(0);
+    const [Year, setYear] = useState(new Date().getFullYear().toString());
+
+
+    const currentYear = new Date().getFullYear();
+    const startYear = 2024;
+    const yearOptions = Array.from({ length: currentYear - startYear + 1 }, (_, i) => startYear + i);
+
+    const handleChange = (event: SelectChangeEvent) => {
+        setYear(event.target.value);
+    };
+
 
 
 
     const handleChart = useCallback(async () => {
         try {
-            const response = await _Chart.ChartService();
-            const apiData = response.data.result;
 
+            const response = await _Chart.ChartService(Year);
+            const apiData = response.data.result;
+            setData(apiData.length)
             if (apiData && apiData.length > 0) {
                 const labels = apiData.map((item: ChartData) => item.name);
                 const dataPoints = apiData.map((item: ChartData) => item.count);
@@ -59,7 +73,7 @@ const DashboardPage = () => {
             console.error("Failed to fetch chart data:", err);
 
         }
-    }, []);
+    }, [Year]);
 
     // const handleChartBar = useCallback(async () => {
     //     try {
@@ -110,26 +124,26 @@ const DashboardPage = () => {
 
     const handleChartBar = useCallback(async () => {
         try {
-            const response = await _Chart.ChartBarService();
+            const response = await _Chart.ChartBarService(Year);
             const apiDatabar: CartBarData[] = response.data.result;
 
             if (!apiDatabar?.length) return;
 
-            // --- สร้าง ordered months (unique & sorted) แล้วทำ labels เป็นชื่อเดือนตาม order ---
+
             const monthsOrdered = Array.from(new Set(apiDatabar.map(i => i.month)))
                 .sort((a, b) => a - b);
 
             const labels = monthsOrdered.map(m => {
                 const found = apiDatabar.find(i => i.month === m && i.name);
-                return found?.name ?? ''; // ถ้าไม่มีชื่อจริง ๆ ก็ใส่ empty string
+                return found?.name ?? '';
             });
 
-            // --- หาค่า app_log ที่ไม่เป็น null/undefined (ไม่เอา Unknown) ---
+
             const logTypes = Array.from(
                 new Set(
                     apiDatabar
                         .map(i => i.app_log)
-                        .filter((v): v is string => v != null) // type guard เพื่อให้ TypeScript รู้ว่าเป็น string
+                        .filter((v): v is string => v != null)
                 )
             );
 
@@ -156,7 +170,7 @@ const DashboardPage = () => {
         } catch (err) {
             console.error('Failed to fetch chart data:', err);
         }
-    }, []);
+    }, [Year]);
 
 
     useEffect(() => {
@@ -169,9 +183,26 @@ const DashboardPage = () => {
             <Container maxWidth={false}>
 
                 <Grid container spacing={2} justifyContent="center">
+                    <Grid size={{ xs: 12, md: 12, lg: 12, xl: 12 }}>
+                        <InputLabel id="demo-simple-select-standard-label">Year</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-standard-label"
+                            id="demo-simple-select-standard"
+                            value={Year}
+                            onChange={handleChange}
+                            label="Year"
+                        >
+                            {yearOptions.map((year) => (
+                                <MenuItem key={year} value={year}>
+                                    {year}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </Grid>
                     <Grid size={{ xs: 12, md: 4 }}>
                         {/* <Box sx={{ height: { md: 500 }, position: 'relative' }}> */}
-                        <Pie data={chartData} options={options} />
+                        {data !== 0 &&
+                            <Pie data={chartData} options={options} />}
                         {/* </Box> */}
                     </Grid>
                     <Grid size={{ xs: 12, md: 8 }}>

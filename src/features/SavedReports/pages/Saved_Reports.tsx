@@ -366,13 +366,13 @@ export default function Saved_Reports() {
                     </Grid>
                     {/* {window.innerWidth} */}
                     <Container fixed disableGutters maxWidth={isAbove1537 ? 'xl' : 'lg'}>
-
                       <DataGridPremium
                         getRowId={(row) => row.id.toString()}
                         loading={loadingDataGrid}
                         rows={dataDuc}
                         columns={ducColumns}
                         pagination
+
                         initialState={{ pinnedColumns: { left: ['no'], right: ['manage'] } }}
                         paginationModel={paginationModel}
                         onPaginationModelChange={setPaginationModel}
@@ -384,6 +384,13 @@ export default function Saved_Reports() {
                             ? "row--highlight"
                             : ""
                         }
+                        showToolbar={true}
+                        slotProps={{
+                          toolbar: {
+                            csvOptions: { disableToolbarButton: true },
+                            printOptions: { disableToolbarButton: true },
+                          },
+                        }}
                         sx={{
                           ...(isAbove1537 ? { marginInline: '-9%' } : {}),
                           ...(isBetween1201And1536 ? { marginInline: '-10%' } : {}),
@@ -426,7 +433,7 @@ export default function Saved_Reports() {
                         pagination
                         paginationModel={paginationModel}
                         onPaginationModelChange={(model) => setPaginationModel(model)}
-                        pageSizeOptions={[5, 10, 15, 20]}
+                        pageSizeOptions={[5, 10, 15, 20, 40, 60, 80, 100]}
                         initialState={{ pinnedColumns: { left: ['no'], right: ['manage'] } }}
                         getRowClassName={(params) =>
                           params.row.unauthorized === "Y" ||
@@ -435,6 +442,13 @@ export default function Saved_Reports() {
                             ? "row--highlight"
                             : ""
                         }
+                        showToolbar={true}
+                        slotProps={{
+                          toolbar: {
+                            csvOptions: { disableToolbarButton: true },
+                            printOptions: { disableToolbarButton: true },
+                          },
+                        }}
                         sx={{
                           ...(isAbove1537 ? { marginInline: '-9%' } : {}),
                           ...(isBetween1201And1536 ? { marginInline: '-10%' } : {}),

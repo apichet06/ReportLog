@@ -1,4 +1,10 @@
-import { Container, Grid, ButtonGroup, Button, useMediaQuery, Box, Tab } from "@mui/material";
+import Container from '@mui/material/Container';
+import Grid from '@mui/material/Grid';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import Button from '@mui/material/Button';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import Box from '@mui/material/Box';
+import Tab from '@mui/material/Tab';
 import SaveIcon from "@mui/icons-material/Save";
 import SystemUpdateAltIcon from "@mui/icons-material/SystemUpdateAlt";
 import { useReportLog } from "../hooks";
@@ -32,7 +38,7 @@ export default function ReportLogPage() {
     setSelectionModel,
     paginationModel,
     setPaginationModel,
-    open, tapData, setOpen,
+    open, setOpen,
     conment, setComment,
     valueRedio, handleChangeRedio,
     handleSubmit, setTapData,
@@ -120,7 +126,7 @@ export default function ReportLogPage() {
                             setColerTodayDuc("primary");
                             setColerHistoryDuc("secondary");
                           }}>
-                            History {tapData}
+                            History
                           </Button>
                         </ButtonGroup>
                       </Grid>
@@ -164,7 +170,7 @@ export default function ReportLogPage() {
                             setColerTodayDcc("primary");
                             setColerHistoryDcc("secondary");
                           }}>
-                            History{tapData}
+                            History
                           </Button>
 
                         </ButtonGroup>
@@ -192,7 +198,6 @@ export default function ReportLogPage() {
 
               </Grid>
             </Box>
-
           </Grid>
         </Grid>
       </Container>
