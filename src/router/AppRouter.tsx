@@ -33,3 +33,4 @@ const AppRouter = () => {
 };
 
 export default AppRouter;
+// เกิดข้อผิดพลาด 500 : The process cannot access the file 'D:\\inetpub\\wwwroot\\custappl\\CRUDLogs\\dccduc_Api_new\\Files\\reportDUCSendMail.xlsx' because it is being used by another process.
