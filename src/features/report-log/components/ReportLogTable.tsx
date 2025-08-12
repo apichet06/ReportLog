@@ -26,7 +26,7 @@ export function ReportLogTable({ rows, loading, setSelectionModel, paginationMod
             paginationModel={paginationModel}
             onPaginationModelChange={(model) => setPaginationModel(model)}
             initialState={{
-                pinnedColumns: { left: ['__check__', 'no'], right: ['event_type'] }
+                pinnedColumns: { left: ['__check__', 'no'], right: ['event_type', 'Edit'] }
             }}
             pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
             checkboxSelection

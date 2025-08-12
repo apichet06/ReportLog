@@ -3,7 +3,9 @@ import { fNumber } from "@/shared/utils/formatNumber";
 import datetime from "@/shared/utils/handleDatetime";
 import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid-premium";
 import { StatusIconCell } from "../components/StatusIconCell";
-
+import { Button } from "@mui/material";
+import { Link } from "react-router-dom";
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 export const columnsDuc: GridColDef[] = [
   {
@@ -43,7 +45,7 @@ export const columnsDuc: GridColDef[] = [
   { field: "days_after_action", headerName: "DAY AFTER ACTION", flex: 2, minWidth: 150 },
   {
     field: "event_type",
-    headerName: "EVENT TYPE", flex: 2, minWidth: 130,
+    headerName: "EVENT TYPE", flex: 2, minWidth: 110,
     renderCell: (params) => {
       const even_type = params.value as string;
       return (
@@ -70,5 +72,26 @@ export const columnsDuc: GridColDef[] = [
     headerName: "RESIGNING (<1 MO.)", flex: 2, minWidth: 140,// การลาออกของพนักงานภายในหนึ่งเดือน
     renderCell: (params) => <StatusIconCell value={params.value as string} />,
     align: 'center'
+  }, {
+    field: "Edit",
+    headerName: "VIEW EDIT",
+    headerAlign: "center",
+    align: "center",
+    flex: 2.5,
+    minWidth: 100,
+    renderCell: (params) => {
+      return (
+        <Button
+          component={Link}
+          to={`/report-log/${Number(params.row.id)}/${params.row.app_log}`}
+          variant="contained"
+          color="secondary"
+          size="small"
+          target="_blank"
+        >
+          <VisibilityIcon />
+        </Button>
+      );
+    },
   },
 ];

@@ -9,12 +9,14 @@ export function useReportLog(userData: User | null) {
   const state = useReportLogState();
 
   // ส่ง state นี้ให้ทุก hook ที่ต้องใช้
-  const { ducData, dccData, fetchDUC, fetchDCC } = useReportLogData(state);
+  const { ducData, dccData, fetchDUC, fetchDCC, LoadingData } =
+    useReportLogData(state);
 
   const actions = useReportLogActions(
     state,
     fetchDUC,
     fetchDCC,
+    LoadingData,
     userData,
     state.setDataDUC,
     state.setDataDCC,
@@ -31,6 +33,7 @@ export function useReportLog(userData: User | null) {
     handleExportExcel,
     fetchDUC,
     fetchDCC,
+    LoadingData,
     ducDataleng: ducData.length,
   };
 }

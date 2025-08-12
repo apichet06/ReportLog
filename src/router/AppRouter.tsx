@@ -6,6 +6,7 @@ import ErrorPermissionPage from "@/features/permession/ErrorPermissionPage";
 import LoginPage from "@/features/auth/page/LoginPage";
 import DashboardPage from "@/features/dashboard/pages/DashboardPage";
 import ReportLogPages from "@/features/report-log/pages/ReportLogPage";
+import ReportLogByIdPage from "@/features/report-log/pages/ReportLogByIdPage";
 
 
 
@@ -20,7 +21,7 @@ const AppRouter = () => {
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/reportlog" element={<ReportLogPage />} />
         <Route path="/report-log" element={<ReportLogPages />} />
-        {/* <Route path="/report-log/:id?/:tap?" element={<ReportLogPages />} /> */}
+        <Route path="/report-log/:id?/:tap?" element={<ReportLogByIdPage />} />
         <Route path="/saved_report" element={<Saved_Reports />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="*" element={<Navigate to="/dashboard" />} />

@@ -1,6 +1,12 @@
 import axiosInstance from "@/shared/utils/axiosInstance";
-import type { ReportLog, SearchData, TabDataState } from "../types/reportlog";
+
 import type { AxiosResponse } from "axios";
+import type {
+  AcceptById,
+  ReportLog,
+  SearchData,
+  TabDataState,
+} from "../types/reportLogTypes";
 // import type { ReportLog, SearchData } from "../types/reportlog";
 
 interface ApiListResponse {
@@ -32,6 +38,9 @@ const SearchReportLogService = (
   return axiosInstance.get("/DUC_DCC/ReportLog", { params });
 };
 
+const GetReportLogById = (id: number) =>
+  axiosInstance.get(`/DUC_DCC/ReportLog/${id}`);
+
 const exportExcel = (searchData: SearchData): Promise<AxiosResponse<Blob>> => {
   const params = buildSearchParams(searchData);
   return axiosInstance.get("/DUC_DCC/ExportExcelLog", {
@@ -53,10 +62,19 @@ const ApprovedReportLogService = (
     Admin_confirm_comment: commont,
   });
 
+const ApprovedReportLogByIDService = (editingId: number, data: AcceptById) =>
+  axiosInstance.put(`/DUC_DCC/AcceptById/${editingId}`, {
+    Admin_confirm: data.Admin_confirm,
+    Admin_confirm_comment: data.Admin_confirm_comment,
+    Admin_confirm_event: data.Admin_confirm_event,
+  });
+
 const reportLogService = {
   GetReportLogService,
   ApprovedReportLogService,
   SearchReportLogService,
   exportExcel,
+  GetReportLogById,
+  ApprovedReportLogByIDService,
 };
 export default reportLogService;

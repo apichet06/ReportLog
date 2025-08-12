@@ -3,6 +3,9 @@ import datetime from "@/shared/utils/handleDatetime";
 import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid-premium";
 import { StatusIconCell } from "../components/StatusIconCell";
 
+import { Link } from "react-router-dom";
+import { Button } from "@mui/material";
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 export const columnsDCC: GridColDef[] = [
     {
@@ -42,7 +45,7 @@ export const columnsDCC: GridColDef[] = [
     { field: "days_after_action", headerName: "DAY AFTER ACTION", flex: 2, minWidth: 150 },
     {
         field: "event_type",
-        headerName: "EVENT TYPE", flex: 2, minWidth: 130,
+        headerName: "EVENT TYPE", flex: 2, minWidth: 110,
         renderCell: (params) => {
             const even_type = params.value as string;
             return (
@@ -75,5 +78,27 @@ export const columnsDCC: GridColDef[] = [
         headerName: "IS BU DCC", flex: 2, minWidth: 100,
         renderCell: (params) => <StatusIconCell value={params.value as string} />,
         align: 'center'
+    },
+    {
+        field: "Edit",
+        headerName: "VIEW EDIT",
+        headerAlign: "center",
+        align: "center",
+        flex: 2.5,
+        minWidth: 100,
+        renderCell: (params) => {
+            return (
+                <Button
+                    component={Link}
+                    to={`/report-log/${Number(params.row.id)}/${params.row.app_log}`}
+                    variant="contained"
+                    color="secondary"
+                    size="small"
+                    target="_blank"
+                >
+                    <VisibilityIcon />
+                </Button>
+            );
+        },
     },
 ];

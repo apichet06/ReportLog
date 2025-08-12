@@ -62,7 +62,7 @@ export default function Saved_Reports() {
   const [colerHistorydcc, setColerHistoryDcc] = useState<MUIColor>("info");
 
 
-  const [valueRedio, setValueRedio] = useState('Usual');
+  const [valueRedio, setValueRedio] = useState('Usual Event');
   const handleChangeRedio = (event: ChangeEvent<HTMLInputElement>) => {
     setValueRedio((event.target as HTMLInputElement).value);
   };
@@ -84,7 +84,7 @@ export default function Saved_Reports() {
 
     if (rowToEdit) {
       // เพิ่มค่า fallback เพื่อป้องกัน error จากค่า null
-      setValueRedio(rowToEdit.admin_confirm_event || 'Usual');
+      setValueRedio(rowToEdit.admin_confirm_event || 'Usual Event');
       setComment(rowToEdit.admin_confirm_comment || '');
 
 
@@ -167,30 +167,37 @@ export default function Saved_Reports() {
     }
   }, [textSearch, tapData]);
 
+
   const handleExportExcel = useCallback(async () => {
     try {
-      await setLoadingExport(true)
+      setLoadingExport(true);
       let dateToday = "";
       let dateEndDate = "";
 
-      if (dayHisDatedcc == 1 || dayHisDateduc == 1) {
+      // เลือก state ตาม type
+      const isToday =
+        tapData === "DUC" ? dayHisDateduc === 1 : dayHisDatedcc === 1;
+
+      if (isToday) {
         dateToday = datetime.DateSearch(new Date());
         dateEndDate = datetime.DateSearch(new Date());
-
-      } else if (dayHisDatedcc == 0 || dayHisDateduc == 0) {
-
-        const targetDate = new Date()
+      } else {
+        const targetDate = new Date();
         targetDate.setDate(targetDate.getDate() - 1); // ลบ 1 วัน เพราะใน C# +1 วัน
         dateEndDate = datetime.DateSearch(targetDate);
       }
 
-      const res = await reportSaveLog.exportExcel({ Search: textSearch, startDate: dateToday, endDate: dateEndDate, tapData });
+      const res = await reportSaveLog.exportExcel({
+        Search: textSearch,
+        startDate: dateToday,
+        endDate: dateEndDate,
+        tapData: tapData,
+      });
 
       const blob = res.data;
 
-      // ดึงชื่อไฟล์จาก header 'content-disposition'
-      const contentDisposition = res.headers['content-disposition'];
-      let fileName = `${new Date().getTime()} report.xlsx`; // Default filename
+      const contentDisposition = res.headers["content-disposition"];
+      let fileName = `${new Date().getTime()} report.xlsx`;
       if (contentDisposition) {
         const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
         if (fileNameMatch && fileNameMatch.length > 1) {
@@ -198,32 +205,28 @@ export default function Saved_Reports() {
         }
       }
 
-      // สร้าง URL ชั่วคราวสำหรับดาวน์โหลด
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.setAttribute('download', fileName);
-
-      // เพิ่ม link เข้าไปใน DOM, กด, และลบออก
+      link.setAttribute("download", fileName);
       document.body.appendChild(link);
       link.click();
       link.parentNode?.removeChild(link);
       window.URL.revokeObjectURL(url);
 
-      await setLoadingExport(false)
-
+      setLoadingExport(false);
     } catch (err) {
       console.log(err);
+      setLoadingExport(false);
     }
+  }, [dayHisDatedcc, dayHisDateduc, tapData, textSearch]);
 
-
-  }, [dayHisDatedcc, dayHisDateduc, textSearch, tapData])
 
 
   useEffect(() => {
     fetchDUC();
     fetchDCC()
-  }, [fetchDCC, fetchDUC]);
+  }, [fetchDCC, fetchDUC,]);
 
 
 
@@ -231,7 +234,7 @@ export default function Saved_Reports() {
     setOpen(false);
     setEditingId(null);
     setComment("");
-    setValueRedio('Usual');
+    setValueRedio('Usual Event');
   };
 
 
@@ -356,12 +359,12 @@ export default function Saved_Reports() {
                           variant="outlined"
                           aria-label="Disabled button group"
                         >
-                          <Button variant="contained" color={colerTodayduc} onClick={() => (setsDayHisDateDuc(1), setColerTodayDuc("secondary"), setColerHistoryDuc("primary"))} >Yesterday</Button>
-                          <Button variant="contained" color={colerHistoryduc} onClick={() => (setsDayHisDateDuc(0), setColerTodayDuc("primary"), setColerHistoryDuc("secondary"))}>History</Button>
+                          <Button variant="contained" color={colerTodayduc} onClick={() => { setsDayHisDateDuc(1); setColerTodayDuc("secondary"); setColerHistoryDuc("primary") }} >Yesterday</Button>
+                          <Button variant="contained" color={colerHistoryduc} onClick={() => { setsDayHisDateDuc(0); setColerTodayDuc("primary"); setColerHistoryDuc("secondary") }}>History</Button>
                         </ButtonGroup>
                       </Grid>
                       <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3} justifyContent="flex-end" display="flex">
-                        <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={handleExportExcel} sx={{ ml: 2 }}> Export DUC </Button>
+                        <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={handleExportExcel} sx={{ ml: 2 }}> Export DUC</Button>
                       </Grid>
                     </Grid>
                     {/* {window.innerWidth} */}
@@ -417,12 +420,12 @@ export default function Saved_Reports() {
                           variant="outlined"
                           aria-label="Disabled button group"
                         >
-                          <Button variant="contained" color={colerTodaydcc} onClick={() => (setsDayHisDateDcc(1), setColerTodayDcc("secondary"), setColerHistoryDcc("primary"))} >Yesterday</Button>
-                          <Button variant="contained" color={colerHistorydcc} onClick={() => (setsDayHisDateDcc(0), setColerTodayDcc("primary"), setColerHistoryDcc("secondary"))}>History</Button>
+                          <Button variant="contained" color={colerTodaydcc} onClick={() => { setsDayHisDateDcc(1); setColerTodayDcc("secondary"); setColerHistoryDcc("primary") }} >Yesterday</Button>
+                          <Button variant="contained" color={colerHistorydcc} onClick={() => { setsDayHisDateDcc(0); setColerTodayDcc("primary"); setColerHistoryDcc("secondary") }}>History</Button>
                         </ButtonGroup>
                       </Grid>
                       <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3} justifyContent="flex-end" display="flex">
-                        <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={handleExportExcel} sx={{ ml: 2 }}> Export DCC </Button>
+                        <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={handleExportExcel} sx={{ ml: 2 }}> Export DCC</Button>
                       </Grid>
                     </Grid>
                     <Container fixed disableGutters maxWidth={isAbove1537 ? 'xl' : 'lg'}>

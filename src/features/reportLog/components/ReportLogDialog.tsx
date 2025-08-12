@@ -43,8 +43,8 @@ export default function ReportLogDialog({
                         value={valueRedio}
                         onChange={onRadioChange}
                     >
-                        <FormControlLabel value="Usual" control={<Radio />} label="Usual Event" />
-                        <FormControlLabel value="Unusual" control={<Radio />} label="Unusual Event" />
+                        <FormControlLabel value="Usual Event" control={<Radio />} label="Usual Event" />
+                        <FormControlLabel value="Unusual Event" control={<Radio />} label="Unusual Event" />
                     </RadioGroup>
                 </FormControl>
                 <TextField

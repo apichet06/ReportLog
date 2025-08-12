@@ -13,7 +13,7 @@ export function useReportLogState() {
 
   const [rowDatas, setRowDatas] = useState<GridRowId[]>([]);
   const [conment, setComment] = useState("");
-  const [valueRedio, setValueRedio] = useState("Usual");
+  const [valueRedio, setValueRedio] = useState("Usual Event");
 
   const [dataDuc, setDataDUC] = useState<ReportLog[]>([]);
   const [dataDcc, setDataDCC] = useState<ReportLog[]>([]);
@@ -33,6 +33,10 @@ export function useReportLogState() {
   const [textSearch, setTextSearch] = useState<string>("");
   const [tapData, setTapData] = useState<string>("DUC");
   const [loadingExport, setLoadingExport] = useState<boolean>(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [data, setData] = useState<ReportLog | null>(null);
+
+  const [id, setId] = useState<string>("");
 
   const handleChangeRedio = (event: ChangeEvent<HTMLInputElement>) => {
     setValueRedio(event.target.value);
@@ -80,5 +84,11 @@ export function useReportLogState() {
     setLoadingDataGrid,
     setValue,
     value,
+    editingId,
+    setEditingId,
+    data,
+    setData,
+    id,
+    setId,
   };
 }
