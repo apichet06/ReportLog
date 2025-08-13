@@ -28,7 +28,7 @@ export default function ReportLogToolbar({
 }: Props) {
     return (
         <Grid container spacing={2} alignItems="center" mb={3}>
-            <Grid size={{ xs: 12, sm: 12, md: 10, lg: 7, xl: 8 }}>
+            <Grid size={{ xs: 12, sm: 12, md: 10, lg: 7, xl: 7 }}>
                 <TextField
                     label="Search..."
                     type="search"
@@ -38,7 +38,7 @@ export default function ReportLogToolbar({
                     fullWidth
                 />
             </Grid>
-            <Grid size={{ xs: 12, sm: 12, md: 3, lg: 3, xl: 2 }}>
+            <Grid size={{ xs: 12, sm: 12, md: 3, lg: 3, xl: 3 }}>
                 <FormControlLabel
                     control={
                         <Checkbox
