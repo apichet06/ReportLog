@@ -10,7 +10,6 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // ถ้าใช้ react-router-dom v6+ แนะนำวิธีนี้
       window.localStorage.removeItem("token");
       window.location.href = `${import.meta.env.BASE_URL}login`; // redirect ไปหน้า login
     }

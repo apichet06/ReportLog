@@ -67,6 +67,10 @@ export default function Saved_Reports() {
     setValueRedio((event.target as HTMLInputElement).value);
   };
 
+  console.log(textSearch);
+
+
+
 
   const handleClear = () => {
     SetTextSearch('');
@@ -118,7 +122,7 @@ export default function Saved_Reports() {
       }
 
       const res = await reportSaveLog.GetSaveReportLogService({ tapData: "DUC", startDate: dateToday, endDate: dateEndDate });
-      SetDataDUC(res.data.result);
+      SetDataDUC(res.data.result || []);
       setLoadnigDataGrid(false)
     } catch (err) {
       console.log(err);
@@ -144,7 +148,7 @@ export default function Saved_Reports() {
       }
 
       const res = await reportSaveLog.GetSaveReportLogService({ tapData: "DCC", startDate: dateToday, endDate: dateEndDate });
-      SetDataDCC(res.data.result);
+      SetDataDCC(res.data.result || []);
       setLoadnigDataGrid(false)
     } catch (err) {
       console.log(err);

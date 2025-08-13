@@ -1,4 +1,11 @@
-import { Card, CardContent, Typography, Grid, Divider, Paper, Button, Box } from "@mui/material";
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import Grid from '@mui/material/Grid';
+import Divider from '@mui/material/Divider';
+import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
 import ReportLogDialog from "../components/ReportLogDialog";
 
 import type { User } from "@/layouts/userType";
@@ -98,8 +105,11 @@ export default function ReportLogByIdPage() {
     const color = data?.admin_confirm_event === "Usual Event" ? "green" : "red";
     const colorevent = data?.event_type === "Usual Event" ? "green" : "red";
 
+
+
     return (
         <>
+
             <Paper elevation={0} sx={{ p: 2, backgroundColor: "#f5f5f5" }}>
                 <Card sx={{ maxWidth: 1000, margin: "auto", borderRadius: 3, boxShadow: 3 }}>
                     <CardContent>
@@ -124,6 +134,19 @@ export default function ReportLogByIdPage() {
                                 <Typography variant="body1">{data?.username?.trim()}</Typography>
                             </Grid>
 
+                            <Grid size={{ xs: 12, sm: 6 }}>
+                                <Typography variant="subtitle2" color="text.secondary">
+                                    BU
+                                </Typography>
+                                <Typography variant="body1">{data?.bu || "-"}</Typography>
+                            </Grid>
+
+                            <Grid size={{ xs: 12, sm: 6 }}>
+                                <Typography variant="subtitle2" color="text.secondary">
+                                    POSITION
+                                </Typography>
+                                <Typography variant="body1">{data?.position || "-"}</Typography>
+                            </Grid>
                             <Grid size={{ xs: 12, sm: 6 }}>
                                 <Typography variant="subtitle2" color="text.secondary">
                                     ACTION
@@ -163,44 +186,72 @@ export default function ReportLogByIdPage() {
 
                             <Grid size={{ xs: 12, sm: 6 }}>
                                 <Typography variant="subtitle2" color="text.secondary">
-                                    BU
-                                </Typography>
-                                <Typography variant="body1">{data?.bu || "-"}</Typography>
-                            </Grid>
-
-                            <Grid size={{ xs: 12, sm: 6 }}>
-                                <Typography variant="subtitle2" color="text.secondary">
-                                    POSITION
-                                </Typography>
-                                <Typography variant="body1">{data?.position || "-"}</Typography>
-                            </Grid>
-
-                            <Grid size={{ xs: 12, sm: 6 }}>
-                                <Typography variant="subtitle2" color="text.secondary">
                                     EVENT TYPE
                                 </Typography>
                                 <Typography variant="body1" color={colorevent}>{data?.event_type}</Typography>
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6 }}>
+                                <Typography variant="subtitle2" color="text.secondary">
+                                    RESINGNED DATE
+                                </Typography>
+                                <Typography variant="body1">{data?.resigned_date || "-"}</Typography>
+                            </Grid>
+                            <Grid size={{ xs: 12, sm: 6 }}>
+                                <Typography variant="subtitle2" color="text.secondary">
+                                    DAY AFTER ACTION
+                                </Typography>
+                                <Typography variant="body1" >{data?.days_after_action || "-"}</Typography>
                             </Grid>
 
                             <Grid size={{ xs: 12, sm: 6 }}>
                                 <Typography variant="subtitle2" color="text.secondary">
                                     UNAUTHORIZED
                                 </Typography>
-                                <Typography variant="body1">{data?.unauthorized}</Typography>
+                                <Typography variant="body1">
+                                    {data?.unauthorized == 'Y' ?
+                                        <>
+                                            <img src="/CRUDLogs/applog/img/alert.png" width="20px" height="20px" alt="Alert" />
+                                        </>
+                                        :
+                                        <>
+                                            <img src="/CRUDLogs/applog/img/success.png" width="20px" height="20px" alt="Success" />
+                                        </>
+                                    }
+                                </Typography>
                             </Grid>
 
                             <Grid size={{ xs: 12, sm: 6 }}>
                                 <Typography variant="subtitle2" color="text.secondary">
                                     DOWNLOAD &gt; 10 FILES/DAY
                                 </Typography>
-                                <Typography variant="body1">{data?.download_more_10_files_day}</Typography>
+                                <Typography variant="body1">
+                                    {data?.download_more_10_files_day == 'Y' ?
+                                        <>
+                                            <img src="/CRUDLogs/applog/img/alert.png" width="20px" height="20px" alt="Alert" />
+                                        </>
+                                        :
+                                        <>
+                                            <img src="/CRUDLogs/applog/img/success.png" width="20px" height="20px" alt="Success" />
+                                        </>
+                                    }
+                                </Typography>
                             </Grid>
 
                             <Grid size={{ xs: 12, sm: 6 }}>
                                 <Typography variant="subtitle2" color="text.secondary">
                                     EMPLOYEE RESIGNING WITHIN 1 MONTH
                                 </Typography>
-                                <Typography variant="body1">{data?.employee_resigning_within_one_month}</Typography>
+                                <Typography variant="body1">
+                                    {data?.employee_resigning_within_one_month == 'Y' ?
+                                        <>
+                                            <img src="/CRUDLogs/applog/img/alert.png" width="20px" height="20px" alt="Alert" />
+                                        </>
+                                        :
+                                        <>
+                                            <img src="/CRUDLogs/applog/img/success.png" width="20px" height="20px" alt="Success" />
+                                        </>
+                                    }
+                                </Typography>
                             </Grid>
 
                             {tap === 'DCC' ?
@@ -220,6 +271,16 @@ export default function ReportLogByIdPage() {
                                         </Typography>
                                         <Typography variant="body1">{data?.admin_confirm}</Typography>
                                     </Grid>
+                                    <Grid size={{ xs: 12, sm: 6 }}>
+                                        <Typography variant="subtitle2" color="text.secondary">
+                                            CONFIRMED DATE
+                                        </Typography>
+                                        <Typography variant="body1">
+                                            {data?.admin_confirm_date
+                                                ? datetime.DateTimeLongTH(new Date(data.admin_confirm_date))
+                                                : "-"}
+                                        </Typography>
+                                    </Grid>
                                     <Grid size={{ xs: 12, sm: 12 }}>
                                         <Typography variant="subtitle2" color="text.secondary">
                                             COMMENT
@@ -231,16 +292,7 @@ export default function ReportLogByIdPage() {
                                             borderRadius: 1,
                                         }}>{data?.admin_confirm_comment}</Typography>
                                     </Grid>
-                                    <Grid size={{ xs: 12, sm: 6 }}>
-                                        <Typography variant="subtitle2" color="text.secondary">
-                                            CONFIRMED DATE
-                                        </Typography>
-                                        <Typography variant="body1">
-                                            {data?.admin_confirm_date
-                                                ? datetime.DateTimeLongTH(new Date(data.admin_confirm_date))
-                                                : "-"}
-                                        </Typography>
-                                    </Grid>
+
                                     <Grid size={{ xs: 12, sm: 6 }}>
                                         <Typography variant="subtitle2" color="text.secondary">
                                             CONFIRMED EVENT

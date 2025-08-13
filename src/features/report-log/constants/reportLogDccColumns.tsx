@@ -4,7 +4,7 @@ import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid-premium"
 import { StatusIconCell } from "../components/StatusIconCell";
 
 import { Link } from "react-router-dom";
-import { Button } from "@mui/material";
+import Button from '@mui/material/Button';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
 export const columnsDCC: GridColDef[] = [
@@ -14,10 +14,17 @@ export const columnsDCC: GridColDef[] = [
         align: "center",
         headerAlign: "center", flex: 0.5,
         renderCell: (params: GridRenderCellParams) => {
-            const sortedRowIds = params.api.getSortedRowIds();
-            const rowIndex = sortedRowIds.indexOf(params.id);
-            return fNumber(rowIndex + 1);
+            const { page, pageSize } = params.api.state.pagination.paginationModel;
+            const rowIndex = params.api.getRowIndexRelativeToVisibleRows(params.id);
+            const rowNumber = page * pageSize + rowIndex + 1;
+            return fNumber(rowNumber);
         },
+        // valueGetter: (value, row, column, apiRef) => {
+        //     const { page, pageSize } = apiRef.current.state.pagination.paginationModel;
+        //     const rowIndex = apiRef.current.getRowIndexRelativeToVisibleRows(row.id.toString());
+        //     const rowNumber = page * pageSize + rowIndex + 1;
+        //     return rowNumber;
+        // },
         minWidth: 70
     },
     { field: "group_name", headerName: "GROUP NAME", flex: 2, minWidth: 170 },
@@ -91,8 +98,8 @@ export const columnsDCC: GridColDef[] = [
                 <Button
                     component={Link}
                     to={`/report-log/${Number(params.row.id)}/${params.row.app_log}`}
-                    variant="contained"
-                    color="secondary"
+                    variant="outlined"
+                    color="primary"
                     size="small"
                     target="_blank"
                 >

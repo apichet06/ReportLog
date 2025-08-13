@@ -43,6 +43,11 @@ export function ReportLogTable({ rows, loading, setSelectionModel, paginationMod
                 toolbar: {
                     csvOptions: { disableToolbarButton: true },
                     printOptions: { disableToolbarButton: true },
+                    excelOptions: {
+                        // ระบุ fields ที่ต้องการ export ตามลำดับ
+                        // แก้ไข 'id' เป็น 'no' เพื่อให้ตรงกับ field ของคอลัมน์ ID
+                        fields: ['id', 'group_name', 'username', 'action', 'action_date_time', 'detail', 'bu', 'position', 'resigned_date', 'days_after_action', 'event_type', 'download_more_10_files_day', 'unauthorized', 'employee_resigning_within_one_month', 'is_bu_dcc', 'admin_confirm', 'admin_confirm_date', 'admin_confirm_edit', 'admin_edit_confirm_date', 'admin_confirm_comment', 'admin_confirm_event']
+                    }
                 },
             }}
             sx={{

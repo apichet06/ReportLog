@@ -3,7 +3,7 @@ import { fNumber } from "@/shared/utils/formatNumber";
 import datetime from "@/shared/utils/handleDatetime";
 import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid-premium";
 import { StatusIconCell } from "../components/StatusIconCell";
-import { Button } from "@mui/material";
+import Button from '@mui/material/Button';
 import { Link } from "react-router-dom";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
@@ -84,8 +84,8 @@ export const columnsDuc: GridColDef[] = [
         <Button
           component={Link}
           to={`/report-log/${Number(params.row.id)}/${params.row.app_log}`}
-          variant="contained"
-          color="secondary"
+          variant="outlined"
+          color="primary"
           size="small"
           target="_blank"
         >
