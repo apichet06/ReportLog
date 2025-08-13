@@ -2,7 +2,7 @@
 import { fNumber } from "@/shared/utils/formatNumber";
 import datetime from "@/shared/utils/handleDatetime";
 import Button from '@mui/material/Button';
-import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid-premium";
+import type { GridColDef, } from "@mui/x-data-grid-premium";
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import { StatusIconCell } from "@/features/reportLog/components/StatusIconCell";
 
@@ -15,12 +15,14 @@ export const getColumnsDUC = (handleSubmit: (id: number) => void): GridColDef[] 
     headerName: "ID",
     align: "center",
     headerAlign: "center", flex: 0.5, minWidth: 60,
-    renderCell: (params: GridRenderCellParams) => {
-      const sortedRowIds = params.api.getSortedRowIds();
-      const rowIndex = sortedRowIds.indexOf(params.id);
-      return fNumber(rowIndex + 1);
-    },
+    renderCell: (row) => fNumber(row.row.no), sortable: true
   },
+
+  // valueGetter: (params: GridRenderCellParams) => {
+  //   const sortedRowIds = params.api.getSortedRowIds();
+  //   const rowIndex = sortedRowIds.indexOf(params.id);
+  //   return fNumber(rowIndex + 1);
+  // },
   { field: "group_name", headerName: "GROUP NAME", flex: 2, minWidth: 140, },
   { field: "username", headerName: "USERNAME", flex: 2, minWidth: 140, },
   {

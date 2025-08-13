@@ -2,7 +2,7 @@
 import { useCallback, useEffect } from "react";
 import reportLogService from "../services/reportLogServices";
 import datetime from "@/shared/utils/handleDatetime";
-import type { ReportLogState } from "../types/reportLogTypes";
+import type { ReportLog, ReportLogState } from "../types/reportLogTypes";
 
 export const useDUC = (state: ReportLogState) => {
   const {
@@ -39,7 +39,11 @@ export const useDUC = (state: ReportLogState) => {
         checkBoxkUsual,
         checkBoxkUnusual,
       });
-      setDataDUC(res.data.result);
+      const newData = res.data.result.map((item: ReportLog, index: number) => ({
+        ...item,
+        no: index + 1,
+      }));
+      setDataDUC(newData);
       setLoadingDataGrid(false);
       setTextSearch("");
     } catch (err) {

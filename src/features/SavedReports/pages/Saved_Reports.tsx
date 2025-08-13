@@ -126,7 +126,15 @@ export default function Saved_Reports() {
       }
 
       const res = await reportSaveLog.GetSaveReportLogService({ tapData: "DUC", startDate: dateToday, endDate: dateEndDate, checkBoxkUsual, checkBoxkUnusual });
-      SetDataDUC(res.data.result || []);
+      // const dataWithId = (res.data.result || []).map((item: ReportSaveLog, index: number) => ({
+      //   ...item,
+      //   id: item.id ?? index + 1, // ใช้ id เดิมถ้ามี ถ้าไม่มีใช้ index+1
+      //   no: index + 1             // ลำดับแถว
+      // }));
+      const newData = res.data.result.map((item: ReportSaveLog, index: number) => ({
+        ...item, no: index + 1
+      }))
+      SetDataDUC(newData);
       setLoadnigDataGrid(false)
       SetTextSearch('')
     } catch (err) {
@@ -153,7 +161,11 @@ export default function Saved_Reports() {
       }
 
       const res = await reportSaveLog.GetSaveReportLogService({ tapData: "DCC", startDate: dateToday, endDate: dateEndDate, checkBoxkUsual, checkBoxkUnusual });
-      SetDataDCC(res.data.result || []);
+
+      const newData = res.data.result.map((item: ReportSaveLog, index: number) => ({
+        ...item, no: index + 1
+      }))
+      SetDataDCC(newData);
       setLoadnigDataGrid(false)
       SetTextSearch('')
     } catch (err) {

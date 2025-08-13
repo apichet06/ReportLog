@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from "react";
 import reportLogService from "../services/reportLogServices";
 import datetime from "@/shared/utils/handleDatetime";
-import type { ReportLogState } from "../types/reportLogTypes";
+import type { ReportLog, ReportLogState } from "../types/reportLogTypes";
 
 export const useDCC = (state: ReportLogState) => {
   const {
@@ -38,7 +38,11 @@ export const useDCC = (state: ReportLogState) => {
         checkBoxkUsual,
         checkBoxkUnusual,
       });
-      setDataDCC(res.data.result);
+      const newData = res.data.result.map((item: ReportLog, index: number) => ({
+        ...item,
+        no: index + 1,
+      }));
+      setDataDCC(newData);
       setLoadingDataGrid(false);
       setTextSearch("");
     } catch (err) {
