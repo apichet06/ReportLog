@@ -9,6 +9,8 @@ interface ExportExcelState {
   textSearch: string;
   tapData: string;
   setLoadingExport: React.Dispatch<React.SetStateAction<boolean>>;
+  checkBoxkUnusual: string;
+  checkBoxkUsual: string;
 }
 
 export default function useExportExcel(state: ExportExcelState) {
@@ -18,6 +20,8 @@ export default function useExportExcel(state: ExportExcelState) {
     textSearch,
     tapData,
     setLoadingExport,
+    checkBoxkUnusual,
+    checkBoxkUsual,
   } = state;
 
   const handleExportExcel = useCallback(async () => {
@@ -43,6 +47,8 @@ export default function useExportExcel(state: ExportExcelState) {
         startDate: dateToday,
         endDate: dateEndDate,
         tapData: tapData,
+        checkBoxkUsual,
+        checkBoxkUnusual,
       });
 
       const blob = res.data;
@@ -70,7 +76,15 @@ export default function useExportExcel(state: ExportExcelState) {
       console.log(err);
       setLoadingExport(false);
     }
-  }, [dayHisDatedcc, dayHisDateduc, setLoadingExport, tapData, textSearch]);
+  }, [
+    checkBoxkUnusual,
+    checkBoxkUsual,
+    dayHisDatedcc,
+    dayHisDateduc,
+    setLoadingExport,
+    tapData,
+    textSearch,
+  ]);
 
   return { handleExportExcel };
 }

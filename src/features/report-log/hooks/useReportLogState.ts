@@ -36,6 +36,9 @@ export function useReportLogState() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [data, setData] = useState<ReportLog | null>(null);
 
+  const [checkBoxkUsual, setCheckBoxUsual] = useState("Usual Event");
+  const [checkBoxkUnusual, setCheckBoxUnusual] = useState("Unusual Event");
+
   const [id, setId] = useState<string>("");
 
   const handleChangeRedio = (event: ChangeEvent<HTMLInputElement>) => {
@@ -90,5 +93,9 @@ export function useReportLogState() {
     setData,
     id,
     setId,
+    setCheckBoxUnusual,
+    setCheckBoxUsual,
+    checkBoxkUsual,
+    checkBoxkUnusual,
   };
 }

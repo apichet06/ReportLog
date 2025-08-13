@@ -10,6 +10,10 @@ interface Props {
     onSearchChange: (value: string) => void;
     onSearchClick: () => void;
     onClearClick: () => void;
+    setCheckBoxUsual: React.Dispatch<React.SetStateAction<string>>;
+    setCheckBoxUnusual: React.Dispatch<React.SetStateAction<string>>;
+    checkBoxkUsual: string;
+    checkBoxkUnusual: string;
 }
 
 export default function ReportLogToolbar({
@@ -17,6 +21,10 @@ export default function ReportLogToolbar({
     onSearchChange,
     onSearchClick,
     onClearClick,
+    setCheckBoxUsual,
+    setCheckBoxUnusual,
+    checkBoxkUsual,
+    checkBoxkUnusual,
 }: Props) {
     return (
         <Grid container spacing={2} alignItems="center" mb={3}>
@@ -32,16 +40,27 @@ export default function ReportLogToolbar({
             </Grid>
             <Grid size={{ xs: 12, sm: 12, md: 3, lg: 3, xl: 2 }}>
                 <FormControlLabel
-                    value="end"
-                    control={<Checkbox />}
+                    control={
+                        <Checkbox
+                            checked={checkBoxkUsual === "Usual Event"}
+                            onChange={(e) =>
+                                setCheckBoxUsual(e.target.checked ? "Usual Event" : "")
+                            }
+                        />
+                    }
                     label="Usual Event"
-                    labelPlacement="end"
                 />
+
                 <FormControlLabel
-                    value="end"
-                    control={<Checkbox />}
+                    control={
+                        <Checkbox
+                            checked={checkBoxkUnusual === "Unusual Event"}
+                            onChange={(e) =>
+                                setCheckBoxUnusual(e.target.checked ? "Unusual Event" : "")
+                            }
+                        />
+                    }
                     label="Unusual Event"
-                    labelPlacement="end"
                 />
             </Grid>
             <Grid size={{ xs: 12, sm: 12, md: 1, lg: 1, xl: 1 }}>

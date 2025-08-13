@@ -4,7 +4,15 @@ import datetime from "@/shared/utils/handleDatetime";
 import type { ReportLogState } from "../types/reportLogTypes";
 
 export const useDCC = (state: ReportLogState) => {
-  const { setLoadingDataGrid, dayHisDatedcc, setDataDCC, dataDcc } = state;
+  const {
+    setLoadingDataGrid,
+    dayHisDatedcc,
+    setDataDCC,
+    dataDcc,
+    checkBoxkUsual,
+    checkBoxkUnusual,
+    setTextSearch,
+  } = state;
 
   const fetchDCC = useCallback(async () => {
     try {
@@ -27,13 +35,23 @@ export const useDCC = (state: ReportLogState) => {
         tapData: "DCC",
         startDate: dateToday,
         endDate: dateEndDate,
+        checkBoxkUsual,
+        checkBoxkUnusual,
       });
       setDataDCC(res.data.result);
       setLoadingDataGrid(false);
+      setTextSearch("");
     } catch (err) {
       console.log(err);
     }
-  }, [dayHisDatedcc, setDataDCC, setLoadingDataGrid]);
+  }, [
+    checkBoxkUnusual,
+    checkBoxkUsual,
+    dayHisDatedcc,
+    setDataDCC,
+    setLoadingDataGrid,
+    setTextSearch,
+  ]);
 
   useEffect(() => {
     fetchDCC();

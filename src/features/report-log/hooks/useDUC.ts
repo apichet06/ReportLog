@@ -1,11 +1,19 @@
 // useDUC.ts
 import { useCallback, useEffect } from "react";
-import reportLogService from "@/features/reportLog/service/reportlogService";
+import reportLogService from "../services/reportLogServices";
 import datetime from "@/shared/utils/handleDatetime";
 import type { ReportLogState } from "../types/reportLogTypes";
 
 export const useDUC = (state: ReportLogState) => {
-  const { setLoadingDataGrid, dayHisDateduc, setDataDUC, dataDuc } = state;
+  const {
+    setLoadingDataGrid,
+    dayHisDateduc,
+    setDataDUC,
+    dataDuc,
+    checkBoxkUsual,
+    checkBoxkUnusual,
+    setTextSearch,
+  } = state;
   const fetchDUC = useCallback(async () => {
     try {
       setLoadingDataGrid(true);
@@ -28,13 +36,23 @@ export const useDUC = (state: ReportLogState) => {
         tapData: "DUC",
         startDate: dateToday,
         endDate: dateEndDate,
+        checkBoxkUsual,
+        checkBoxkUnusual,
       });
       setDataDUC(res.data.result);
       setLoadingDataGrid(false);
+      setTextSearch("");
     } catch (err) {
       console.log(err);
     }
-  }, [dayHisDateduc, setDataDUC, setLoadingDataGrid]);
+  }, [
+    checkBoxkUnusual,
+    checkBoxkUsual,
+    dayHisDateduc,
+    setDataDUC,
+    setLoadingDataGrid,
+    setTextSearch,
+  ]);
 
   useEffect(() => {
     fetchDUC();

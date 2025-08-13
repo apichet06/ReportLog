@@ -23,6 +23,7 @@ import { getColumnsDCC } from "../constants/constants/reportLogDccColumns";
 import { getColumnsDUC } from "../constants/constants/reportLogDucColumns"; // หมายเหตุ: columnsDuc อาจต้องปรับแก้ในลักษณะเดียวกันถ้ามีปุ่ม action
 import ButtonGroup from '@mui/material/ButtonGroup';
 import { DataGridPremium, type GridPaginationModel } from '@mui/x-data-grid-premium';
+import { useDCC } from '@/features/report-log/hooks/useDCC';
 
 
 
@@ -61,6 +62,8 @@ export default function Saved_Reports() {
   const [colerTodaydcc, setColerTodayDcc] = useState<MUIColor>("secondary");
   const [colerHistorydcc, setColerHistoryDcc] = useState<MUIColor>("info");
 
+  const [checkBoxkUsual, setCheckBoxUsual] = useState('Usual Event');
+  const [checkBoxkUnusual, setCheckBoxUnusual] = useState('Unusual Event');
 
   const [valueRedio, setValueRedio] = useState('Usual Event');
   const handleChangeRedio = (event: ChangeEvent<HTMLInputElement>) => {
@@ -74,6 +77,8 @@ export default function Saved_Reports() {
 
   const handleClear = () => {
     SetTextSearch('');
+    fetchDUC();
+    fetchDCC()
     // setStartDate(null);
     // setEndDate(null);
   }
@@ -104,6 +109,7 @@ export default function Saved_Reports() {
 
 
   const fetchDUC = useCallback(async () => {
+
     try {
       setLoadnigDataGrid(true)
 
@@ -121,13 +127,14 @@ export default function Saved_Reports() {
         dateEndDate = datetime.DateSearch(targetDate);
       }
 
-      const res = await reportSaveLog.GetSaveReportLogService({ tapData: "DUC", startDate: dateToday, endDate: dateEndDate });
+      const res = await reportSaveLog.GetSaveReportLogService({ tapData: "DUC", startDate: dateToday, endDate: dateEndDate, checkBoxkUsual, checkBoxkUnusual });
       SetDataDUC(res.data.result || []);
       setLoadnigDataGrid(false)
+      SetTextSearch('')
     } catch (err) {
       console.log(err);
     }
-  }, [dayHisDateduc]);
+  }, [checkBoxkUnusual, checkBoxkUsual, dayHisDateduc]);
 
   const fetchDCC = useCallback(async () => {
     try {
@@ -147,20 +154,21 @@ export default function Saved_Reports() {
         dateEndDate = datetime.DateSearch(targetDate);
       }
 
-      const res = await reportSaveLog.GetSaveReportLogService({ tapData: "DCC", startDate: dateToday, endDate: dateEndDate });
+      const res = await reportSaveLog.GetSaveReportLogService({ tapData: "DCC", startDate: dateToday, endDate: dateEndDate, checkBoxkUsual, checkBoxkUnusual });
       SetDataDCC(res.data.result || []);
       setLoadnigDataGrid(false)
+      SetTextSearch('')
     } catch (err) {
       console.log(err);
     }
-  }, [dayHisDatedcc]);
+  }, [checkBoxkUnusual, checkBoxkUsual, dayHisDatedcc]);
 
 
   const handleSearch = useCallback(async () => {
     try {
       setLoadnigDataGrid(true)
 
-      const res = await reportSaveLog.SearchSaveReportLogService({ Search: textSearch, tapData });
+      const res = await reportSaveLog.SearchSaveReportLogService({ Search: textSearch, tapData, checkBoxkUsual, checkBoxkUnusual });
       if (tapData === 'DUC')
         SetDataDUC(res.data.result)
       else
@@ -169,7 +177,7 @@ export default function Saved_Reports() {
     } catch (err) {
       console.log(err);
     }
-  }, [textSearch, tapData]);
+  }, [textSearch, tapData, checkBoxkUsual, checkBoxkUnusual]);
 
 
   const handleExportExcel = useCallback(async () => {
@@ -196,6 +204,8 @@ export default function Saved_Reports() {
         startDate: dateToday,
         endDate: dateEndDate,
         tapData: tapData,
+        checkBoxkUsual,
+        checkBoxkUnusual,
       });
 
       const blob = res.data;
@@ -223,7 +233,7 @@ export default function Saved_Reports() {
       console.log(err);
       setLoadingExport(false);
     }
-  }, [dayHisDatedcc, dayHisDateduc, tapData, textSearch]);
+  }, [checkBoxkUnusual, checkBoxkUsual, dayHisDatedcc, dayHisDateduc, tapData, textSearch]);
 
 
 
@@ -320,6 +330,10 @@ export default function Saved_Reports() {
                 onSearchChange={SetTextSearch}
                 onSearchClick={handleSearch}
                 onClearClick={handleClear}
+                setCheckBoxUnusual={setCheckBoxUnusual}
+                setCheckBoxUsual={setCheckBoxUsual}
+                checkBoxkUsual={checkBoxkUsual}
+                checkBoxkUnusual={checkBoxkUnusual}
               />
             </Box>
             <hr />

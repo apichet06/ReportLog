@@ -33,6 +33,8 @@ export interface TabDataState {
   startDate?: string;
   endDate?: string;
   dayHisDate?: number;
+  checkBoxkUsual?: string;
+  checkBoxkUnusual?: string;
 }
 
 export interface EditAccept {

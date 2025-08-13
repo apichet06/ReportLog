@@ -14,6 +14,8 @@ const GetReportLogService = (data: TabDataState) =>
       startDate: data.startDate,
       tapData: data.tapData,
       dayHisDate: data.dayHisDate,
+      checkBoxkUsual: data.checkBoxkUsual,
+      checkBoxkUnusual: data.checkBoxkUnusual,
     },
   });
 

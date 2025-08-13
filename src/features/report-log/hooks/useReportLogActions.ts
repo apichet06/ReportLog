@@ -65,6 +65,8 @@ export function useReportLogActions(
       const res = await reportLogService.SearchReportLogService({
         Search: state.textSearch,
         tapData: state.tapData,
+        checkBoxkUsual: state.checkBoxkUsual,
+        checkBoxkUnusual: state.checkBoxkUnusual,
       });
       if (state.tapData === "DUC") setDataDUC(res.data.result);
       else setDataDCC(res.data.result);

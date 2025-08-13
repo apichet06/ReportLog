@@ -43,7 +43,8 @@ export default function ReportLogPage() {
     valueRedio, handleChangeRedio,
     handleSubmit, setTapData,
     loadingExport, textSearch, setTextSearch,
-    handleExportExcel, handleSearch, handleClear
+    handleExportExcel, handleSearch, handleClear, checkBoxkUnusual, checkBoxkUsual,
+    setCheckBoxUnusual, setCheckBoxUsual,
   } = useReportLog(resultData);
 
   const handleChange = (_event: SyntheticEvent, newValue: string) => {
@@ -70,6 +71,10 @@ export default function ReportLogPage() {
                 onSearchChange={setTextSearch}
                 onSearchClick={handleSearch}
                 onClearClick={handleClear}
+                checkBoxkUnusual={checkBoxkUnusual}
+                setCheckBoxUnusual={setCheckBoxUnusual}
+                checkBoxkUsual={checkBoxkUsual}
+                setCheckBoxUsual={setCheckBoxUsual}
               />
             </Box>
             <hr />

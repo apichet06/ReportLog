@@ -260,7 +260,17 @@ export default function ReportLogByIdPage() {
                                         <Typography variant="subtitle2" color="text.secondary">
                                             IS BU DCC
                                         </Typography>
-                                        <Typography variant="body1">{data?.is_bu_dcc || "-"}</Typography>
+                                        <Typography variant="body1">
+                                            {data?.is_bu_dcc == 'Y' ?
+                                                <>
+                                                    <img src="/CRUDLogs/applog/img/alert.png" width="20px" height="20px" alt="Alert" />
+                                                </>
+                                                :
+                                                <>
+                                                    <img src="/CRUDLogs/applog/img/success.png" width="20px" height="20px" alt="Success" />
+                                                </>
+                                            }
+                                        </Typography>
                                     </Grid>
                                 </> : ""}
                             {data?.admin_confirm_date &&
