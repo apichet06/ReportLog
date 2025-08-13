@@ -23,8 +23,6 @@ import { getColumnsDCC } from "../constants/constants/reportLogDccColumns";
 import { getColumnsDUC } from "../constants/constants/reportLogDucColumns"; // หมายเหตุ: columnsDuc อาจต้องปรับแก้ในลักษณะเดียวกันถ้ามีปุ่ม action
 import ButtonGroup from '@mui/material/ButtonGroup';
 import { DataGridPremium, type GridPaginationModel } from '@mui/x-data-grid-premium';
-import { useDCC } from '@/features/report-log/hooks/useDCC';
-
 
 
 export default function Saved_Reports() {
