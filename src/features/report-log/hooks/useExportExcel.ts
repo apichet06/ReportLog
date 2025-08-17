@@ -34,11 +34,13 @@ export default function useExportExcel(state: ExportExcelState) {
         tapData === "DUC" ? dayHisDateduc === 1 : dayHisDatedcc === 1;
 
       if (isToday) {
-        dateToday = datetime.DateSearch(new Date());
-        dateEndDate = datetime.DateSearch(new Date());
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() - 1);
+        dateToday = datetime.DateSearch(targetDate);
+        dateEndDate = datetime.DateSearch(targetDate);
       } else {
         const targetDate = new Date();
-        targetDate.setDate(targetDate.getDate() - 1); // ลบ 1 วัน เพราะใน C# +1 วัน
+        targetDate.setDate(targetDate.getDate() - 2); // ลบ 2 วัน เพราะใน C# +1 วัน
         dateEndDate = datetime.DateSearch(targetDate);
       }
 

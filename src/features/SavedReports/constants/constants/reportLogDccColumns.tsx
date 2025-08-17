@@ -36,15 +36,24 @@ export const getColumnsDCC = (handleSubmit: (id: number) => void): GridColDef[] 
         renderCell: (params) => (datetime.DateTimeLongTH(params.row.action_date_time))
     },
     { field: "detail", headerName: "DETAIL", flex: 5, minWidth: 500, },
-    { field: "bu", headerName: "BU", flex: 1, minWidth: 140 },
-    { field: "position", headerName: "POSITION", flex: 2, minWidth: 220, },
+    {
+        field: "bu", headerName: "BU", flex: 1, minWidth: 140,
+        renderCell: (params) => (params.row.bu ?? '-')
+    },
+    {
+        field: "position", headerName: "POSITION", flex: 2, minWidth: 220,
+        renderCell: (params) => (params.row.position ?? '-')
+    },
     {
         field: "resigned_date",
         headerName: "RESIGNED DATE",
         flex: 2, minWidth: 140,
-        renderCell: (params) => (params.row.resigned_date ? datetime.DateLongTH(params.row.resigned_date) : '')
+        renderCell: (params) => (params.row.resigned_date ? datetime.DateLongTH(params.row.resigned_date) : '-')
     },
-    { field: "days_after_action", headerName: "DAY AFTER ACTION", flex: 2, minWidth: 140, },
+    {
+        field: "days_after_action", headerName: "DAY AFTER ACTION", flex: 2, minWidth: 140,
+        renderCell: (params) => (params.row.days_after_action ?? '-')
+    },
     {
         field: "event_type",
         headerName: "EVENT TYPE", flex: 2, minWidth: 140,
@@ -93,15 +102,31 @@ export const getColumnsDCC = (handleSubmit: (id: number) => void): GridColDef[] 
         renderCell: (params) => (params.row.admin_confirm_date ? datetime.DateTimeLongTH(params.row.admin_confirm_date) : '')
     },
     {
-        field: "admin_confirm_edit", headerName: "EDITED BY", flex: 2, minWidth: 140
+        field: "admin_confirm_edit", headerName: "EDITED BY", flex: 2, minWidth: 140,
+        renderCell: (params) => (params.row.admin_confirm_edit == ' ' ? '-' : params.row.admin_confirm_edit)
     },
     {
         field: "admin_edit_confirm_date", // แก้ไข field ที่ซ้ำกัน
         headerName: "EDIT DATE", flex: 2, minWidth: 120,
-        renderCell: (params) => (params.row.admin_edit_confirm_date ? datetime.DateTimeLongTH(params.row.admin_edit_confirm_date) : '')
+        renderCell: (params) => (params.row.admin_edit_confirm_date ? datetime.DateTimeLongTH(params.row.admin_edit_confirm_date) : '-')
     },
-    { field: "admin_confirm_comment", headerName: "COMMENT", flex: 2, minWidth: 140 },
-    { field: "admin_confirm_event", headerName: "CONFIRMED EVENT", flex: 2, minWidth: 140 },
+    {
+        field: "admin_confirm_comment", headerName: "COMMENT", flex: 2, minWidth: 140,
+        renderCell: (params) => (params.row.admin_confirm_comment == "" ? '-' : params.row.admin_confirm_comment)
+    },
+    {
+        field: "admin_confirm_event", headerName: "CONFIRMED EVENT", flex: 2, minWidth: 140,
+        renderCell: (params) => {
+            const admin_confirm_event = params.value as string;
+            return (
+                <span
+                    style={{ color: admin_confirm_event === "Unusual Event" ? "red" : "inherit" }}
+                >
+                    {admin_confirm_event}
+                </span>
+            );
+        },
+    },
     {
         field: "manage",
         headerName: "EDIT",

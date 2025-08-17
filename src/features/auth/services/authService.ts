@@ -13,7 +13,7 @@ export const authenCookie = async (
   data: LoginRequest
 ): Promise<LoginResponse> => {
   const formData = new URLSearchParams();
-  formData.append("username", data.username); // ชื่อต้องตรงกับชื่อ field ใน `AuthenDto`
+  formData.append("username", data.user_name); // ชื่อต้องตรงกับชื่อ field ใน `AuthenDto`
 
   const response = await axios.post<LoginResponse>("/Authen/login", formData, {
     headers: {

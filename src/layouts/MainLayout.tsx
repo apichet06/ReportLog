@@ -34,8 +34,8 @@ import Button from '@mui/material/Button';
 import type { User } from "./userType";
 import LogoutIcon from '@mui/icons-material/Logout';
 import InsertChartIcon from '@mui/icons-material/InsertChart';
-
-
+import { sendPost } from "@/shared/utils/logout";
+import Avatar from '@mui/material/Avatar';
 const drawerWidth = 240;
 
 /* ---------- styled components ---------- */
@@ -88,8 +88,6 @@ const capitalize = (str?: string): string => {
 };
 
 
-
-
 const MainLayout = ({ children }: { children?: React.ReactNode }) => {
     const theme = useTheme();
     const [open, setOpen] = useState(false);
@@ -102,11 +100,12 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
 
 
     const hendleLogout = () => {
+        // แจ้ง Logout ไปยัง CaaS
         localStorage.removeItem("token");
         localStorage.removeItem("user");
 
         setTimeout(() => {
-            navigate('/login');
+            sendPost();
         }, 100);
     };
 
@@ -125,17 +124,18 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
 
     const userId = getUserIdFromCookie();
 
+
     const handlelogin = useCallback(async () => {
         if (!userId) {
             setIsAppInitialized(true);
             const token = localStorage.getItem("token");
             if (!token) {
                 setIsAppInitialized(false);
-                navigate("/login");
+                sendPost()
             }
             return;
         }
-        const response = await login({ username: userId });
+        const response = await login({ user_name: userId });
         if (response.isSuccess) {
             localStorage.setItem("token", response.token);
             localStorage.setItem("user", JSON.stringify(response.result));
@@ -179,6 +179,8 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
                     <>
                         <List>
                             <ListItem>
+                                {/* <img id="profile-img" src="https://fits/emp_pic/533566.jpg" alt="" className="img-login"></img> */}
+                                <Avatar alt="Remy Sharp" src={`https://fits/emp_pic/${resultData?.emp_no}.jpg`} sx={{ mr: 2 }} />
                                 <ListItemText>{capitalize(resultData?.firstname)} {capitalize(resultData?.lastname)}</ListItemText>
                             </ListItem>
                         </List>

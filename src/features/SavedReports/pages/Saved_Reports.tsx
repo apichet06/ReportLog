@@ -23,7 +23,7 @@ import { getColumnsDCC } from "../constants/constants/reportLogDccColumns";
 import { getColumnsDUC } from "../constants/constants/reportLogDucColumns"; // หมายเหตุ: columnsDuc อาจต้องปรับแก้ในลักษณะเดียวกันถ้ามีปุ่ม action
 import ButtonGroup from '@mui/material/ButtonGroup';
 import { DataGridPremium, type GridPaginationModel } from '@mui/x-data-grid-premium';
-
+// import CloseIcon from '@mui/icons-material/Close';
 
 export default function Saved_Reports() {
 
@@ -68,9 +68,6 @@ export default function Saved_Reports() {
     setValueRedio((event.target as HTMLInputElement).value);
   };
 
-  console.log(textSearch);
-
-
 
 
   const handleClear = () => {
@@ -114,16 +111,28 @@ export default function Saved_Reports() {
       let dateToday = "";
       let dateEndDate = "";
 
-      if (dayHisDateduc == 1) {
-        dateToday = datetime.DateSearch(new Date());
-        dateEndDate = datetime.DateSearch(new Date());
+      // if (dayHisDateduc == 1) {
+      //   dateToday = datetime.DateSearch(new Date());
+      //   dateEndDate = datetime.DateSearch(new Date());
 
-      } else if (dayHisDateduc == 0) {
+      // } else if (dayHisDateduc == 0) {
 
-        const targetDate = new Date()
-        targetDate.setDate(targetDate.getDate() - 1); // ลบ 1 วัน เพราะใน C# +1 วัน
+      //   const targetDate = new Date()
+      //   targetDate.setDate(targetDate.getDate() - 1); // ลบ 1 วัน เพราะใน C# +1 วัน
+      //   dateEndDate = datetime.DateSearch(targetDate);
+      // }
+
+      if (dayHisDateduc === 1) {
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() - 1);
+        dateToday = datetime.DateSearch(targetDate);
+        dateEndDate = datetime.DateSearch(targetDate);
+      } else if (dayHisDateduc === 0) {
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() - 2);
         dateEndDate = datetime.DateSearch(targetDate);
       }
+
 
       const res = await reportSaveLog.GetSaveReportLogService({ tapData: "DUC", startDate: dateToday, endDate: dateEndDate, checkBoxkUsual, checkBoxkUnusual });
       // const dataWithId = (res.data.result || []).map((item: ReportSaveLog, index: number) => ({
@@ -149,16 +158,29 @@ export default function Saved_Reports() {
       let dateToday = "";
       let dateEndDate = "";
 
+      // if (dayHisDatedcc == 1) {
+      //   dateToday = datetime.DateSearch(new Date());
+      //   dateEndDate = datetime.DateSearch(new Date());
+
+      // } else if (dayHisDatedcc == 0) {
+
+      //   const targetDate = new Date()
+      //   targetDate.setDate(targetDate.getDate() - 1); // ลบ 1 วัน เพราะใน C# +1 วัน
+      //   dateEndDate = datetime.DateSearch(targetDate);
+      // }
+
+
       if (dayHisDatedcc == 1) {
-        dateToday = datetime.DateSearch(new Date());
-        dateEndDate = datetime.DateSearch(new Date());
-
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() - 1);
+        dateToday = datetime.DateSearch(targetDate);
+        dateEndDate = datetime.DateSearch(targetDate);
       } else if (dayHisDatedcc == 0) {
-
-        const targetDate = new Date()
-        targetDate.setDate(targetDate.getDate() - 1); // ลบ 1 วัน เพราะใน C# +1 วัน
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() - 2); // ลบ 2 วัน เพราะใน C# +1 วัน
         dateEndDate = datetime.DateSearch(targetDate);
       }
+
 
       const res = await reportSaveLog.GetSaveReportLogService({ tapData: "DCC", startDate: dateToday, endDate: dateEndDate, checkBoxkUsual, checkBoxkUnusual });
 
@@ -201,12 +223,18 @@ export default function Saved_Reports() {
         tapData === "DUC" ? dayHisDateduc === 1 : dayHisDatedcc === 1;
 
       if (isToday) {
-        dateToday = datetime.DateSearch(new Date());
-        dateEndDate = datetime.DateSearch(new Date());
-      } else {
+
         const targetDate = new Date();
-        targetDate.setDate(targetDate.getDate() - 1); // ลบ 1 วัน เพราะใน C# +1 วัน
+        targetDate.setDate(targetDate.getDate() - 1);
+        dateToday = datetime.DateSearch(targetDate);
         dateEndDate = datetime.DateSearch(targetDate);
+
+      } else {
+
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() - 2); // ลบ 2 วัน เพราะใน C# +1 วัน
+        dateEndDate = datetime.DateSearch(targetDate);
+
       }
 
       const res = await reportSaveLog.exportExcel({
@@ -335,6 +363,7 @@ export default function Saved_Reports() {
               noValidate
               autoComplete="off"
             >
+              {/* <CloseIcon color='success' /> */}
               <ReportLogToolbar
                 textSearch={textSearch}
                 onSearchChange={SetTextSearch}
@@ -374,7 +403,6 @@ export default function Saved_Reports() {
                     </TabList>
                   </Box>
                   <TabPanel value="1">
-
                     <Grid
                       container
                       spacing={2}
@@ -403,8 +431,7 @@ export default function Saved_Reports() {
                         rows={dataDuc}
                         columns={ducColumns}
                         pagination
-
-                        initialState={{ pinnedColumns: { left: ['no'], right: ['manage'] } }}
+                        initialState={{ pinnedColumns: { left: ['no'], right: ['event_type', 'admin_confirm_event', 'manage'] } }}
                         paginationModel={paginationModel}
                         onPaginationModelChange={setPaginationModel}
                         pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
@@ -465,7 +492,7 @@ export default function Saved_Reports() {
                         paginationModel={paginationModel}
                         onPaginationModelChange={(model) => setPaginationModel(model)}
                         pageSizeOptions={[5, 10, 15, 20, 40, 60, 80, 100]}
-                        initialState={{ pinnedColumns: { left: ['no'], right: ['manage'] } }}
+                        initialState={{ pinnedColumns: { left: ['no'], right: ['event_type', 'admin_confirm_event', 'manage'] } }}
                         getRowClassName={(params) =>
                           params.row.unauthorized === "Y" ||
                             params.row.download_more_10_files_day === "Y" ||

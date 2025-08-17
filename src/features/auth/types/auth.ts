@@ -1,5 +1,5 @@
 export interface LoginRequest {
-  username: string;
+  user_name: string;
 }
 
 export interface LoginResponse {

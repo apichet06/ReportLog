@@ -18,8 +18,8 @@ export default function LoginPage() {
 
     return (
         <Container>
-            <form method="POST" action="https://fits/CRUDLogs/dccduc_Api_new/api/Authen/login">
-                {/* <form method="POST" action="https://localhost:7073/api/Authen/login"> */}
+            {/* <form method="POST" action="https://fits/CRUDLogs/dccduc_Api_new/api/Authen/login"> */}
+            <form method="POST" action="https://localhost:7073/api/Authen/login">
                 <Card sx={{ sx: 12, sm: 12, md: 12, lg: 12, xl: 12, mt: 5 }}>
                     <CardContent>
                         <Typography gutterBottom variant="h5" component="div" color="warning">
@@ -28,7 +28,7 @@ export default function LoginPage() {
                         <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
                             Please login.
                         </Typography>
-                        <TextField label="Username" name="username" defaultValue="apichets" variant="outlined" sx={{ display: 'none' }} fullWidth />
+                        <TextField label="Username" name="user_name" defaultValue="apichets@fabrinet.co.th" variant="outlined" sx={{ display: 'none' }} fullWidth />
                     </CardContent>
                     <CardActions>
                         <Button size="small" type="submit">Login</Button>

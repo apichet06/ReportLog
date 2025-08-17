@@ -39,13 +39,24 @@ export const columnsDCC: GridColDef[] = [
         renderCell: (params) => (datetime.DateTimeLongTH(params.row.action_date_time))
     },
     { field: "detail", headerName: "DETAIL", flex: 5, minWidth: 500, },
-    { field: "bu", headerName: "BU", flex: 3, minWidth: 140, },
-    { field: "position", headerName: "POSITION", flex: 2, minWidth: 220 },
     {
-        field: "resigned_date", headerName: "RESINGNED DATE", flex: 2, minWidth: 150,
-        renderCell: (params) => (params.row.resigned_date ? datetime.DateLongTH(params.row.resigned_date) : '')
+        field: "bu", headerName: "BU", flex: 1, minWidth: 140,
+        renderCell: (params) => (params.row.bu ?? '-')
     },
-    { field: "days_after_action", headerName: "DAY AFTER ACTION", flex: 2, minWidth: 150 },
+    {
+        field: "position", headerName: "POSITION", flex: 2, minWidth: 220,
+        renderCell: (params) => (params.row.position ?? '-')
+    },
+    {
+        field: "resigned_date",
+        headerName: "RESIGNED DATE",
+        flex: 2, minWidth: 140,
+        renderCell: (params) => (params.row.resigned_date ? datetime.DateLongTH(params.row.resigned_date) : '-')
+    },
+    {
+        field: "days_after_action", headerName: "DAY AFTER ACTION", flex: 2, minWidth: 140,
+        renderCell: (params) => (params.row.days_after_action ?? '-')
+    },
     {
         field: "event_type",
         headerName: "EVENT TYPE", flex: 2, minWidth: 110,
