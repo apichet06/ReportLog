@@ -37,7 +37,7 @@ export default function useExportExcel(state: ExportExcelState) {
         const targetDate = new Date();
         targetDate.setDate(targetDate.getDate() - 1);
         dateToday = datetime.DateSearch(targetDate);
-        dateEndDate = datetime.DateSearch(targetDate);
+        dateEndDate = datetime.DateSearch(new Date());
       } else {
         const targetDate = new Date();
         targetDate.setDate(targetDate.getDate() - 2); // ลบ 2 วัน เพราะใน C# +1 วัน

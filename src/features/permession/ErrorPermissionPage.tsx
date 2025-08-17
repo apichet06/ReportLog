@@ -14,6 +14,7 @@ export default function ErrorPermissionPage() {
                 <Card sx={{ sx: 12, sm: 12, md: 12, lg: 12, xl: 12, mt: 5 }}>
                     <CardContent>
                         <Typography gutterBottom variant="h5" component="div" color="error">
+                            {/* Access denied. Please contact your system administrator. */}
                             Not eligible for the privilege
                         </Typography>
                         <Typography variant="body2" sx={{ color: 'text.secondary' }}>

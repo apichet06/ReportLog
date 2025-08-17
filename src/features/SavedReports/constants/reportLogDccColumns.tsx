@@ -5,6 +5,7 @@ import Button from "@mui/material/Button";
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import type { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { StatusIconCell } from "@/features/reportLog/components/StatusIconCell";
+import ColumnHeaderWithInfo from "./ColumnHeaderWithInfo";
 
 
 
@@ -13,6 +14,7 @@ export const getColumnsDCC = (handleSubmit: (id: number) => void): GridColDef[] 
         field: "no",
         headerName: "ID",
         align: "center",
+        renderHeader: () => <ColumnHeaderWithInfo field="no" label="ID" />,
         headerAlign: "center", flex: 0.5, minWidth: 60,
         renderCell: (params: GridRenderCellParams) => {
             const sortedRowIds = params.api.getSortedRowIds();
@@ -20,7 +22,10 @@ export const getColumnsDCC = (handleSubmit: (id: number) => void): GridColDef[] 
             return fNumber(rowIndex + 1);
         },
     },
-    { field: "group_name", headerName: "GROUP NAME", flex: 2, minWidth: 140, },
+    {
+        field: "group_name", headerName: "GROUP NAME", flex: 2, minWidth: 140,
+        renderHeader: () => <ColumnHeaderWithInfo field="group_name" label="GROUP NAME" />,
+    },
     { field: "username", headerName: "USERNAME", flex: 2, minWidth: 140, },
     {
         field: "action",

@@ -19,8 +19,8 @@ import ReportLogDialog from "../components/ReportLogDialog";
 import Swal from "sweetalert2";
 import type { User } from "@/layouts/userType";
 import ReportLogToolbar from "../components/ReportLogToolbar";
-import { getColumnsDCC } from "../constants/constants/reportLogDccColumns";
-import { getColumnsDUC } from "../constants/constants/reportLogDucColumns"; // หมายเหตุ: columnsDuc อาจต้องปรับแก้ในลักษณะเดียวกันถ้ามีปุ่ม action
+import { getColumnsDCC } from "../constants/reportLogDccColumns";
+import { getColumnsDUC } from "../constants/reportLogDucColumns"; // หมายเหตุ: columnsDuc อาจต้องปรับแก้ในลักษณะเดียวกันถ้ามีปุ่ม action
 import ButtonGroup from '@mui/material/ButtonGroup';
 import { DataGridPremium, type GridPaginationModel } from '@mui/x-data-grid-premium';
 // import CloseIcon from '@mui/icons-material/Close';
@@ -435,6 +435,8 @@ export default function Saved_Reports() {
                         paginationModel={paginationModel}
                         onPaginationModelChange={setPaginationModel}
                         pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
+                        disableColumnMenu
+                        disableColumnSorting
                         getRowClassName={(params) =>
                           params.row.unauthorized === "Y" ||
                             params.row.download_more_10_files_day === "Y" ||
@@ -492,6 +494,8 @@ export default function Saved_Reports() {
                         paginationModel={paginationModel}
                         onPaginationModelChange={(model) => setPaginationModel(model)}
                         pageSizeOptions={[5, 10, 15, 20, 40, 60, 80, 100]}
+                        disableColumnMenu
+                        disableColumnSorting
                         initialState={{ pinnedColumns: { left: ['no'], right: ['event_type', 'admin_confirm_event', 'manage'] } }}
                         getRowClassName={(params) =>
                           params.row.unauthorized === "Y" ||

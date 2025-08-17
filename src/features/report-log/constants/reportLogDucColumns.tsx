@@ -1,7 +1,7 @@
 
 import { fNumber } from "@/shared/utils/formatNumber";
 import datetime from "@/shared/utils/handleDatetime";
-import type { GridColDef, } from "@mui/x-data-grid-premium";
+import type { GridColDef, GridRenderCellParams, } from "@mui/x-data-grid-premium";
 import { StatusIconCell } from "../components/StatusIconCell";
 import Button from '@mui/material/Button';
 import { Link } from "react-router-dom";
@@ -13,7 +13,12 @@ export const columnsDuc: GridColDef[] = [
     headerName: "ID",
     align: "center",
     headerAlign: "center", flex: 0.5,
-    renderCell: (row) => fNumber(row.row.no), sortable: true,
+    renderCell: (params: GridRenderCellParams) => {
+      const { page, pageSize } = params.api.state.pagination.paginationModel;
+      const rowIndex = params.api.getRowIndexRelativeToVisibleRows(params.id);
+      const rowNumber = page * pageSize + rowIndex + 1;
+      return fNumber(rowNumber);
+    },
     minWidth: 70
   },
   { field: "group_name", headerName: "GROUP NAME", flex: 2, minWidth: 170 },
