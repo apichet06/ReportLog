@@ -55,11 +55,14 @@ const exportExcel = (searchData: SearchData): Promise<AxiosResponse<Blob>> => {
   });
 };
 
+const GetCoutAuditlog = () => axiosInstance.get("/DUC_DCC/CountAuditLog");
+
 const reportSaveLog = {
   GetSaveReportLogService,
   SearchSaveReportLogService,
   exportExcel,
   ApprovedReportLogEditService,
+  GetCoutAuditlog,
 };
 
 export default reportSaveLog;

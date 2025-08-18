@@ -7,7 +7,7 @@ export const sendPost = () => {
 
   const inputs = [
     { name: "app_name", value: "@CRUD" },
-    { name: "session_ticket", value: "Logout" },
+    // { name: "session_ticket", value: "Logout" },
   ];
 
   inputs.forEach(({ name, value }) => {
