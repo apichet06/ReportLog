@@ -29,6 +29,10 @@ import {
   DataGridPremium,
   type GridPaginationModel,
 } from "@mui/x-data-grid-premium";
+import type { Dayjs } from "dayjs";
+
+
+
 
 
 export default function Saved_Reports() {
@@ -62,24 +66,39 @@ export default function Saved_Reports() {
   const [colerHistoryduc, setColerHistoryDuc] = useState<MUIColor>("info");
   const [colerTodaydcc, setColerTodayDcc] = useState<MUIColor>("secondary");
   const [colerHistorydcc, setColerHistoryDcc] = useState<MUIColor>("info");
+  const [dateStart, setDateStart] = useState<Dayjs | null>(null);
+  const [dateEnd, setDateEnd] = useState<Dayjs | null>(null);
 
-  type CountData = {
-    totalCount: 0,
-    count_Yesterday: 0,
-    count_AllBeforeYesterday: 0,
-  };
+  // type CountData = {
+  //   totalCount: 0,
+  //   count_Yesterday: 0,
+  //   count_AllBeforeYesterday: 0,
+  // };
 
-  type AllCounts = {
-    duc: CountData;
-    dcc: CountData;
-  };
+  // type AllCounts = {
+  //   duc: CountData;
+  //   dcc: CountData;
+  // };
 
-  const initialCounts: AllCounts = {
-    duc: { totalCount: 0, count_Yesterday: 0, count_AllBeforeYesterday: 0 },
-    dcc: { totalCount: 0, count_Yesterday: 0, count_AllBeforeYesterday: 0 },
-  };
+  // const initialCounts: AllCounts = {
+  //   duc: { totalCount: 0, count_Yesterday: 0, count_AllBeforeYesterday: 0 },
+  //   dcc: { totalCount: 0, count_Yesterday: 0, count_AllBeforeYesterday: 0 },
+  // };
 
-  const [counts, setCounts] = useState<AllCounts>(initialCounts);
+  // const [counts, setCounts] = useState<AllCounts>(initialCounts);
+
+  const test = {
+    ducYesterdayCount: 0,
+    dccYesterdayCount: 0,
+    ducTwoDaysAgoCount: 0,
+    dccTwoDaysAgoCount: 0,
+    dccAllCount: 0,
+    ducAllCount: 0
+  }
+
+  const [countsDucAll, setCountDucAll] = useState(test);
+  const [countsDccAll, setCountDccAll] = useState(test);
+
 
   const [checkBoxkUsual, setCheckBoxUsual] = useState("Usual Event");
   const [checkBoxkUnusual, setCheckBoxUnusual] = useState("Unusual Event");
@@ -91,10 +110,8 @@ export default function Saved_Reports() {
 
   const handleClear = () => {
     SetTextSearch("");
-    fetchDUC();
-    fetchDCC();
-    // setStartDate(null);
-    // setEndDate(null);
+    fetchData("DUC", dayHisDateduc, SetDataDUC);
+    fetchData("DCC", dayHisDatedcc, SetDataDCC);
   };
 
   const handleEditClick = useCallback(
@@ -121,209 +138,182 @@ export default function Saved_Reports() {
 
   // เพิ่ม dependencies เพื่อให้ function อัปเดตเมื่อข้อมูลเปลี่ยน
 
-  // const datatest = useCallback(async () => {
-  //   // Helper function สำหรับสร้างวันที่เป็น string เพื่อลดการเขียนโค้ดซ้ำ
-  //   const createDateStr = (daysToSubtract: number): string => {
-  //     const targetDate = new Date();
-  //     targetDate.setDate(targetDate.getDate() - daysToSubtract);
-  //     return datetime.DateSearch(targetDate);
-  //   };
+  const dataCount_new = useCallback(async () => {
+    // Helper function สำหรับสร้างวันที่เป็น string เพื่อลดการเขียนโค้ดซ้ำ
+    const createDateStr = (daysToSubtract: number): string => {
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() - daysToSubtract);
+      return datetime.DateSearch(targetDate);
+    };
 
-  //   const yesterdayStr = createDateStr(1);
-  //   const twoDaysAgoStr = createDateStr(2);
+    const yesterdayStr = createDateStr(1);
+    const twoDaysAgoStr = createDateStr(2);
 
-  //   // พารามิเตอร์ร่วมที่ใช้ในการเรียก API ทุกครั้ง
-  //   const commonParams = {
-  //     checkBoxkUsual,
-  //     checkBoxkUnusual,
-  //   };
+    // พารามิเตอร์ร่วมที่ใช้ในการเรียก API ทุกครั้ง
+    const commonParams = {
+      checkBoxkUsual,
+      checkBoxkUnusual,
+    };
 
-  // Helper function สำหรับเรียก API และคืนค่าจำนวนผลลัพธ์ พร้อมจัดการ error
-  //     const getLogCount = async (params: object): Promise<number> => {
-  //         try {
-  //             const response = await reportSaveLog.GetSaveReportLogService(params);
-  //             // สมมติว่า response.data.result เป็น array เสมอ
-  //             return response.data.result.length;
-  //         } catch (error) {
-  //             console.error(`Failed to fetch logs for params: ${JSON.stringify(params)}`, error);
-  //             return 0; // คืนค่า 0 เพื่อป้องกันแอปพังเมื่อ API error
-  //         }
+    // Helper function สำหรับเรียก API และคืนค่าจำนวนผลลัพธ์ พร้อมจัดการ error
+    const getLogCount = async (params: object): Promise<number> => {
+      try {
+        const response = await reportSaveLog.GetSaveReportLogService(params);
+        return response.data.result.length;
+      } catch (error) {
+        console.error(`Failed to fetch logs for params: ${JSON.stringify(params)}`, error);
+        return 0; // คืนค่า 0 เพื่อป้องกันแอปพังเมื่อ API error
+      }
+    };
+
+    try {
+      // เรียก API ทั้งหมดพร้อมกัน (parallel) เพื่อประสิทธิภาพที่ดีกว่า
+      const [ducYesterdayCount, dccYesterdayCount, ducTwoDaysAgoCount, dccTwoDaysAgoCount, dccAllCount, ducAllCount,
+      ] = await Promise.all([
+
+        getLogCount({ tapData: "DUC", startDate: yesterdayStr, endDate: yesterdayStr, ...commonParams }),
+        getLogCount({ tapData: "DCC", startDate: yesterdayStr, endDate: yesterdayStr, ...commonParams }),
+        getLogCount({ tapData: "DUC", endDate: twoDaysAgoStr, ...commonParams }),
+        getLogCount({ tapData: "DCC", endDate: twoDaysAgoStr, ...commonParams }),
+        getLogCount({ tapData: "DCC", ...commonParams }),
+        getLogCount({ tapData: "DUC", ...commonParams }),
+      ]);
+
+      setCountDucAll({
+        ducYesterdayCount, ducTwoDaysAgoCount, dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount, ducAllCount,
+      });
+      setCountDccAll({
+        ducYesterdayCount, ducTwoDaysAgoCount, dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount, ducAllCount,
+      });
+
+    } catch (error) {
+      // ดักจับ error ที่อาจเกิดจาก Promise.all
+      console.error("An error occurred while fetching report counts in parallel:", error);
+    }
+  }, [checkBoxkUnusual, checkBoxkUsual]);
+
+
+
+
+  // const dataCount = useCallback(async () => {
+  //   const resCount = await reportSaveLog.GetCoutAuditlog();
+  //   if (resCount.data?.isSuccess) {
+  //     const results = resCount.data.result;
+
+
+  //     const ducData: CountData = results.find((item: any) => item.appLog === "DUC") || {
+  //       totalCount: 0,
+  //       count_Yesterday: 0,
+  //       count_AllBeforeYesterday: 0,
+  //     };
+  //     const dccData: CountData = results.find((item: any) => item.appLog === "DCC") || {
+  //       totalCount: 0,
+  //       count_Yesterday: 0,
+  //       count_AllBeforeYesterday: 0,
   //     };
 
-  //     try {
-  //         // เรียก API ทั้งหมดพร้อมกัน (parallel) เพื่อประสิทธิภาพที่ดีกว่า
-  //         const [
-  //             ducYesterdayCount,
-  //             dccYesterdayCount,
-  //             ducTwoDaysAgoCount,
-  //             dccTwoDaysAgoCount,
-  //             dccAllCount,
-  //         ] = await Promise.all([
-  //             // จำนวนของเมื่อวาน
-  //             getLogCount({ tapData: "DUC", startDate: yesterdayStr, endDate: yesterdayStr, ...commonParams }),
-  //             getLogCount({ tapData: "DCC", startDate: yesterdayStr, endDate: yesterdayStr, ...commonParams }),
+  //     setCounts({ duc: ducData, dcc: dccData });
+  //   }
+  // }, []);
 
-  //             // จำนวนของข้อมูลย้อนหลังไป 2 วัน
-  //             getLogCount({ tapData: "DUC", endDate: twoDaysAgoStr, ...commonParams }),
-  //             getLogCount({ tapData: "DCC", endDate: twoDaysAgoStr, ...commonParams }),
+  const fetchData = useCallback(
+    async (tapData: "DUC" | "DCC", dayHistory: number, setData: (data: ReportSaveLog[]) => void) => {
+      try {
+        setLoadnigDataGrid(true);
 
-  //             // จำนวนทั้งหมดของ DCC
-  //             getLogCount({ tapData: "DCC", ...commonParams }),
-  //         ]);
+        const { startDate, endDate } = datetime.buildDateParams(dayHistory);
 
-  //         // อัปเดต state ด้วยข้อมูลที่ได้มา
-  //         // setCountDucYtd(ducYesterdayCount);
-  //         // setCountDccYtd(dccYesterdayCount);
+        const res = await reportSaveLog.GetSaveReportLogService({
+          tapData,
+          startDate,
+          endDate,
+          checkBoxkUsual,
+          checkBoxkUnusual,
+        });
 
-  //         // setCountDucTwo(ducTwoDaysAgoCount);
-  //         // setCountDccTwo(dccTwoDaysAgoCount);
+        const newData = res.data.result.map((item: ReportSaveLog, index: number) => ({
+          ...item,
+          no: index + 1,
+        }));
 
-  //         // ส่วนนี้ทำตาม logic เดิมในโค้ดที่ให้มา
-  //         // ที่ใช้ `resDuc` (ข้อมูล DUC ย้อนหลัง 2 วัน) มาตั้งค่า "DUC ทั้งหมด"
-  //         // และ `resDcc` (ข้อมูล DCC ทั้งหมด) มาตั้งค่า "DCC ทั้งหมด"        
-  //         // setCountDucAll(ducTwoDaysAgoCount); // หมายเหตุ: บรรทัดนี้อาจทำงานไม่ถูกต้องตามประเภทข้อมูลของ state
-  //         // setCountDccAll(dccAllCount); // หมายเหตุ: บรรทัดนี้อาจทำงานไม่ถูกต้องตามประเภทข้อมูลของ state
+        setData(newData);
+        SetTextSearch("");
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoadnigDataGrid(false);
+      }
+    },
+    [checkBoxkUnusual, checkBoxkUsual]
+  );
 
-  //     } catch (error) {
-  //         // ดักจับ error ที่อาจเกิดจาก Promise.all
-  //         console.error("An error occurred while fetching report counts in parallel:", error);
+  const handleSearch = useCallback(
+    async (dayHistory: number, setData: (data: ReportSaveLog[]) => void) => {
+      try {
+        setLoadnigDataGrid(true);
+
+        const { startDate, endDate } = datetime.buildDateParamsSearch(dayHistory, dateStart, dateEnd);
+
+        console.log('====================================');
+        console.log('startDate', dateStart, dateEnd);
+        console.log('====================================');
+        const res = await reportSaveLog.SearchSaveReportLogService({
+          Search: textSearch,
+          tapData,
+          startDate,
+          endDate,
+          checkBoxkUsual,
+          checkBoxkUnusual,
+        });
+
+        const newData = res.data.result.map((item: ReportSaveLog, index: number) => ({
+          ...item,
+          no: index + 1,
+        }));
+
+        setData(newData);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoadnigDataGrid(false);
+      }
+    },
+    [dateStart, dateEnd, textSearch, tapData, checkBoxkUsual, checkBoxkUnusual]
+  );
+
+  // const handleSearch = useCallback(async () => {
+  //   try {
+  //     setLoadnigDataGrid(true);
+
+  //     let dateToday = "";
+  //     let dateEndDate = "";
+  //     if (dayHisDateduc === 1 || dayHisDatedcc === 1) {
+  //       const targetDate = new Date();
+  //       targetDate.setDate(targetDate.getDate() - 1);
+  //       dateToday = datetime.DateSearch(targetDate);
+  //       dateEndDate = datetime.DateSearch(targetDate);
+  //     } else if (dayHisDateduc === 0 || dayHisDatedcc === 0) {
+  //       const targetDate = new Date();
+  //       targetDate.setDate(targetDate.getDate() - 2);
+  //       dateEndDate = datetime.DateSearch(targetDate);
   //     }
-  // }, [checkBoxkUnusual, checkBoxkUsual]);
 
 
-
-
-  const dataCount = useCallback(async () => {
-    const resCount = await reportSaveLog.GetCoutAuditlog();
-    if (resCount.data?.isSuccess) {
-      const results = resCount.data.result;
-
-      const ducData: CountData = results.find((item: any) => item.appLog === "DUC") || {
-        totalCount: 0,
-        count_Yesterday: 0,
-        count_AllBeforeYesterday: 0,
-      };
-      const dccData: CountData = results.find((item: any) => item.appLog === "DCC") || {
-        totalCount: 0,
-        count_Yesterday: 0,
-        count_AllBeforeYesterday: 0,
-      };
-
-      setCounts({ duc: ducData, dcc: dccData });
-    }
-  }, []);
-
-  const fetchDUC = useCallback(async () => {
-    try {
-      setLoadnigDataGrid(true);
-
-      let dateToday = "";
-      let dateEndDate = "";
-      if (dayHisDateduc === 1) {
-        const targetDate = new Date();
-        targetDate.setDate(targetDate.getDate() - 1);
-        dateToday = datetime.DateSearch(targetDate);
-        dateEndDate = datetime.DateSearch(targetDate);
-      } else if (dayHisDateduc === 0) {
-        const targetDate = new Date();
-        targetDate.setDate(targetDate.getDate() - 2);
-        dateEndDate = datetime.DateSearch(targetDate);
-      }
-
-      const res = await reportSaveLog.GetSaveReportLogService({
-        tapData: "DUC",
-        startDate: dateToday,
-        endDate: dateEndDate,
-        checkBoxkUsual,
-        checkBoxkUnusual,
-      });
-
-      const newData = res.data.result.map(
-        (item: ReportSaveLog, index: number) => ({
-          ...item,
-          no: index + 1,
-        })
-      );
-      SetDataDUC(newData);
-      setLoadnigDataGrid(false);
-      SetTextSearch("");
-    } catch (err) {
-      console.log(err);
-    }
-  }, [checkBoxkUnusual, checkBoxkUsual, dayHisDateduc]);
-
-  const fetchDCC = useCallback(async () => {
-    try {
-      setLoadnigDataGrid(true);
-
-      let dateToday = "";
-      let dateEndDate = "";
-      if (dayHisDatedcc == 1) {
-        const targetDate = new Date();
-        targetDate.setDate(targetDate.getDate() - 1);
-        dateToday = datetime.DateSearch(targetDate);
-        dateEndDate = datetime.DateSearch(targetDate);
-      } else if (dayHisDatedcc == 0) {
-        const targetDate = new Date();
-        targetDate.setDate(targetDate.getDate() - 2); // ลบ 2 วัน เพราะใน C# +1 วัน
-        dateEndDate = datetime.DateSearch(targetDate);
-      }
-
-      const res = await reportSaveLog.GetSaveReportLogService({
-        tapData: "DCC",
-        startDate: dateToday,
-        endDate: dateEndDate,
-        checkBoxkUsual,
-        checkBoxkUnusual,
-      });
-
-      const newData = res.data.result.map(
-        (item: ReportSaveLog, index: number) => ({
-          ...item,
-          no: index + 1,
-        })
-      );
-      SetDataDCC(newData);
-      setLoadnigDataGrid(false);
-      SetTextSearch("");
-    } catch (err) {
-      console.log(err);
-    }
-  }, [checkBoxkUnusual, checkBoxkUsual, dayHisDatedcc]);
-
-  const handleSearch = useCallback(async () => {
-    try {
-      setLoadnigDataGrid(true);
-
-      let dateToday = "";
-      let dateEndDate = "";
-      if (dayHisDateduc === 1) {
-        const targetDate = new Date();
-        targetDate.setDate(targetDate.getDate() - 1);
-        dateToday = datetime.DateSearch(targetDate);
-        dateEndDate = datetime.DateSearch(targetDate);
-      } else if (dayHisDateduc === 0) {
-        const targetDate = new Date();
-        targetDate.setDate(targetDate.getDate() - 2);
-        dateEndDate = datetime.DateSearch(targetDate);
-      }
-
-
-      const res = await reportSaveLog.SearchSaveReportLogService({
-        Search: textSearch,
-        startDate: dateToday,
-        endDate: dateEndDate,
-        tapData,
-        checkBoxkUsual,
-        checkBoxkUnusual,
-      });
-      if (tapData === "DUC") SetDataDUC(res.data.result);
-      else SetDataDCC(res.data.result);
-      setLoadnigDataGrid(false);
-    } catch (err) {
-      console.log(err);
-    }
-  }, [textSearch, tapData, checkBoxkUsual, checkBoxkUnusual]);
+  //     const res = await reportSaveLog.SearchSaveReportLogService({
+  //       Search: textSearch,
+  //       startDate: dateToday,
+  //       endDate: dateEndDate,
+  //       tapData,
+  //       checkBoxkUsual,
+  //       checkBoxkUnusual,
+  //     });
+  //     if (tapData === "DUC") SetDataDUC(res.data.result);
+  //     else SetDataDCC(res.data.result);
+  //     setLoadnigDataGrid(false);
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }, [dayHisDateduc, dayHisDatedcc, textSearch, tapData, checkBoxkUsual, checkBoxkUnusual]);
 
   // const handleExportExcel = useCallback(async () => {
   //   try {
@@ -390,10 +380,12 @@ export default function Saved_Reports() {
   // ]);
 
   useEffect(() => {
-    fetchDUC();
-    fetchDCC();
-    dataCount();
-  }, [fetchDCC, fetchDUC, dataCount]);
+    fetchData("DUC", dayHisDateduc, SetDataDUC);
+    fetchData("DCC", dayHisDatedcc, SetDataDCC);
+
+    // dataCount();
+    dataCount_new()
+  }, [dataCount_new, fetchData, dayHisDateduc, dayHisDatedcc]);
 
   const handleClose = () => {
     setOpen(false);
@@ -437,8 +429,8 @@ export default function Saved_Reports() {
             icon: "success",
           });
           handleClose(); // ปิด Dialog และรีเซ็ต state
-          fetchDUC(); // อาจจะดึงข้อมูลใหม่เฉพาะส่วนที่เกี่ยวข้อง
-          fetchDCC();
+          fetchData("DUC", dayHisDateduc, SetDataDUC);
+          fetchData("DCC", dayHisDatedcc, SetDataDCC);
         }
       });
     } catch (err) {
@@ -468,7 +460,10 @@ export default function Saved_Reports() {
   // const isBetween901And1200 = useMediaQuery('(min-width:901px) and (max-width:1200px)');
   const isBetween1201And1536 = useMediaQuery("(min-width:1201px) and (max-width:1536px)");
   const isAbove1537 = useMediaQuery("(min-width:1537px)");
-
+  const handleSearchAll = async () => {
+    await handleSearch(Number(dayHisDateduc), SetDataDUC);
+    await handleSearch(Number(dayHisDatedcc), SetDataDCC);
+  };
   return (
     <>
       <Container disableGutters maxWidth={false}>
@@ -484,10 +479,14 @@ export default function Saved_Reports() {
               <ReportLogToolbar
                 textSearch={textSearch}
                 onSearchChange={SetTextSearch}
-                onSearchClick={handleSearch}
+                onSearchClick={handleSearchAll}
                 onClearClick={handleClear}
                 setCheckBoxUnusual={setCheckBoxUnusual}
                 setCheckBoxUsual={setCheckBoxUsual}
+                setDateStart={setDateStart}
+                setDatetEnd={setDateEnd}
+                dateStart={dateStart}
+                dateEnd={dateEnd}
                 checkBoxkUsual={checkBoxkUsual}
                 checkBoxkUnusual={checkBoxkUnusual}
               />
@@ -518,12 +517,12 @@ export default function Saved_Reports() {
                       indicatorColor="secondary"
                     >
                       <Tab
-                        label={`DUC Log (${counts.duc.totalCount})`}
+                        label={`DUC Log (${countsDucAll.ducAllCount})`}
                         value="1"
                         onClick={() => setTapData("DUC")}
                       />
                       <Tab
-                        label={`DCC Log (${counts.dcc.totalCount})`}
+                        label={`DCC Log (${countsDccAll.dccAllCount})`}
                         value="2"
                         onClick={() => setTapData("DCC")}
                       />
@@ -556,7 +555,7 @@ export default function Saved_Reports() {
                               setColerHistoryDuc("primary");
                             }}
                           >
-                            Yesterday ({counts.duc.count_Yesterday})
+                            Yesterday ({countsDucAll.ducYesterdayCount})
                           </Button>
                           <Button
                             variant="contained"
@@ -567,7 +566,7 @@ export default function Saved_Reports() {
                               setColerHistoryDuc("secondary");
                             }}
                           >
-                            Two days ago ({counts.duc.count_AllBeforeYesterday})
+                            Two days ago ({countsDucAll.ducTwoDaysAgoCount})
                           </Button>
                         </ButtonGroup>
                       </Grid>
@@ -676,7 +675,7 @@ export default function Saved_Reports() {
                               setColerHistoryDcc("primary");
                             }}
                           >
-                            Yesterday ({counts.dcc.count_Yesterday})
+                            Yesterday ({countsDccAll.dccYesterdayCount})
                           </Button>
                           <Button
                             variant="contained"
@@ -687,7 +686,7 @@ export default function Saved_Reports() {
                               setColerHistoryDcc("secondary");
                             }}
                           >
-                            Two days ago ({counts.dcc.count_AllBeforeYesterday}
+                            Two days ago ({countsDccAll.dccTwoDaysAgoCount}
                             )
                           </Button>
                         </ButtonGroup>
@@ -719,6 +718,7 @@ export default function Saved_Reports() {
                       <DataGridPremium
                         rows={dataDcc}
                         columns={dccColumns}
+                        loading={loadingDataGrid}
                         getRowId={(row) => row.id.toString()}
                         pagination
                         paginationModel={paginationModel}
