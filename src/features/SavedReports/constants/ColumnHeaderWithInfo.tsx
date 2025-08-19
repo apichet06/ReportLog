@@ -1,6 +1,8 @@
 // components/ColumnHeaderWithInfo.tsx
 import React from "react";
-import { IconButton, Popover, Typography } from "@mui/material";
+import IconButton from '@mui/material/IconButton';
+import Popover from '@mui/material/Popover';
+import Typography from '@mui/material/Typography';
 import InfoIcon from "@mui/icons-material/Info";
 import { columnDescriptionsEN } from "../types/reportLogColumnDescriptions";
 
@@ -30,7 +32,7 @@ export default function ColumnHeaderWithInfo({ field, label }: Props) {
                 open={open}
                 anchorEl={anchorEl}
                 onClose={handleClose}
-                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
             >
                 <Typography sx={{ p: 2, maxWidth: 250 }}>
                     {columnDescriptionsEN[field] ?? "No description available"}

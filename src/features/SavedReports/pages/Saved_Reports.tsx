@@ -112,6 +112,8 @@ export default function Saved_Reports() {
     SetTextSearch("");
     fetchData("DUC", dayHisDateduc, SetDataDUC);
     fetchData("DCC", dayHisDatedcc, SetDataDCC);
+    setDateStart(null)
+    setDateEnd(null)
   };
 
   const handleEditClick = useCallback(
@@ -254,9 +256,7 @@ export default function Saved_Reports() {
 
         const { startDate, endDate } = datetime.buildDateParamsSearch(dayHistory, dateStart, dateEnd);
 
-        console.log('====================================');
-        console.log('startDate', dateStart, dateEnd);
-        console.log('====================================');
+
         const res = await reportSaveLog.SearchSaveReportLogService({
           Search: textSearch,
           tapData,
