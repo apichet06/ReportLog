@@ -32,3 +32,58 @@ export default function ErrorPermissionPage() {
 
     )
 }
+
+
+// import { useEffect, useState } from "react";
+// import axios from "axios";
+// import { CircularProgress, Container, Typography } from "@mui/material";
+
+// export default function AutoUpdatePage() {
+//   const [loading, setLoading] = useState(true);
+//   const [message, setMessage] = useState("Updating...");
+
+//   useEffect(() => {
+//     const updateData = async () => {
+//       try {
+//         // ตัวอย่าง PUT API
+//         await axios.put("https://your-api.com/update/123", {
+//           status: "done"
+//         });
+
+//         setMessage("Update completed!");
+
+//         // รอให้ user เห็นข้อความสักนิด
+//         setTimeout(() => {
+//           if (window.opener) {
+//             window.close(); // ปิดได้ ถ้ามี opener (เปิดจาก target="_blank")
+//           } else {
+//             window.location.href = "/login"; // fallback ถ้าปิดไม่ได้
+//           }
+//         }, 1500);
+//       } catch (error) {
+//         console.error(error);
+//         setMessage("Update failed!");
+//         setLoading(false);
+//       }
+//     };
+
+//     updateData();
+//   }, []);
+
+//   return (
+//     <Container sx={{ textAlign: "center", mt: 5 }}>
+//       {loading ? (
+//         <>
+//           <CircularProgress />
+//           <Typography variant="h6" mt={2}>
+//             {message}
+//           </Typography>
+//         </>
+//       ) : (
+//         <Typography variant="h6" color="error">
+//           {message}
+//         </Typography>
+//       )}
+//     </Container>
+//   );
+// }
