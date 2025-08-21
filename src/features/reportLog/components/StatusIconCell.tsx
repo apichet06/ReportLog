@@ -5,7 +5,8 @@ export const StatusIconCell = ({ value }: { value: string }) => (
         {value === "Y" ? (
             <img src="/CRUDLogs/applog/img/alert.png" width="20px" height="20px" alt="Alert" />
         ) : (
-            <img src="/CRUDLogs/applog/img/success.png" width="20px" height="20px" alt="Success" />
+            // <img src="/CRUDLogs/applog/img/success.png" width="20px" height="20px" alt="Success" />
+            ''
         )}
     </Box>
 );

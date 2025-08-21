@@ -20,7 +20,6 @@ import Tab from "@mui/material/Tab";
 import TabPanel from "@mui/lab/TabPanel";
 import ReportLogDialog from "../components/ReportLogDialog";
 import Swal from "sweetalert2";
-import type { User } from "@/layouts/userType";
 import ReportLogToolbar from "../components/ReportLogToolbar";
 import { getColumnsDCC } from "../constants/reportLogDccColumns";
 import { getColumnsDUC } from "../constants/reportLogDucColumns"; // หมายเหตุ: columnsDuc อาจต้องปรับแก้ในลักษณะเดียวกันถ้ามีปุ่ม action
@@ -30,11 +29,9 @@ import {
   type GridPaginationModel,
 } from "@mui/x-data-grid-premium";
 import type { Dayjs } from "dayjs";
-
-
-
-
-
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import { resultData } from "@/shared/utils/useToken";
 export default function Saved_Reports() {
   const [value, setValue] = useState("1");
 
@@ -42,10 +39,7 @@ export default function Saved_Reports() {
     setValue(newValue);
   };
 
-  const userDataString = localStorage.getItem("user");
-  const resultData: User | null = userDataString
-    ? JSON.parse(userDataString)
-    : null;
+
 
   const [tapData, setTapData] = useState("DUC");
 
@@ -114,6 +108,7 @@ export default function Saved_Reports() {
     fetchData("DCC", dayHisDatedcc, SetDataDCC);
     setDateStart(null)
     setDateEnd(null)
+
   };
 
   const handleEditClick = useCallback(
@@ -240,6 +235,8 @@ export default function Saved_Reports() {
 
         setData(newData);
         SetTextSearch("");
+        setDateStart(null)
+        setDateEnd(null)
       } catch (err) {
         console.log(err);
       } finally {
@@ -481,14 +478,10 @@ export default function Saved_Reports() {
                 onSearchChange={SetTextSearch}
                 onSearchClick={handleSearchAll}
                 onClearClick={handleClear}
-                setCheckBoxUnusual={setCheckBoxUnusual}
-                setCheckBoxUsual={setCheckBoxUsual}
                 setDateStart={setDateStart}
                 setDatetEnd={setDateEnd}
                 dateStart={dateStart}
                 dateEnd={dateEnd}
-                checkBoxkUsual={checkBoxkUsual}
-                checkBoxkUnusual={checkBoxkUnusual}
               />
             </Box>
             <hr />
@@ -555,7 +548,7 @@ export default function Saved_Reports() {
                               setColerHistoryDuc("primary");
                             }}
                           >
-                            Yesterday ({countsDucAll.ducYesterdayCount})
+                            Latest Data ({countsDucAll.ducYesterdayCount})
                           </Button>
                           <Button
                             variant="contained"
@@ -566,17 +559,44 @@ export default function Saved_Reports() {
                               setColerHistoryDuc("secondary");
                             }}
                           >
-                            Two days ago ({countsDucAll.ducTwoDaysAgoCount})
+                            Previous Data ({countsDucAll.ducTwoDaysAgoCount})
                           </Button>
                         </ButtonGroup>
                       </Grid>
-                      <Grid
+                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3}
+                        justifyContent="flex-end"
+                        display="flex">
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={checkBoxkUsual === "Usual Event"}
+                              onChange={(e) =>
+                                setCheckBoxUsual(e.target.checked ? "Usual Event" : "")
+                              }
+                            />
+                          }
+                          label="Usual Event"
+                        />
+
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={checkBoxkUnusual === "Unusual Event"}
+                              onChange={(e) =>
+                                setCheckBoxUnusual(e.target.checked ? "Unusual Event" : "")
+                              }
+                            />
+                          }
+                          label="Unusual Event"
+                        />
+                      </Grid>
+                      {/* <Grid
                         size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}
                         mb={3}
                         justifyContent="flex-end"
                         display="flex"
                       >
-                        {/* <Button
+                        <Button
                           variant="outlined"
                           loading={loadingExport}
                           loadingPosition="start"
@@ -586,8 +606,8 @@ export default function Saved_Reports() {
                         >
                           {" "}
                           Export DUC
-                        </Button> */}
-                      </Grid>
+                        </Button>
+                      </Grid> */}
                     </Grid>
                     {/* {window.innerWidth} */}
                     <Container
@@ -675,7 +695,7 @@ export default function Saved_Reports() {
                               setColerHistoryDcc("primary");
                             }}
                           >
-                            Yesterday ({countsDccAll.dccYesterdayCount})
+                            Latest Data ({countsDccAll.dccYesterdayCount})
                           </Button>
                           <Button
                             variant="contained"
@@ -686,18 +706,45 @@ export default function Saved_Reports() {
                               setColerHistoryDcc("secondary");
                             }}
                           >
-                            Two days ago ({countsDccAll.dccTwoDaysAgoCount}
+                            Previous Data ({countsDccAll.dccTwoDaysAgoCount}
                             )
                           </Button>
                         </ButtonGroup>
                       </Grid>
-                      <Grid
+                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3}
+                        justifyContent="flex-end"
+                        display="flex">
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={checkBoxkUsual === "Usual Event"}
+                              onChange={(e) =>
+                                setCheckBoxUsual(e.target.checked ? "Usual Event" : "")
+                              }
+                            />
+                          }
+                          label="Usual Event"
+                        />
+
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={checkBoxkUnusual === "Unusual Event"}
+                              onChange={(e) =>
+                                setCheckBoxUnusual(e.target.checked ? "Unusual Event" : "")
+                              }
+                            />
+                          }
+                          label="Unusual Event"
+                        />
+                      </Grid>
+                      {/* <Grid
                         size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}
                         mb={3}
                         justifyContent="flex-end"
                         display="flex"
                       >
-                        {/* <Button
+                        <Button
                           variant="outlined"
                           loading={loadingExport}
                           loadingPosition="start"
@@ -707,8 +754,8 @@ export default function Saved_Reports() {
                         >
                           {" "}
                           Export DCC
-                        </Button> */}
-                      </Grid>
+                        </Button>
+                      </Grid> */}
                     </Grid>
                     <Container
                       fixed

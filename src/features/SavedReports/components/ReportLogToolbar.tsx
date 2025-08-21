@@ -16,10 +16,7 @@ interface Props {
     onSearchChange: (value: string) => void;
     onSearchClick: () => void;
     onClearClick: () => void;
-    setCheckBoxUsual: React.Dispatch<React.SetStateAction<string>>;
-    setCheckBoxUnusual: React.Dispatch<React.SetStateAction<string>>;
-    checkBoxkUsual: string;
-    checkBoxkUnusual: string;
+
     setDateStart: React.Dispatch<React.SetStateAction<Dayjs | null>>;
     setDatetEnd: React.Dispatch<React.SetStateAction<Dayjs | null>>;
     dateStart: Dayjs | null;
@@ -31,10 +28,6 @@ export default function ReportLogToolbar({
     onSearchChange,
     onSearchClick,
     onClearClick,
-    setCheckBoxUsual,
-    setCheckBoxUnusual,
-    checkBoxkUsual,
-    checkBoxkUnusual,
     setDateStart,
     setDatetEnd,
     dateStart,
@@ -42,7 +35,7 @@ export default function ReportLogToolbar({
 }: Props) {
     return (
         <Grid container spacing={2} alignItems="center" mb={3}>
-            <Grid size={{ xs: 12, sm: 12, md: 10, lg: 4, xl: 4 }}>
+            <Grid size={{ xs: 12, sm: 12, md: 10, lg: 6, xl: 6 }}>
                 <TextField
                     label="Search..."
                     type="search"
@@ -52,54 +45,34 @@ export default function ReportLogToolbar({
                     fullWidth
                 />
             </Grid>
-            <Grid size={{ xs: 12, sm: 12, md: 1, lg: 3, xl: 3 }}>
+            <Grid size={{ xs: 12, sm: 12, md: 1, lg: 4, xl: 4 }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DemoContainer components={['DateTimePicker', 'DateTimePicker']}>
-                        <DatePicker
-                            label="Start Date"
-                            value={dateStart}
-                            format="DD/MM/YYYY"
-                            disableFuture
-                            onChange={(newValue) => setDateStart(newValue)}
-                            slotProps={{ textField: { fullWidth: true, size: "small" } }}
-                        />
-                        <DatePicker
-                            label="End Date"
-                            value={dateEnd}
-                            format="DD/MM/YYYY"
-                            disableFuture
-                            onChange={(newValue) => setDatetEnd(newValue)}
-                            slotProps={{ textField: { fullWidth: true, size: "small" } }}
-                        />
-                    </DemoContainer>
+                    <Grid container spacing={2} alignItems="center">
+                        <Grid size={{ xs: 12, sm: 6, md: 6, lg: 6, xl: 6 }} >
+                            <DatePicker
+                                label="Start Date"
+                                value={dateStart}
+                                format="DD/MM/YYYY"
+                                disableFuture
+                                onChange={(newValue) => setDateStart(newValue)}
+                                slotProps={{ textField: { fullWidth: true, size: "small" } }}
+                            />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 6, md: 6, lg: 6, xl: 6 }} >
+                            <DatePicker
+                                label="End Date"
+                                value={dateEnd}
+                                format="DD/MM/YYYY"
+                                disableFuture
+                                onChange={(newValue) => setDatetEnd(newValue)}
+                                slotProps={{ textField: { fullWidth: true, size: "small" } }}
+                            />
+                        </Grid>
+                    </Grid>
                 </LocalizationProvider>
 
             </Grid>
-            <Grid size={{ xs: 12, sm: 12, md: 3, lg: 3, xl: 3 }}>
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            checked={checkBoxkUsual === "Usual Event"}
-                            onChange={(e) =>
-                                setCheckBoxUsual(e.target.checked ? "Usual Event" : "")
-                            }
-                        />
-                    }
-                    label="Usual Event"
-                />
 
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            checked={checkBoxkUnusual === "Unusual Event"}
-                            onChange={(e) =>
-                                setCheckBoxUnusual(e.target.checked ? "Unusual Event" : "")
-                            }
-                        />
-                    }
-                    label="Unusual Event"
-                />
-            </Grid>
             <Grid size={{ xs: 12, sm: 12, md: 1, lg: 1, xl: 1 }}>
                 <Button fullWidth variant="contained" onClick={onSearchClick} title="Search" aria-label="search">
                     <SearchIcon />

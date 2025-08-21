@@ -1,7 +1,7 @@
 import {
 
   type GridRowSelectionModel,
-} from "@mui/x-data-grid";
+} from "@mui/x-data-grid-premium";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
@@ -13,12 +13,12 @@ import Swal from "sweetalert2";
 import datetime from "@/shared/utils/handleDatetime";
 
 import SaveIcon from "@mui/icons-material/Save";
-import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
+// import SystemUpdateAltIcon from '@mui/icons-material/SystemUpdateAlt';
 import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
-import type { GridRowId } from "@mui/x-data-grid";
+import type { GridRowId } from "@mui/x-data-grid-premium";
 import type { User } from "@/layouts/userType";
 import { columnsDuc } from "../constants/reportLogDucColumns";
 import { columnsDCC } from "../constants/reportLogDccColumns";
@@ -27,6 +27,9 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 import ReportLogToolbar from "../components/ReportLogToolbar";
 import { DataGridPremium } from "@mui/x-data-grid-premium";
 import { useMediaQuery } from "@mui/system";
+import type { Dayjs } from "dayjs";
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 // import { useParams } from "react-router-dom";
 
 
@@ -41,8 +44,8 @@ export default function ReportLogPage() {
   const resultData: User | null = userDataString
     ? JSON.parse(userDataString)
     : null;
-  // const { id, tap } = useParams<{ id: string, tap: string }>();
 
+  // const { id, tap } = useParams<{ id: string, tap: string }>();
 
   const [value, setValue] = useState('1');
 
@@ -53,20 +56,35 @@ export default function ReportLogPage() {
   const [open, setOpen] = useState(false);
   const [rowDatas, setRowDatas] = useState<GridRowId[]>([]);
 
-
   const handleClickOpen = () => {
-    const rawData = Array.isArray(selectionModel)
-      ? selectionModel
-      : Array.from(selectionModel.ids);
+    let selectedIds: GridRowId[] = [];
 
-    if (rawData.length === 0) {
+    if (Array.isArray(selectionModel)) {
+      selectedIds = selectionModel;
+    } else if ("all" in selectionModel) {
+      if (selectionModel.all) {
+        // 'all' is true: all rows are selected except the ones in `ids` (which are unselected rows).
+        const currentData = tapData === "DUC" ? dataDuc : dataDcc;
+        const allIds = currentData.map((row) => row.id.toString());
+        const unselectedIds = new Set(selectionModel.ids);
+        selectedIds = allIds.filter((id) => !unselectedIds.has(id));
+      } else {
+        // 'all' is false: `ids` contains the selected rows.
+        // `selectionModel.ids` can be a Set, so we convert it to an array.
+        selectedIds = Array.from(selectionModel.ids);
+      }
+    }
+
+    if (selectedIds.length === 0) {
+      console.log(selectedIds.length);
+
       Swal.fire({
         title: "No rows selected!",
         icon: "error",
       });
       return;
     }
-    setRowDatas(rawData)
+    setRowDatas(selectedIds);
     setOpen(true);
   };
 
@@ -80,7 +98,7 @@ export default function ReportLogPage() {
   const [tapData, setTapData] = useState('DUC');
 
   const [loadingDataGrid, setLoadnigDataGrid] = useState(false);
-  const [loadingExport, setLoadingExport] = useState(false)
+  // const [loadingExport, setLoadingExport] = useState(false)
 
 
   const [dataDuc, SetDataDUC] = useState<ReportLog[]>([]);
@@ -96,6 +114,12 @@ export default function ReportLogPage() {
   const [dayHisDateduc, setsDayHisDateDuc] = useState(1);
   const [dayHisDatedcc, setsDayHisDateDcc] = useState(1);
 
+  const [checkBoxkUsual, setCheckBoxUsual] = useState("Usual Event");
+  const [checkBoxkUnusual, setCheckBoxUnusual] = useState("Unusual Event");
+
+  const [dateStart, setDateStart] = useState<Dayjs | null>(null);
+  const [dateEnd, setDateEnd] = useState<Dayjs | null>(null);
+
   const [valueRedio, setValueRedio] = useState('Usual Event');
   const handleChangeRedio = (event: ChangeEvent<HTMLInputElement>) => {
     setValueRedio((event.target as HTMLInputElement).value);
@@ -107,72 +131,103 @@ export default function ReportLogPage() {
 
   const handleClear = () => {
     SetTextSearch('');
-    fetchDCC();
-    fetchDUC();
+    fetchData("DUC", dayHisDateduc, SetDataDUC);
+    fetchData("DCC", dayHisDatedcc, SetDataDCC);
 
   }
 
-  const fetchDUC = useCallback(async () => {
-    try {
-      setLoadnigDataGrid(true)
+  // const fetchDUC = useCallback(async () => {
+  //   try {
+  //     setLoadnigDataGrid(true)
 
-      let dateToday = "";
-      let dateEndDate = "";
+  //     let dateToday = "";
+  //     let dateEndDate = "";
 
-      if (dayHisDateduc == 1) {
-        const targetDate = new Date()
-        targetDate.setDate(targetDate.getDate() - 1)
-        dateToday = datetime.DateSearch(targetDate);
-        dateEndDate = datetime.DateSearch(targetDate);
+  //     if (dayHisDateduc == 1) {
+  //       const targetDate = new Date()
+  //       targetDate.setDate(targetDate.getDate() - 1)
+  //       dateToday = datetime.DateSearch(targetDate);
+  //       dateEndDate = datetime.DateSearch(targetDate);
 
-      } else if (dayHisDateduc == 0) {
+  //     } else if (dayHisDateduc == 0) {
 
-        // const targetDate = new Date("2025-07-14");
-        const targetDate = new Date();
-        targetDate.setDate(targetDate.getDate() - 2); // ลบ 1 วัน เพราะใน C# +1 วัน
-        dateEndDate = datetime.DateSearch(targetDate);
+  //       // const targetDate = new Date("2025-07-14");
+  //       const targetDate = new Date();
+  //       targetDate.setDate(targetDate.getDate() - 2); // ลบ 1 วัน เพราะใน C# +1 วัน
+  //       dateEndDate = datetime.DateSearch(targetDate);
+  //     }
+
+  //     const res = await reportLogService.GetReportLogService({ tapData: "DUC", startDate: dateToday, endDate: dateEndDate });
+  //     SetDataDUC(res.data.result);
+  //     setLoadnigDataGrid(false)
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }, [dayHisDateduc]);
+
+
+
+  // const fetchDCC = useCallback(async () => {
+  //   try {
+  //     setLoadnigDataGrid(true)
+  //     let dateToday = "";
+  //     let dateEndDate = "";
+
+  //     if (dayHisDatedcc == 1) {
+  //       const targetDate = new Date()
+  //       targetDate.setDate(targetDate.getDate() - 1)
+  //       dateToday = datetime.DateSearch(targetDate);
+  //       dateEndDate = datetime.DateSearch(targetDate);
+
+  //     } else if (dayHisDatedcc == 0) {
+
+  //       const targetDate = new Date()
+  //       targetDate.setDate(targetDate.getDate() - 2); // ลบ 2 วัน เพราะใน C# +1 วัน
+  //       dateEndDate = datetime.DateSearch(targetDate);
+  //     }
+
+
+  //     const res = await reportLogService.GetReportLogService({ tapData: "DCC", startDate: dateToday, endDate: dateEndDate });
+  //     SetDataDCC(res.data.result);
+  //     setLoadnigDataGrid(false)
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }, [dayHisDatedcc]);
+
+
+  const fetchData = useCallback(
+    async (tapData: "DUC" | "DCC", dayHistory: number, setData: (data: ReportLog[]) => void) => {
+      try {
+        setLoadnigDataGrid(true);
+
+        const { startDate, endDate } = datetime.buildDateParams(dayHistory);
+
+        const res = await reportLogService.GetReportLogService({
+          tapData,
+          startDate,
+          endDate,
+          checkBoxkUsual,
+          checkBoxkUnusual,
+        });
+
+        const newData = res.data.result.map((item: ReportLog, index: number) => ({
+          ...item,
+          no: index + 1,
+        }));
+
+        setData(newData);
+        SetTextSearch("");
+        setDateStart(null)
+        setDateEnd(null)
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoadnigDataGrid(false);
       }
-
-      const res = await reportLogService.GetReportLogService({ tapData: "DUC", startDate: dateToday, endDate: dateEndDate });
-      SetDataDUC(res.data.result);
-      setLoadnigDataGrid(false)
-    } catch (err) {
-      console.log(err);
-    }
-  }, [dayHisDateduc]);
-
-
-
-  const fetchDCC = useCallback(async () => {
-    try {
-      setLoadnigDataGrid(true)
-      let dateToday = "";
-      let dateEndDate = "";
-
-      if (dayHisDatedcc == 1) {
-        const targetDate = new Date()
-        targetDate.setDate(targetDate.getDate() - 1)
-        dateToday = datetime.DateSearch(targetDate);
-        dateEndDate = datetime.DateSearch(targetDate);
-
-      } else if (dayHisDatedcc == 0) {
-
-        const targetDate = new Date()
-        targetDate.setDate(targetDate.getDate() - 2); // ลบ 2 วัน เพราะใน C# +1 วัน
-        dateEndDate = datetime.DateSearch(targetDate);
-      }
-
-
-      const res = await reportLogService.GetReportLogService({ tapData: "DCC", startDate: dateToday, endDate: dateEndDate });
-      SetDataDCC(res.data.result);
-      setLoadnigDataGrid(false)
-    } catch (err) {
-      console.log(err);
-    }
-  }, [dayHisDatedcc]);
-
-
-
+    },
+    [checkBoxkUnusual, checkBoxkUsual]
+  );
 
   const handleSearch = useCallback(async () => {
     try {
@@ -190,103 +245,12 @@ export default function ReportLogPage() {
   }, [textSearch, tapData]);
 
 
-  const handleExportExcel = useCallback(async () => {
-    try {
-
-      await setLoadingExport(true)
-
-      let dateToday = "";
-      let dateEndDate = "";
-
-      if (dayHisDatedcc == 1 && dayHisDateduc == 1) {
-        dateToday = datetime.DateSearch(new Date());
-        dateEndDate = datetime.DateSearch(new Date());
-
-      } else if (dayHisDatedcc == 0 && dayHisDateduc == 0) {
-
-        const targetDate = new Date()
-        targetDate.setDate(targetDate.getDate() - 2); // ลบ 2 วัน เพราะใน C# +1 วัน
-        dateEndDate = datetime.DateSearch(targetDate);
-      }
-
-
-      const res = await reportLogService.exportExcel({ Search: textSearch, startDate: dateToday, endDate: dateEndDate, tapData });
-      const blob = res.data;
-
-      // ดึงชื่อไฟล์จาก header 'content-disposition'
-      const contentDisposition = res.headers['content-disposition'];
-      let fileName = `${new Date().getTime()} ${tapData} report.xlsx`; // Default filename
-      if (contentDisposition) {
-        const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
-        if (fileNameMatch && fileNameMatch.length > 1) {
-          fileName = decodeURIComponent(fileNameMatch[1]);
-        }
-      }
-
-      // สร้าง URL ชั่วคราวสำหรับดาวน์โหลด
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', fileName);
-
-      // เพิ่ม link เข้าไปใน DOM, กด, และลบออก
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode?.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
-      await setLoadingExport(false)
-
-    } catch (err) {
-      console.log(err);
-    }
-
-  }, [dayHisDatedcc, dayHisDateduc, textSearch, tapData])
-
-  // console.log(tap);
-
-
-  // useEffect(() => {
-  //   const searchById = async (searchId: string) => {
-  //     setLoadnigDataGrid(true);
-  //     try {
-
-  //       let result = await reportLogService.SearchReportLogService({ Search: searchId, tapData: tap });
-
-  //       if (tap == "DUC") {
-  //         setValue("1")
-  //         SetDataDUC(result.data.result);
-  //       } else {
-  //         setValue("2")
-  //         SetDataDCC(result.data.result);
-  //       }
-
-
-
-  //     } catch (err) {
-  //       console.error("Failed to search by ID:", err);
-  //     } finally {
-  //       setLoadnigDataGrid(false);
-  //     }
-  //   };
-
-  //   if (id && tap) {
-  //     // ถ้ามี id ใน URL, ให้ใช้ id นั้นในการค้นหา
-  //     SetTextSearch(id); // อัปเดตค่าในช่องค้นหา
-  //     searchById(id);
-  //     setTapData(tap)
-  //   } else {
-  //     // ถ้าไม่มี id, ให้ใช้ logic การดึงข้อมูลแบบเดิม
-  //     fetchDUC();
-  //     fetchDCC();
-  //   }
-  // }, [id, tap, fetchDUC, fetchDCC, dayHisDatedcc, dayHisDateduc]); // ให้ useEffect ทำงานเมื่อ id, fetchDUC, หรือ fetchDCC เปลี่ยน
-
 
   useEffect(() => {
-    fetchDUC();
-    fetchDCC()
-  }, [fetchDCC, fetchDUC, dayHisDatedcc, dayHisDateduc]);
+
+    fetchData("DUC", dayHisDateduc, SetDataDUC);
+    fetchData("DCC", dayHisDatedcc, SetDataDCC);
+  }, [dayHisDatedcc, dayHisDateduc]);
 
 
 
@@ -312,9 +276,10 @@ export default function ReportLogPage() {
             icon: "success",
           });
           await reportLogService.ApprovedReportLogService(numericIds, email, valueRedio, conment);
-          fetchDUC();
-          fetchDCC();
+
           handleClose();
+          fetchData("DUC", dayHisDateduc, SetDataDUC);
+          fetchData("DCC", dayHisDatedcc, SetDataDCC);
         }
       });
 
@@ -388,10 +353,36 @@ export default function ReportLogPage() {
                           <Button variant="contained" color={colerHistoryduc} onClick={() => (setsDayHisDateDuc(0), setColerTodayDuc("primary"), setColerHistoryDuc("secondary"))}>History</Button>
                         </ButtonGroup>
                       </Grid>
+                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3}
+                        justifyContent="flex-end"
+                        display="flex">
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={checkBoxkUsual === "Usual Event"}
+                              onChange={(e) =>
+                                setCheckBoxUsual(e.target.checked ? "Usual Event" : "")
+                              }
+                            />
+                          }
+                          label="Usual Event"
+                        />
 
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={checkBoxkUnusual === "Unusual Event"}
+                              onChange={(e) =>
+                                setCheckBoxUnusual(e.target.checked ? "Unusual Event" : "")
+                              }
+                            />
+                          }
+                          label="Unusual Event"
+                        />
+                      </Grid>
                       <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3} justifyContent="flex-end" display="flex">
                         <Button variant="contained" color="success" onClick={handleClickOpen} startIcon={<SaveIcon />}> Save Duc</Button>
-                        <Button variant="outlined" loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={() => handleExportExcel()} sx={{ ml: 2 }}> Export DUC </Button>
+                        {/* <Button variant="outlined" loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={() => handleExportExcel()} sx={{ ml: 2 }}> Export DUC </Button> */}
                       </Grid>
                     </Grid>
                     <Container disableGutters maxWidth={isExtraLargeScreen ? 'xl' : 'lg'}>
@@ -401,6 +392,10 @@ export default function ReportLogPage() {
                         rows={dataDuc}
                         columns={columnsDuc}
                         pagination
+                        disablePivoting
+                        disableColumnSorting
+                        disableColumnFilter
+                        disableColumnMenu
                         paginationModel={paginationModel}
                         onPaginationModelChange={(model) => setPaginationModel(model)}
                         initialState={{
@@ -416,6 +411,7 @@ export default function ReportLogPage() {
                           toolbar: {
                             csvOptions: { disableToolbarButton: true },
                             printOptions: { disableToolbarButton: true },
+                            showQuickFilter: false,
                           },
                         }}
                         getRowClassName={(params) =>
@@ -454,10 +450,36 @@ export default function ReportLogPage() {
                           <Button variant="contained" color={colerHistorydcc} onClick={() => (setsDayHisDateDcc(0), setColerTodayDcc("primary"), setColerHistoryDcc("secondary"))}>History</Button>
                         </ButtonGroup>
                       </Grid>
+                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3}
+                        justifyContent="flex-end"
+                        display="flex">
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={checkBoxkUsual === "Usual Event"}
+                              onChange={(e) =>
+                                setCheckBoxUsual(e.target.checked ? "Usual Event" : "")
+                              }
+                            />
+                          }
+                          label="Usual Event"
+                        />
 
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={checkBoxkUnusual === "Unusual Event"}
+                              onChange={(e) =>
+                                setCheckBoxUnusual(e.target.checked ? "Unusual Event" : "")
+                              }
+                            />
+                          }
+                          label="Unusual Event"
+                        />
+                      </Grid>
                       <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3} justifyContent="flex-end" display="flex">
                         <Button variant="contained" color="success" onClick={handleClickOpen} startIcon={<SaveIcon />}> Save DCC</Button>
-                        <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={() => handleExportExcel()} sx={{ ml: 2 }}> Export DCC </Button>
+                        {/* <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={() => handleExportExcel()} sx={{ ml: 2 }}> Export DCC </Button> */}
                       </Grid>
                     </Grid>
                     <Container disableGutters maxWidth={isExtraLargeScreen ? 'xl' : 'lg'}>
@@ -467,6 +489,10 @@ export default function ReportLogPage() {
                         rows={dataDcc}
                         columns={columnsDCC}
                         pagination
+                        disablePivoting
+                        disableColumnSorting
+                        disableColumnFilter
+                        disableColumnMenu
                         paginationModel={paginationModel}
                         onPaginationModelChange={(model) => setPaginationModel(model)}
                         initialState={{
@@ -482,7 +508,7 @@ export default function ReportLogPage() {
                           toolbar: {
                             csvOptions: { disableToolbarButton: true },
                             printOptions: { disableToolbarButton: true },
-                            // showQuickFilter: false,
+                            showQuickFilter: false,
                           },
                         }}
                         getRowClassName={(params) =>

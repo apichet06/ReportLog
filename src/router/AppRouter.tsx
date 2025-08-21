@@ -7,7 +7,7 @@ import LoginPage from "@/features/auth/page/LoginPage";
 import DashboardPage from "@/features/dashboard/pages/DashboardPage";
 import ReportLogPages from "@/features/report-log/pages/ReportLogPage";
 import ReportLogByIdPage from "@/features/report-log/pages/ReportLogByIdPage";
-
+import UpdateOnEmailPage from "@/features/save-onemail/page/SaveOnemailpage";
 
 
 
@@ -16,6 +16,7 @@ const AppRouter = () => {
   return (
     <Routes>
       <Route path="/ErrorPermissionPage" element={<ErrorPermissionPage />} />
+      <Route path="/updateDateOnEmail/:plant?/:app_log?/:datetime?" element={<UpdateOnEmailPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route element={<MainLayout />}>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -34,4 +35,3 @@ const AppRouter = () => {
 };
 
 export default AppRouter;
-// เกิดข้อผิดพลาด 500 : The process cannot access the file 'D:\\inetpub\\wwwroot\\custappl\\CRUDLogs\\dccduc_Api_new\\Files\\reportDUCSendMail.xlsx' because it is being used by another process.
