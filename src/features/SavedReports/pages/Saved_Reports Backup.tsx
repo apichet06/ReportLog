@@ -44,6 +44,7 @@ export default function Saved_Reports() {
   const [tapData, setTapData] = useState("DUC");
 
   const [loadingDataGrid, setLoadnigDataGrid] = useState(false);
+  // const [loadingExport, setLoadingExport] = useState(false);
 
   const [dataDuc, SetDataDUC] = useState<ReportSaveLog[]>([]);
   const [dataDcc, SetDataDCC] = useState<ReportSaveLog[]>([]);
@@ -62,7 +63,25 @@ export default function Saved_Reports() {
   const [dateStart, setDateStart] = useState<Dayjs | null>(null);
   const [dateEnd, setDateEnd] = useState<Dayjs | null>(null);
 
-  const countAll = {
+  // type CountData = {
+  //   totalCount: 0,
+  //   count_Yesterday: 0,
+  //   count_AllBeforeYesterday: 0,
+  // };
+
+  // type AllCounts = {
+  //   duc: CountData;
+  //   dcc: CountData;
+  // };
+
+  // const initialCounts: AllCounts = {
+  //   duc: { totalCount: 0, count_Yesterday: 0, count_AllBeforeYesterday: 0 },
+  //   dcc: { totalCount: 0, count_Yesterday: 0, count_AllBeforeYesterday: 0 },
+  // };
+
+  // const [counts, setCounts] = useState<AllCounts>(initialCounts);
+
+  const test = {
     ducYesterdayCount: 0,
     dccYesterdayCount: 0,
     ducTwoDaysAgoCount: 0,
@@ -71,8 +90,8 @@ export default function Saved_Reports() {
     ducAllCount: 0
   }
 
-  const [countsDucAll, setCountDucAll] = useState(countAll);
-  const [countsDccAll, setCountDccAll] = useState(countAll);
+  const [countsDucAll, setCountDucAll] = useState(test);
+  const [countsDccAll, setCountDccAll] = useState(test);
 
 
   const [checkBoxkUsual, setCheckBoxUsual] = useState("Usual Event");
@@ -173,7 +192,26 @@ export default function Saved_Reports() {
 
 
 
+  // const dataCount = useCallback(async () => {
+  //   const resCount = await reportSaveLog.GetCoutAuditlog();
+  //   if (resCount.data?.isSuccess) {
+  //     const results = resCount.data.result;
 
+
+  //     const ducData: CountData = results.find((item: any) => item.appLog === "DUC") || {
+  //       totalCount: 0,
+  //       count_Yesterday: 0,
+  //       count_AllBeforeYesterday: 0,
+  //     };
+  //     const dccData: CountData = results.find((item: any) => item.appLog === "DCC") || {
+  //       totalCount: 0,
+  //       count_Yesterday: 0,
+  //       count_AllBeforeYesterday: 0,
+  //     };
+
+  //     setCounts({ duc: ducData, dcc: dccData });
+  //   }
+  // }, []);
 
   const fetchData = useCallback(
     async (tapData: "DUC" | "DCC", dayHistory: number, setData: (data: ReportSaveLog[]) => void) => {
@@ -239,6 +277,104 @@ export default function Saved_Reports() {
     },
     [dateStart, dateEnd, textSearch, tapData, checkBoxkUsual, checkBoxkUnusual]
   );
+
+  // const handleSearch = useCallback(async () => {
+  //   try {
+  //     setLoadnigDataGrid(true);
+
+  //     let dateToday = "";
+  //     let dateEndDate = "";
+  //     if (dayHisDateduc === 1 || dayHisDatedcc === 1) {
+  //       const targetDate = new Date();
+  //       targetDate.setDate(targetDate.getDate() - 1);
+  //       dateToday = datetime.DateSearch(targetDate);
+  //       dateEndDate = datetime.DateSearch(targetDate);
+  //     } else if (dayHisDateduc === 0 || dayHisDatedcc === 0) {
+  //       const targetDate = new Date();
+  //       targetDate.setDate(targetDate.getDate() - 2);
+  //       dateEndDate = datetime.DateSearch(targetDate);
+  //     }
+
+
+  //     const res = await reportSaveLog.SearchSaveReportLogService({
+  //       Search: textSearch,
+  //       startDate: dateToday,
+  //       endDate: dateEndDate,
+  //       tapData,
+  //       checkBoxkUsual,
+  //       checkBoxkUnusual,
+  //     });
+  //     if (tapData === "DUC") SetDataDUC(res.data.result);
+  //     else SetDataDCC(res.data.result);
+  //     setLoadnigDataGrid(false);
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // }, [dayHisDateduc, dayHisDatedcc, textSearch, tapData, checkBoxkUsual, checkBoxkUnusual]);
+
+  // const handleExportExcel = useCallback(async () => {
+  //   try {
+  //     setLoadingExport(true);
+  //     let dateToday = "";
+  //     let dateEndDate = "";
+
+  //     // เลือก state ตาม type
+  //     const isToday =
+  //       tapData === "DUC" ? dayHisDateduc === 1 : dayHisDatedcc === 1;
+
+  //     if (isToday) {
+  //       const targetDate = new Date();
+  //       targetDate.setDate(targetDate.getDate() - 1);
+  //       dateToday = datetime.DateSearch(targetDate);
+  //       dateEndDate = datetime.DateSearch(targetDate);
+  //     } else {
+  //       const targetDate = new Date();
+  //       targetDate.setDate(targetDate.getDate() - 2); // ลบ 2 วัน เพราะใน C# +1 วัน
+  //       dateEndDate = datetime.DateSearch(targetDate);
+  //     }
+
+  //     const res = await reportSaveLog.exportExcel({
+  //       Search: textSearch,
+  //       startDate: dateToday,
+  //       endDate: dateEndDate,
+  //       tapData: tapData,
+  //       checkBoxkUsual,
+  //       checkBoxkUnusual,
+  //     });
+
+  //     const blob = res.data;
+
+  //     const contentDisposition = res.headers["content-disposition"];
+  //     let fileName = `${new Date().getTime()} report.xlsx`;
+  //     if (contentDisposition) {
+  //       const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+  //       if (fileNameMatch && fileNameMatch.length > 1) {
+  //         fileName = decodeURIComponent(fileNameMatch[1]);
+  //       }
+  //     }
+
+  //     const url = window.URL.createObjectURL(blob);
+  //     const link = document.createElement("a");
+  //     link.href = url;
+  //     link.setAttribute("download", fileName);
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     link.parentNode?.removeChild(link);
+  //     window.URL.revokeObjectURL(url);
+
+  //     setLoadingExport(false);
+  //   } catch (err) {
+  //     console.log(err);
+  //     setLoadingExport(false);
+  //   }
+  // }, [
+  //   checkBoxkUnusual,
+  //   checkBoxkUsual,
+  //   dayHisDatedcc,
+  //   dayHisDateduc,
+  //   tapData,
+  //   textSearch,
+  // ]);
 
   useEffect(() => {
     fetchData("DUC", dayHisDateduc, SetDataDUC);
@@ -454,6 +590,24 @@ export default function Saved_Reports() {
                           label="Unusual Event"
                         />
                       </Grid>
+                      {/* <Grid
+                        size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}
+                        mb={3}
+                        justifyContent="flex-end"
+                        display="flex"
+                      >
+                        <Button
+                          variant="outlined"
+                          loading={loadingExport}
+                          loadingPosition="start"
+                          startIcon={<SystemUpdateAltIcon />}
+                          onClick={handleExportExcel}
+                          sx={{ ml: 2 }}
+                        >
+                          {" "}
+                          Export DUC
+                        </Button>
+                      </Grid> */}
                     </Grid>
                     {/* {window.innerWidth} */}
                     <Container
@@ -584,6 +738,24 @@ export default function Saved_Reports() {
                           label="Unusual Event"
                         />
                       </Grid>
+                      {/* <Grid
+                        size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}
+                        mb={3}
+                        justifyContent="flex-end"
+                        display="flex"
+                      >
+                        <Button
+                          variant="outlined"
+                          loading={loadingExport}
+                          loadingPosition="start"
+                          startIcon={<SystemUpdateAltIcon />}
+                          onClick={handleExportExcel}
+                          sx={{ ml: 2 }}
+                        >
+                          {" "}
+                          Export DCC
+                        </Button>
+                      </Grid> */}
                     </Grid>
                     <Container
                       fixed

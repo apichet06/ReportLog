@@ -1,7 +1,7 @@
 import {
-
-  type GridRowSelectionModel,
+  DataGridPremium,
 } from "@mui/x-data-grid-premium";
+
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
@@ -18,28 +18,22 @@ import Tab from '@mui/material/Tab';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
-import type { GridRowId } from "@mui/x-data-grid-premium";
+
 import type { User } from "@/layouts/userType";
 import { columnsDuc } from "../constants/reportLogDucColumns";
 import { columnsDCC } from "../constants/reportLogDccColumns";
 import ReportLogDialog from "../components/ReportLogDialog";
 import ButtonGroup from '@mui/material/ButtonGroup';
 import ReportLogToolbar from "../components/ReportLogToolbar";
-import { DataGridPremium } from "@mui/x-data-grid-premium";
+
 import { useMediaQuery } from "@mui/system";
 import type { Dayjs } from "dayjs";
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
-// import { useParams } from "react-router-dom";
-
-
-
 
 
 export default function ReportLogPage() {
-  const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>(
-    [] as unknown as GridRowSelectionModel
-  );
+
   const userDataString = localStorage.getItem("user");
   const resultData: User | null = userDataString
     ? JSON.parse(userDataString)
@@ -54,37 +48,9 @@ export default function ReportLogPage() {
   };
 
   const [open, setOpen] = useState(false);
-  const [rowDatas, setRowDatas] = useState<GridRowId[]>([]);
+
 
   const handleClickOpen = () => {
-    let selectedIds: GridRowId[] = [];
-
-    if (Array.isArray(selectionModel)) {
-      selectedIds = selectionModel;
-    } else if ("all" in selectionModel) {
-      if (selectionModel.all) {
-        // 'all' is true: all rows are selected except the ones in `ids` (which are unselected rows).
-        const currentData = tapData === "DUC" ? dataDuc : dataDcc;
-        const allIds = currentData.map((row) => row.id.toString());
-        const unselectedIds = new Set(selectionModel.ids);
-        selectedIds = allIds.filter((id) => !unselectedIds.has(id));
-      } else {
-        // 'all' is false: `ids` contains the selected rows.
-        // `selectionModel.ids` can be a Set, so we convert it to an array.
-        selectedIds = Array.from(selectionModel.ids);
-      }
-    }
-
-    if (selectedIds.length === 0) {
-      console.log(selectedIds.length);
-
-      Swal.fire({
-        title: "No rows selected!",
-        icon: "error",
-      });
-      return;
-    }
-    setRowDatas(selectedIds);
     setOpen(true);
   };
 
@@ -126,7 +92,17 @@ export default function ReportLogPage() {
   };
 
 
+  const countAll = {
+    ducYesterdayCount: 0,
+    dccYesterdayCount: 0,
+    ducTwoDaysAgoCount: 0,
+    dccTwoDaysAgoCount: 0,
+    dccAllCount: 0,
+    ducAllCount: 0
+  }
 
+  const [countsDucAll, setCountDucAll] = useState(countAll);
+  const [countsDccAll, setCountDccAll] = useState(countAll);
 
 
   const handleClear = () => {
@@ -244,20 +220,71 @@ export default function ReportLogPage() {
     }
   }, [textSearch, tapData]);
 
+  const dataCount_new = useCallback(async () => {
+    // Helper function สำหรับสร้างวันที่เป็น string เพื่อลดการเขียนโค้ดซ้ำ
+    const createDateStr = (daysToSubtract: number): string => {
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() - daysToSubtract);
+      return datetime.DateSearch(targetDate);
+    };
+
+    const yesterdayStr = createDateStr(1);
+    const twoDaysAgoStr = createDateStr(2);
+
+    // พารามิเตอร์ร่วมที่ใช้ในการเรียก API ทุกครั้ง
+    const commonParams = {
+      checkBoxkUsual,
+      checkBoxkUnusual,
+    };
+
+    // Helper function สำหรับเรียก API และคืนค่าจำนวนผลลัพธ์ พร้อมจัดการ error
+    const getLogCount = async (params: object): Promise<number> => {
+      try {
+        const response = await reportLogService.GetReportLogService(params);
+        return response.data.result.length;
+      } catch (error) {
+        console.error(`Failed to fetch logs for params: ${JSON.stringify(params)}`, error);
+        return 0; // คืนค่า 0 เพื่อป้องกันแอปพังเมื่อ API error
+      }
+    };
+
+    try {
+      // เรียก API ทั้งหมดพร้อมกัน (parallel) เพื่อประสิทธิภาพที่ดีกว่า
+      const [ducYesterdayCount, dccYesterdayCount, ducTwoDaysAgoCount, dccTwoDaysAgoCount, dccAllCount, ducAllCount,
+      ] = await Promise.all([
+
+        getLogCount({ tapData: "DUC", startDate: yesterdayStr, endDate: yesterdayStr, ...commonParams }),
+        getLogCount({ tapData: "DCC", startDate: yesterdayStr, endDate: yesterdayStr, ...commonParams }),
+        getLogCount({ tapData: "DUC", endDate: twoDaysAgoStr, ...commonParams }),
+        getLogCount({ tapData: "DCC", endDate: twoDaysAgoStr, ...commonParams }),
+        getLogCount({ tapData: "DCC", ...commonParams }),
+        getLogCount({ tapData: "DUC", ...commonParams }),
+      ]);
+
+      setCountDucAll({
+        ducYesterdayCount, ducTwoDaysAgoCount, dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount, ducAllCount,
+      });
+      setCountDccAll({
+        ducYesterdayCount, ducTwoDaysAgoCount, dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount, ducAllCount,
+      });
+
+    } catch (error) {
+      // ดักจับ error ที่อาจเกิดจาก Promise.all
+      console.error("An error occurred while fetching report counts in parallel:", error);
+    }
+  }, [checkBoxkUnusual, checkBoxkUsual]);
 
 
   useEffect(() => {
-
+    dataCount_new()
     fetchData("DUC", dayHisDateduc, SetDataDUC);
     fetchData("DCC", dayHisDatedcc, SetDataDCC);
-  }, [dayHisDatedcc, dayHisDateduc]);
+  }, [dataCount_new, dayHisDatedcc, dayHisDateduc, fetchData]);
 
 
 
 
   const hendleSubmit = async () => {
-
-    const numericIds = rowDatas.map((id) => Number(id));
     const email = resultData?.emp_email ?? "";
     try {
       Swal.fire({
@@ -272,10 +299,10 @@ export default function ReportLogPage() {
         if (result.isConfirmed) {
           Swal.fire({
             title: "Success!",
-            text: `Report log total ${numericIds.length} items`,
+            text: `Report log total `,
             icon: "success",
           });
-          await reportLogService.ApprovedReportLogService(numericIds, email, valueRedio, conment);
+          await reportLogService.ApprovedReportLogService(email, valueRedio, conment);
 
           handleClose();
           fetchData("DUC", dayHisDateduc, SetDataDUC);
@@ -290,7 +317,8 @@ export default function ReportLogPage() {
   };
 
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
-  const isExtraLargeScreen = useMediaQuery('(min-width:1537px)');
+  const isBetween1201And1536 = useMediaQuery("(min-width:1201px) and (max-width:1536px)");
+  const isAbove1537 = useMediaQuery("(min-width:1537px)");
   return (
     <>
       <Container disableGutters maxWidth={false}>
@@ -308,6 +336,10 @@ export default function ReportLogPage() {
                 onSearchChange={SetTextSearch}
                 onSearchClick={handleSearch}
                 onClearClick={handleClear}
+                setDateStart={setDateStart}
+                setDatetEnd={setDateEnd}
+                dateStart={dateStart}
+                dateEnd={dateEnd}
               />
             </Box>
             <hr />
@@ -332,8 +364,16 @@ export default function ReportLogPage() {
                   <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <TabList onChange={handleChange} textColor="secondary"
                       indicatorColor="secondary">
-                      <Tab label={`DUC Log (${dataDuc ? dataDuc.length : 0})`} value="1" onClick={() => setTapData('DUC')} />
-                      <Tab label={`DCC Log (${dataDcc ? dataDcc.length : 0})`} value="2" onClick={() => setTapData('DCC')} />
+                      <Tab
+                        label={`DUC Log (${countsDucAll.ducAllCount})`}
+                        value="1"
+                        onClick={() => setTapData("DUC")}
+                      />
+                      <Tab
+                        label={`DCC Log (${countsDccAll.dccAllCount})`}
+                        value="2"
+                        onClick={() => setTapData("DCC")}
+                      />
                     </TabList>
                   </Box>
                   <TabPanel value="1">
@@ -349,11 +389,27 @@ export default function ReportLogPage() {
                           variant="outlined"
                           aria-label="Disabled button group"
                         >
-                          <Button variant="contained" color={colerTodayduc} onClick={() => (setsDayHisDateDuc(1), setColerTodayDuc("secondary"), setColerHistoryDuc("primary"))} >Yesterday</Button>
-                          <Button variant="contained" color={colerHistoryduc} onClick={() => (setsDayHisDateDuc(0), setColerTodayDuc("primary"), setColerHistoryDuc("secondary"))}>History</Button>
+                          <Button
+                            variant="contained"
+                            color={colerTodayduc}
+                            onClick={() => {
+                              setsDayHisDateDuc(1);
+                              setColerTodayDuc("secondary");
+                              setColerHistoryDuc("primary");
+                            }}
+                          > Latest Data ({countsDucAll.ducYesterdayCount}) </Button>
+                          <Button
+                            variant="contained"
+                            color={colerHistoryduc}
+                            onClick={() => {
+                              setsDayHisDateDuc(0);
+                              setColerTodayDuc("primary");
+                              setColerHistoryDuc("secondary");
+                            }}
+                          > Previous Data ({countsDucAll.ducTwoDaysAgoCount})</Button>
                         </ButtonGroup>
                       </Grid>
-                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3}
+                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={1}
                         justifyContent="flex-end"
                         display="flex">
                         <FormControlLabel
@@ -380,12 +436,16 @@ export default function ReportLogPage() {
                           label="Unusual Event"
                         />
                       </Grid>
-                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3} justifyContent="flex-end" display="flex">
-                        <Button variant="contained" color="success" onClick={handleClickOpen} startIcon={<SaveIcon />}> Save Duc</Button>
+                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 12, xl: 12 }} mb={2} justifyContent="flex-end" display="flex">
+                        <Button variant="contained" color="success" onClick={handleClickOpen} startIcon={<SaveIcon />}> Save</Button>
                         {/* <Button variant="outlined" loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={() => handleExportExcel()} sx={{ ml: 2 }}> Export DUC </Button> */}
                       </Grid>
                     </Grid>
-                    <Container disableGutters maxWidth={isExtraLargeScreen ? 'xl' : 'lg'}>
+                    <Container
+                      fixed
+                      disableGutters
+                      maxWidth={isAbove1537 ? "xl" : "lg"}
+                    >
                       <DataGridPremium
                         getRowId={(row) => row.id.toString()}
                         loading={loadingDataGrid}
@@ -402,10 +462,6 @@ export default function ReportLogPage() {
                           pinnedColumns: { left: ['__check__', 'no'], right: ['event_type'] }
                         }}
                         pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
-                        checkboxSelection
-                        onRowSelectionModelChange={(newSelection) =>
-                          setSelectionModel(newSelection)
-                        }
                         showToolbar={true}
                         slotProps={{
                           toolbar: {
@@ -422,7 +478,10 @@ export default function ReportLogPage() {
                             : ""
                         }
                         sx={{
-                          ...(isExtraLargeScreen ? { marginInline: '-9%' } : {}),
+                          ...(isAbove1537 ? { marginInline: "-9%" } : {}),
+                          ...(isBetween1201And1536
+                            ? { marginInline: "-10%" }
+                            : {}),
                           "& .row--highlight": {
                             bgcolor: "rgba(255,165,0,0.1)",
                             color: "orange",
@@ -446,11 +505,32 @@ export default function ReportLogPage() {
                           variant="outlined"
                           aria-label="Disabled button group"
                         >
-                          <Button variant="contained" color={colerTodaydcc} onClick={() => (setsDayHisDateDcc(1), setColerTodayDcc("secondary"), setColerHistoryDcc("primary"))} >Yesterday</Button>
-                          <Button variant="contained" color={colerHistorydcc} onClick={() => (setsDayHisDateDcc(0), setColerTodayDcc("primary"), setColerHistoryDcc("secondary"))}>History</Button>
+                          <Button
+                            variant="contained"
+                            color={colerTodaydcc}
+                            onClick={() => {
+                              setsDayHisDateDcc(1);
+                              setColerTodayDcc("secondary");
+                              setColerHistoryDcc("primary");
+                            }}
+                          >
+                            Latest Data ({countsDccAll.dccYesterdayCount})
+                          </Button>
+                          <Button
+                            variant="contained"
+                            color={colerHistorydcc}
+                            onClick={() => {
+                              setsDayHisDateDcc(0);
+                              setColerTodayDcc("primary");
+                              setColerHistoryDcc("secondary");
+                            }}
+                          >
+                            Previous Data ({countsDccAll.dccTwoDaysAgoCount}
+                            )
+                          </Button>
                         </ButtonGroup>
                       </Grid>
-                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3}
+                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={1}
                         justifyContent="flex-end"
                         display="flex">
                         <FormControlLabel
@@ -477,12 +557,16 @@ export default function ReportLogPage() {
                           label="Unusual Event"
                         />
                       </Grid>
-                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3} justifyContent="flex-end" display="flex">
-                        <Button variant="contained" color="success" onClick={handleClickOpen} startIcon={<SaveIcon />}> Save DCC</Button>
+                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 12, xl: 12 }} mb={2} justifyContent="flex-end" display="flex">
+                        <Button variant="contained" color="success" onClick={handleClickOpen} startIcon={<SaveIcon />}> Save</Button>
                         {/* <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={() => handleExportExcel()} sx={{ ml: 2 }}> Export DCC </Button> */}
                       </Grid>
                     </Grid>
-                    <Container disableGutters maxWidth={isExtraLargeScreen ? 'xl' : 'lg'}>
+                    <Container
+                      fixed
+                      disableGutters
+                      maxWidth={isAbove1537 ? "xl" : "lg"}
+                    >
                       <DataGridPremium
                         getRowId={(row) => row.id.toString()}
                         loading={loadingDataGrid}
@@ -499,10 +583,6 @@ export default function ReportLogPage() {
                           pinnedColumns: { left: ['__check__', 'no'], right: ['event_type'] }
                         }}
                         pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
-                        checkboxSelection
-                        onRowSelectionModelChange={(newSelection) =>
-                          setSelectionModel(newSelection)
-                        }
                         showToolbar={true}
                         slotProps={{
                           toolbar: {
@@ -519,7 +599,10 @@ export default function ReportLogPage() {
                             : ""
                         }
                         sx={{
-                          ...(isExtraLargeScreen ? { marginInline: '-9%' } : {}),
+                          ...(isAbove1537 ? { marginInline: "-9%" } : {}),
+                          ...(isBetween1201And1536
+                            ? { marginInline: "-10%" }
+                            : {}),
                           "& .row--highlight": {
                             bgcolor: "rgba(255,165,0,0.1)",
                             color: "orange",

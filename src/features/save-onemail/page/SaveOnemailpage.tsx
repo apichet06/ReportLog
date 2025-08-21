@@ -41,18 +41,25 @@ export default function UpdateOnEmailPage() {
 
                 // รอให้ user เห็นข้อความสักนิด
                 setTimeout(() => {
-                    window.close();
-                    setLoading(false);
+                    window.open("", "_self");  // เปลี่ยน context
+                    window.close();            // แล้วปิด
                 }, 1500);
             } catch (error) {
                 console.error(error);
                 setMessage("Update failed!");
                 setLoading(false);
+                setTimeout(() => {
+                    window.open("", "_self");  // เปลี่ยน context
+                    window.close();            // แล้วปิด
+                }, 1500);
             }
         };
 
         updateData();
     }, [plant, app_log, datetime, resultData]);
+    const handleOpenUpdate = () => {
+        window.open("http://localhost:5173/CRUDLogs/applog/updateDateOnEmail/PLANT123/APP456/2025-08-22", "_blank");
+    };
 
     return (
         <Container sx={{ textAlign: "center", mt: 5 }}>
@@ -66,7 +73,7 @@ export default function UpdateOnEmailPage() {
             ) : (
                 <Typography variant="h6" color="error">
                     {message}
-                    <button onClick={closeTab}>Close Tab</button>
+                    <button onClick={handleOpenUpdate}>Close Tab</button>
                 </Typography>
             )}
         </Container>
