@@ -7,6 +7,7 @@ import LoginPage from "@/features/auth/page/LoginPage";
 import DashboardPage from "@/features/dashboard/pages/DashboardPage";
 import ReportLogPages from "@/features/report-log/pages/ReportLogPage";
 import ReportLogByIdPage from "@/features/report-log/pages/ReportLogByIdPage";
+import ReportLogByIdPages from "@/features/reportLog/pages/ReportLogByIdPage";
 import UpdateOnEmailPage from "@/features/save-onemail/page/SaveOnemailpage";
 
 
@@ -23,6 +24,7 @@ const AppRouter = () => {
         <Route path="/reportlog" element={<ReportLogPage />} />
         <Route path="/report-log" element={<ReportLogPages />} />
         <Route path="/report-log/:id?/:tap?" element={<ReportLogByIdPage />} />
+        <Route path="/reportlog/:id?/:tap?" element={<ReportLogByIdPages />} />
         <Route path="/saved_report" element={<Saved_Reports />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="*" element={<Navigate to="/dashboard" />} />

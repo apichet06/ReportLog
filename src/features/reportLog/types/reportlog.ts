@@ -15,9 +15,17 @@ export interface ReportLog {
   unauthorized: string;
   download_more_10_files_day: string; // ดาวน์โหลดมากกว่า 10 files
   employee_resigning_within_one_month: string; //พนักงานลาออกภายในหนึ่งเดือน
-  is_not_dcc: string;
+  is_bu_dcc: string;
+  admin_confirm: string;
+  admin_confirm_comment: string;
+  admin_confirm_event: string;
+  admin_confirm_date: string;
 }
-
+export interface AcceptById {
+  Admin_confirm: string;
+  Admin_confirm_comment: string;
+  Admin_confirm_event: string;
+}
 export interface SearchData {
   Search?: string;
   startDate?: string;
@@ -27,6 +35,7 @@ export interface SearchData {
   dayHisDate?: number; // ToDay and History
   checkBoxkUsual?: string;
   checkBoxkUnusual?: string;
+  plant?: string;
 }
 
 export interface TabDataState {
@@ -36,6 +45,7 @@ export interface TabDataState {
   dayHisDate?: number;
   checkBoxkUsual?: string;
   checkBoxkUnusual?: string;
+  plant?: string;
 }
 export type MUIColor =
   | "primary"

@@ -1,11 +1,19 @@
 import axiosInstance from "@/shared/utils/axiosInstance";
-import type { ReportLog, SearchData, TabDataState } from "../types/reportlog";
+import type {
+  AcceptById,
+  ReportLog,
+  SearchData,
+  TabDataState,
+} from "../types/reportlog";
 import type { AxiosResponse } from "axios";
 // import type { ReportLog, SearchData } from "../types/reportlog";
 
 interface ApiListResponse {
   result: ReportLog[];
 }
+
+const GetReportLogById = (id: number) =>
+  axiosInstance.get(`/DUC_DCC/ReportLog/${id}`);
 
 const GetReportLogService = (data: TabDataState) =>
   axiosInstance.get("/DUC_DCC/ReportLog", {
@@ -16,19 +24,9 @@ const GetReportLogService = (data: TabDataState) =>
       dayHisDate: data.dayHisDate,
       checkBoxkUsual: data.checkBoxkUsual,
       checkBoxkUnusual: data.checkBoxkUnusual,
+      plant: data.plant,
     },
   });
-
-// const buildSearchParams = (searchData: SearchData) => ({
-//   Search: searchData.Search,
-//   startDate: searchData.startDate
-//     ? searchData.startDate.format("YYYY-MM-DD")
-//     : undefined,
-//   endDate: searchData.endDate
-//     ? searchData.endDate.format("YYYY-MM-DD")
-//     : undefined,
-//   tapData: searchData.tapData,
-// });
 
 const buildSearchParams = (searchData: SearchData) => ({
   Search: searchData.Search,
@@ -36,6 +34,9 @@ const buildSearchParams = (searchData: SearchData) => ({
   endDate: searchData.endDate,
   tapData: searchData.tapData,
   dayHisDate: searchData.dayHisDate,
+  checkBoxkUsual: searchData.checkBoxkUsual,
+  checkBoxkUnusual: searchData.checkBoxkUnusual,
+  plant: searchData.plant,
 });
 
 const SearchReportLogService = (
@@ -44,7 +45,6 @@ const SearchReportLogService = (
   const params = buildSearchParams(searchData);
   return axiosInstance.get("/DUC_DCC/ReportLog", { params });
 };
-
 const exportExcel = (searchData: SearchData): Promise<AxiosResponse<Blob>> => {
   const params = buildSearchParams(searchData);
   return axiosInstance.get("/DUC_DCC/ExportExcelLog", {
@@ -54,14 +54,23 @@ const exportExcel = (searchData: SearchData): Promise<AxiosResponse<Blob>> => {
 };
 
 const ApprovedReportLogService = (
+  Id: number[],
   Admin_confirm: string,
   valueRedio: string,
   commont: string
 ) =>
   axiosInstance.put("/DUC_DCC", {
+    Id,
     Admin_confirm: Admin_confirm,
     Admin_confirm_event: valueRedio,
     Admin_confirm_comment: commont,
+  });
+
+const ApprovedReportLogByIDService = (editingId: number, data: AcceptById) =>
+  axiosInstance.put(`/DUC_DCC/AcceptById/${editingId}`, {
+    Admin_confirm: data.Admin_confirm,
+    Admin_confirm_comment: data.Admin_confirm_comment,
+    Admin_confirm_event: data.Admin_confirm_event,
   });
 
 const reportLogService = {
@@ -69,5 +78,7 @@ const reportLogService = {
   ApprovedReportLogService,
   SearchReportLogService,
   exportExcel,
+  GetReportLogById,
+  ApprovedReportLogByIDService,
 };
 export default reportLogService;

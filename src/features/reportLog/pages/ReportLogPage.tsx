@@ -19,7 +19,6 @@ import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 
-import type { User } from "@/layouts/userType";
 import { columnsDuc } from "../constants/reportLogDucColumns";
 import { columnsDCC } from "../constants/reportLogDccColumns";
 import ReportLogDialog from "../components/ReportLogDialog";
@@ -30,15 +29,14 @@ import { useMediaQuery } from "@mui/system";
 import type { Dayjs } from "dayjs";
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import { resultData } from "@/shared/utils/useToken";
+import GetUserlogin from "@/shared/utils/serviceUser";
+import type { User } from "@/layouts/userType";
 
 
 export default function ReportLogPage() {
 
-  const userDataString = localStorage.getItem("user");
-  const resultData: User | null = userDataString
-    ? JSON.parse(userDataString)
-    : null;
-
+  const [sessionUser, setSessonUser] = useState<User>({} as User);
   // const { id, tap } = useParams<{ id: string, tap: string }>();
 
   const [value, setValue] = useState('1');
@@ -50,9 +48,6 @@ export default function ReportLogPage() {
   const [open, setOpen] = useState(false);
 
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
 
   const handleClose = () => {
     setOpen(false);
@@ -63,7 +58,7 @@ export default function ReportLogPage() {
 
   const [tapData, setTapData] = useState('DUC');
 
-  const [loadingDataGrid, setLoadnigDataGrid] = useState(false);
+  const [loadingDataGrid, setLoadingDataGrid] = useState(false);
   // const [loadingExport, setLoadingExport] = useState(false)
 
 
@@ -85,11 +80,28 @@ export default function ReportLogPage() {
 
   const [dateStart, setDateStart] = useState<Dayjs | null>(null);
   const [dateEnd, setDateEnd] = useState<Dayjs | null>(null);
+  const [dataId, setDataId] = useState<number[]>([]);
+
+
+
 
   const [valueRedio, setValueRedio] = useState('Usual Event');
   const handleChangeRedio = (event: ChangeEvent<HTMLInputElement>) => {
     setValueRedio((event.target as HTMLInputElement).value);
   };
+
+
+  const fetchUserData = useCallback(async () => {
+    const emp_no = resultData?.emp_no;
+    try {
+
+      const user = await GetUserlogin(emp_no as string)
+      if (user.status == 200)
+        setSessonUser(user.data.result[0]);
+    } catch (error) {
+      console.error('Failed to fetch user data:', error);
+    }
+  }, []);
 
 
   const countAll = {
@@ -103,7 +115,6 @@ export default function ReportLogPage() {
 
   const [countsDucAll, setCountDucAll] = useState(countAll);
   const [countsDccAll, setCountDccAll] = useState(countAll);
-
 
   const handleClear = () => {
     SetTextSearch('');
@@ -171,12 +182,29 @@ export default function ReportLogPage() {
   //   }
   // }, [dayHisDatedcc]);
 
+  const handleClickOpen = () => {
+    let numericIds = null;
+    if (tapData == "DUC")
+      numericIds = dataDuc.map(item => Number(item.id));
+    else
+      numericIds = dataDcc.map(item => Number(item.id));
+
+    if (numericIds.length == 0) {
+      Swal.fire({
+        title: "No data to display!",
+        icon: "warning",
+      });
+      return;
+    }
+    setDataId(numericIds)
+    setOpen(true);
+  };
 
   const fetchData = useCallback(
     async (tapData: "DUC" | "DCC", dayHistory: number, setData: (data: ReportLog[]) => void) => {
       try {
-        setLoadnigDataGrid(true);
-
+        setLoadingDataGrid(true);
+        const plant = resultData?.plant;
         const { startDate, endDate } = datetime.buildDateParams(dayHistory);
 
         const res = await reportLogService.GetReportLogService({
@@ -185,6 +213,42 @@ export default function ReportLogPage() {
           endDate,
           checkBoxkUsual,
           checkBoxkUnusual,
+          plant
+        });
+
+        const newData = res.data.result.map((item: ReportLog, index: number) => ({
+          ...item,
+          no: index + 1,
+        }));
+        setData(newData);
+        SetTextSearch("");
+        setDateStart(null)
+        setDateEnd(null)
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoadingDataGrid(false);
+      }
+    },
+    [checkBoxkUnusual, checkBoxkUsual]
+  );
+  const handleSearch = useCallback(
+    async (dayHistory: number, setData: (data: ReportLog[]) => void) => {
+      try {
+        const plant = resultData?.plant;
+        setLoadingDataGrid(true);
+
+        const { startDate, endDate } = datetime.buildDateParamsSearch(dayHistory, dateStart, dateEnd);
+
+
+        const res = await reportLogService.SearchReportLogService({
+          Search: textSearch,
+          tapData,
+          startDate,
+          endDate,
+          checkBoxkUsual,
+          checkBoxkUnusual,
+          plant
         });
 
         const newData = res.data.result.map((item: ReportLog, index: number) => ({
@@ -193,35 +257,20 @@ export default function ReportLogPage() {
         }));
 
         setData(newData);
-        SetTextSearch("");
-        setDateStart(null)
-        setDateEnd(null)
+
       } catch (err) {
         console.log(err);
       } finally {
-        setLoadnigDataGrid(false);
+        setLoadingDataGrid(false);
       }
     },
-    [checkBoxkUnusual, checkBoxkUsual]
+    [dateStart, dateEnd, textSearch, tapData, checkBoxkUsual, checkBoxkUnusual]
   );
 
-  const handleSearch = useCallback(async () => {
-    try {
-      setLoadnigDataGrid(true)
 
-      const res = await reportLogService.SearchReportLogService({ Search: textSearch, tapData });
-      if (tapData === 'DUC')
-        SetDataDUC(res.data.result)
-      else
-        SetDataDCC(res.data.result)
-      setLoadnigDataGrid(false)
-    } catch (err) {
-      console.log(err);
-    }
-  }, [textSearch, tapData]);
 
   const dataCount_new = useCallback(async () => {
-    // Helper function สำหรับสร้างวันที่เป็น string เพื่อลดการเขียนโค้ดซ้ำ
+    const plant = resultData?.plant;
     const createDateStr = (daysToSubtract: number): string => {
       const targetDate = new Date();
       targetDate.setDate(targetDate.getDate() - daysToSubtract);
@@ -235,6 +284,7 @@ export default function ReportLogPage() {
     const commonParams = {
       checkBoxkUsual,
       checkBoxkUnusual,
+      plant
     };
 
     // Helper function สำหรับเรียก API และคืนค่าจำนวนผลลัพธ์ พร้อมจัดการ error
@@ -275,17 +325,23 @@ export default function ReportLogPage() {
   }, [checkBoxkUnusual, checkBoxkUsual]);
 
 
+
+
+
+
   useEffect(() => {
+    fetchUserData()
     dataCount_new()
     fetchData("DUC", dayHisDateduc, SetDataDUC);
     fetchData("DCC", dayHisDatedcc, SetDataDCC);
-  }, [dataCount_new, dayHisDatedcc, dayHisDateduc, fetchData]);
+  }, [dataCount_new, dayHisDatedcc, dayHisDateduc, fetchData, fetchUserData]);
 
 
 
 
   const hendleSubmit = async () => {
     const email = resultData?.emp_email ?? "";
+
     try {
       Swal.fire({
         title: "Are you sure?",
@@ -299,12 +355,14 @@ export default function ReportLogPage() {
         if (result.isConfirmed) {
           Swal.fire({
             title: "Success!",
-            text: `Report log total `,
+            text: `Report log total ${dataId.length} items`,
             icon: "success",
           });
-          await reportLogService.ApprovedReportLogService(email, valueRedio, conment);
+
+          await reportLogService.ApprovedReportLogService(dataId, email, valueRedio, conment,);
 
           handleClose();
+          dataCount_new();
           fetchData("DUC", dayHisDateduc, SetDataDUC);
           fetchData("DCC", dayHisDatedcc, SetDataDCC);
         }
@@ -312,13 +370,30 @@ export default function ReportLogPage() {
 
     } catch (err) {
       console.error(err);
-
     }
   };
 
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const isBetween1201And1536 = useMediaQuery("(min-width:1201px) and (max-width:1536px)");
   const isAbove1537 = useMediaQuery("(min-width:1537px)");
+
+  const handleSearchAll = async () => {
+    await handleSearch(Number(dayHisDateduc), SetDataDUC);
+    await handleSearch(Number(dayHisDatedcc), SetDataDCC);
+  };
+
+
+
+
+
+  // // Split string by commas, then map strings to numbers
+  // const appIdArray = sessionUser.app_Id
+  //   .split(",")
+  //   .map(idStr => parseInt(idStr, 10));
+
+  // Check result
+
+
   return (
     <>
       <Container disableGutters maxWidth={false}>
@@ -330,11 +405,10 @@ export default function ReportLogPage() {
               noValidate
               autoComplete="off"
             >
-
               <ReportLogToolbar
                 textSearch={textSearch}
                 onSearchChange={SetTextSearch}
-                onSearchClick={handleSearch}
+                onSearchClick={handleSearchAll}
                 onClearClick={handleClear}
                 setDateStart={setDateStart}
                 setDatetEnd={setDateEnd}
@@ -364,16 +438,18 @@ export default function ReportLogPage() {
                   <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <TabList onChange={handleChange} textColor="secondary"
                       indicatorColor="secondary">
-                      <Tab
-                        label={`DUC Log (${countsDucAll.ducAllCount})`}
-                        value="1"
-                        onClick={() => setTapData("DUC")}
-                      />
-                      <Tab
-                        label={`DCC Log (${countsDccAll.dccAllCount})`}
-                        value="2"
-                        onClick={() => setTapData("DCC")}
-                      />
+                      {sessionUser.app_Id.split(',')[0] === '1' &&
+                        <Tab
+                          label={`DUC Log (${countsDucAll.ducAllCount})`}
+                          value="1"
+                          onClick={() => setTapData("DUC")}
+                        />}
+                      {sessionUser.app_Id.split(',')[1] === '2' &&
+                        <Tab
+                          label={`DCC Log (${countsDccAll.dccAllCount}) ${sessionUser.app_Id.split(',')[1]}`}
+                          value="2"
+                          onClick={() => setTapData("DCC")}
+                        />}
                     </TabList>
                   </Box>
                   <TabPanel value="1">
@@ -437,7 +513,7 @@ export default function ReportLogPage() {
                         />
                       </Grid>
                       <Grid size={{ xs: 6, sm: 6, md: 6, lg: 12, xl: 12 }} mb={2} justifyContent="flex-end" display="flex">
-                        <Button variant="contained" color="success" onClick={handleClickOpen} startIcon={<SaveIcon />}> Save</Button>
+                        <Button variant="contained" color="success" onClick={handleClickOpen} startIcon={<SaveIcon />}> Audit</Button>
                         {/* <Button variant="outlined" loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={() => handleExportExcel()} sx={{ ml: 2 }}> Export DUC </Button> */}
                       </Grid>
                     </Grid>
@@ -459,7 +535,7 @@ export default function ReportLogPage() {
                         paginationModel={paginationModel}
                         onPaginationModelChange={(model) => setPaginationModel(model)}
                         initialState={{
-                          pinnedColumns: { left: ['__check__', 'no'], right: ['event_type'] }
+                          pinnedColumns: { left: ['__check__', 'no'], right: ['event_type', 'Edit'] }
                         }}
                         pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
                         showToolbar={true}
@@ -558,7 +634,7 @@ export default function ReportLogPage() {
                         />
                       </Grid>
                       <Grid size={{ xs: 6, sm: 6, md: 6, lg: 12, xl: 12 }} mb={2} justifyContent="flex-end" display="flex">
-                        <Button variant="contained" color="success" onClick={handleClickOpen} startIcon={<SaveIcon />}> Save</Button>
+                        <Button variant="contained" color="success" onClick={handleClickOpen} startIcon={<SaveIcon />}> Audit</Button>
                         {/* <Button variant="outlined" loading={loadingExport} loadingPosition="start" startIcon={<SystemUpdateAltIcon />} onClick={() => handleExportExcel()} sx={{ ml: 2 }}> Export DCC </Button> */}
                       </Grid>
                     </Grid>
@@ -580,7 +656,7 @@ export default function ReportLogPage() {
                         paginationModel={paginationModel}
                         onPaginationModelChange={(model) => setPaginationModel(model)}
                         initialState={{
-                          pinnedColumns: { left: ['__check__', 'no'], right: ['event_type'] }
+                          pinnedColumns: { left: ['__check__', 'no'], right: ['event_type', 'Edit'] }
                         }}
                         pageSizeOptions={[5, 10, 20, 40, 60, 80, 100]}
                         showToolbar={true}
