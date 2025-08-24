@@ -117,6 +117,7 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
         { label: "Dashboard Chart", icon: <InsertChartIcon />, path: "/dashboard" },
         { label: "Report Log", icon: <InboxIcon />, path: "/reportlog" },
         { label: "Audit Report Log", icon: <DescriptionIcon />, path: "/saved_report" },
+        { label: "User Permission", icon: <DescriptionIcon />, path: "/userpermission" },
     ];
 
     const { setToken, setUser } = useAuthContext();
@@ -181,7 +182,7 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
                             <ListItem>
                                 {/* <img id="profile-img" src="https://fits/emp_pic/533566.jpg" alt="" className="img-login"></img> */}
                                 <Avatar alt="Remy Sharp" src={`https://fits/emp_pic/${resultData?.emp_no}.jpg`} sx={{ mr: 2 }} />
-                                <ListItemText>{capitalize(resultData?.firstname)} {capitalize(resultData?.lastname)} ({capitalize(resultData?.status)} {'>'} {resultData?.plant_Name}  )</ListItemText>
+                                <ListItemText>{capitalize(resultData?.firstname)} {capitalize(resultData?.lastname)} ({capitalize(resultData?.status)} {'>'} {resultData?.plant_Name})</ListItemText>
                             </ListItem>
                         </List>
                         <Button color="inherit" onClick={hendleLogout} startIcon={<LogoutIcon />}>Logout</Button>

@@ -9,7 +9,7 @@ import ColumnHeaderWithInfo from "./ColumnHeaderWithInfo";
 
 
 
-export const getColumnsDCC = (handleSubmit: (id: number) => void): GridColDef[] => {
+export const getColumnsDCC = (handleSubmit: (id: number) => void, is_accept: boolean): GridColDef[] => {
     const columns: GridColDef[] = [
         {
             field: "no",
@@ -155,21 +155,28 @@ export const getColumnsDCC = (handleSubmit: (id: number) => void): GridColDef[] 
             },
             renderHeader: () => <ColumnHeaderWithInfo field="admin_confirm_event" label="CONFIRMED EVENT" />,
         },
-        {
+    ];
+
+    if (is_accept) {
+        columns.push({
             field: "manage",
             headerName: "",
             headerAlign: "center",
             align: "center",
             flex: 2.5,
             minWidth: 100,
-            renderCell: (params) => {
-                return (
-                    <Button variant="outlined" size="small" color="primary" onClick={() => handleSubmit(Number(params.id))} ><DriveFileRenameOutlineIcon /></Button>
-                );
-            },
-        },
-
-    ];
+            renderCell: (params) => (
+                <Button
+                    variant="outlined"
+                    size="small"
+                    color="primary"
+                    onClick={() => handleSubmit(Number(params.id))}
+                >
+                    <DriveFileRenameOutlineIcon />
+                </Button>
+            ),
+        });
+    }
     return columns;
 
     // return showBU ? columns : columns.filter((col) => col.field !== "bu");

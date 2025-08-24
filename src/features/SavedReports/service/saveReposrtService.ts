@@ -1,4 +1,4 @@
-import type { SearchData } from "@/features/reportLog/types/reportlog";
+import type { SearchData } from "@/features/SavedReports/types/reportsavelog";
 import axiosInstance from "@/shared/utils/axiosInstance";
 import type { AxiosResponse } from "axios";
 import type {
@@ -18,8 +18,9 @@ const GetSaveReportLogService = (data: TabDataState) =>
       startDate: data.startDate,
       tapData: data.tapData,
       dayHisDate: data.dayHisDate,
-      checkBoxkUsual: data.checkBoxkUsual,
-      checkBoxkUnusual: data.checkBoxkUnusual,
+      checkBoxUsual: data.checkBoxUsual,
+      checkBoxUnusual: data.checkBoxUnusual,
+      plant: data.plant,
     },
   });
 
@@ -29,8 +30,8 @@ const buildSearchParams = (searchData: SearchData) => ({
   endDate: searchData.endDate,
   tapData: searchData.tapData,
   dayHisDate: searchData.dayHisDate,
-  checkBoxkUsual: searchData.checkBoxkUsual,
-  checkBoxkUnusual: searchData.checkBoxkUnusual,
+  checkBoxUsual: searchData.checkBoxUsual,
+  checkBoxUnusual: searchData.checkBoxUnusual,
 });
 
 const ApprovedReportLogEditService = (editingId: number, data: EditAccept) =>

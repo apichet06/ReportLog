@@ -18,6 +18,8 @@ import datetime from "@/shared/utils/handleDatetime";
 import type { ReportLog } from '../types/reportlog';
 import reportLogService from '../service/reportlogService';
 import { resultData } from '@/shared/utils/useToken';
+import GetUserlogin from '@/shared/utils/serviceUser';
+import type { User } from '@/layouts/userType';
 
 export default function ReportLogByIdPage() {
 
@@ -27,7 +29,7 @@ export default function ReportLogByIdPage() {
     // const navigatoin = useNavigate();
     const [open, setOpen] = useState(false);
     const [conment, setComment] = useState<string>("");
-
+    const [sessionUser, setSessonUser] = useState<User>({} as User);
     const [valueRedio, setValueRedio] = useState('Usual Event');
     const handleChangeRedio = (event: ChangeEvent<HTMLInputElement>) => {
         setValueRedio((event.target as HTMLInputElement).value);
@@ -99,9 +101,25 @@ export default function ReportLogByIdPage() {
         }
     };
 
+    const fetchUserData = useCallback(async () => {
+        const emp_no = resultData?.emp_no;
+        try {
+
+            const user = await GetUserlogin(emp_no as string)
+
+            if (user.status == 200)
+                setSessonUser(user.data.result[0]);
+        } catch (error) {
+            console.error('Failed to fetch user data:', error);
+        }
+    }, []);
+
+
+
     useEffect(() => {
         LoadingData();
-    }, [LoadingData]);
+        fetchUserData()
+    }, [LoadingData, fetchUserData]);
 
     const color = data?.admin_confirm_event === "Usual Event" ? "green" : "red";
     const colorevent = data?.event_type === "Usual Event" ? "green" : "red";
@@ -314,12 +332,14 @@ export default function ReportLogByIdPage() {
                                 <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                                     {!data?.admin_confirm_date &&
                                         <>
-                                            <Button sx={{ mr: 1 }}
-                                                variant="contained"
-                                                color="success"
-                                                onClick={handlePopup}
-                                                startIcon={<SaveIcon />}
-                                            >Save</Button>
+                                            {sessionUser.is_accept && (
+                                                <Button sx={{ mr: 1 }}
+                                                    variant="contained"
+                                                    color="success"
+                                                    onClick={handlePopup}
+                                                    startIcon={<SaveIcon />}
+                                                >Save</Button>
+                                            )}
                                         </>
                                     }
                                     <Button

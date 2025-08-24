@@ -24,8 +24,12 @@ export interface ReportSaveLog {
 export interface SearchData {
   Search?: string;
   startDate?: string;
+  dayHisDate?: number;
   endDate?: string;
   tapData?: string; // Additional field for tap data
+  checkBoxUsual?: string;
+  checkBoxUnusual?: string;
+  plant?: string;
 }
 
 export interface TabDataState {
@@ -33,8 +37,9 @@ export interface TabDataState {
   startDate?: string;
   endDate?: string;
   dayHisDate?: number;
-  checkBoxkUsual?: string;
-  checkBoxkUnusual?: string;
+  checkBoxUsual?: string;
+  checkBoxUnusual?: string;
+  plant?: string;
 }
 
 export interface EditAccept {

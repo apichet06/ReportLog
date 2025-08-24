@@ -1,18 +1,24 @@
-
-import { useEffect, useState } from "react";
-import CircularProgress from '@mui/material/CircularProgress';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
+import { useEffect, useRef, useState } from "react";
+import CircularProgress from "@mui/material/CircularProgress";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
 import ApprovedSaveOnemailService from "../service/service";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { resultData } from "@/shared/utils/useToken";
 
 export default function UpdateOnEmailPage() {
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("Updating...");
+    const [countdown, setCountdown] = useState(9);
+    const navigate = useNavigate();
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+    const { plant, app_log, datetime } = useParams<{
+        plant: string;
+        app_log: string;
+        datetime: string;
+    }>();
 
-    const { plant, app_log, datetime } = useParams<{ plant: string, app_log: string, datetime: string }>();
     useEffect(() => {
         const updateData = async () => {
             if (!plant || !app_log || !datetime) {
@@ -27,13 +33,24 @@ export default function UpdateOnEmailPage() {
                 return;
             }
             try {
-                // The service expects an object with an `admin_confirm` property.
                 const approvalData = { admin_confirm: empNo };
                 await ApprovedSaveOnemailService(plant, app_log, datetime, approvalData);
-                setMessage("Update completed! This window will close shortly.");
-                window.close();
+
+                setMessage("Update completed! Redirecting...");
                 setLoading(false);
 
+                // เริ่ม countdown
+                timerRef.current = setInterval(() => {
+                    setCountdown((prev) => {
+                        if (prev <= 1) {
+                            if (timerRef.current) clearInterval(timerRef.current);
+                            setCountdown(0); // โชว์ Go!
+                            setTimeout(() => navigate("/saved_report"), 1000); // รอ 1 วิแล้ว redirect
+                            return 0;
+                        }
+                        return prev - 1;
+                    });
+                }, 1000);
             } catch (error) {
                 console.error(error);
                 setMessage("Update failed!");
@@ -42,8 +59,7 @@ export default function UpdateOnEmailPage() {
         };
 
         updateData();
-    }, [plant, app_log, datetime, resultData]);
-
+    }, [plant, app_log, datetime, navigate]);
 
     return (
         <Container sx={{ textAlign: "center", mt: 5 }}>
@@ -55,8 +71,14 @@ export default function UpdateOnEmailPage() {
                     </Typography>
                 </>
             ) : (
-                <Typography variant="h6" color="error">
-                    {message}
+                <Typography variant="h6" color="primary">
+                    {countdown > 0 ? (
+                        <p>
+                            {message} ({countdown})
+                        </p>
+                    ) : (
+                        <p>Go!</p>
+                    )}
                 </Typography>
             )}
         </Container>

@@ -5,9 +5,10 @@ export interface User {
   username: string;
   firstname: string;
   lastname: string;
-  is_accept: number;
-  is_active: number;
-  is_review: number;
+  is_accept: boolean;
+  is_active: boolean;
+  is_review: boolean;
+  is_export: boolean;
   plant: string;
   plant_Id: number;
   plant_Name: string;

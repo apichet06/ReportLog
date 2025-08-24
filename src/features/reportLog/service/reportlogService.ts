@@ -22,8 +22,8 @@ const GetReportLogService = (data: TabDataState) =>
       startDate: data.startDate,
       tapData: data.tapData,
       dayHisDate: data.dayHisDate,
-      checkBoxkUsual: data.checkBoxkUsual,
-      checkBoxkUnusual: data.checkBoxkUnusual,
+      checkBoxUsual: data.checkBoxUsual,
+      checkBoxUnusual: data.checkBoxUnusual,
       plant: data.plant,
     },
   });
@@ -34,8 +34,8 @@ const buildSearchParams = (searchData: SearchData) => ({
   endDate: searchData.endDate,
   tapData: searchData.tapData,
   dayHisDate: searchData.dayHisDate,
-  checkBoxkUsual: searchData.checkBoxkUsual,
-  checkBoxkUnusual: searchData.checkBoxkUnusual,
+  checkBoxUsual: searchData.checkBoxUsual,
+  checkBoxUnusual: searchData.checkBoxUnusual,
   plant: searchData.plant,
 });
 

@@ -33,8 +33,8 @@ export interface SearchData {
   // endDate?: Dayjs | null;
   tapData?: string; // Additional field for tap data
   dayHisDate?: number; // ToDay and History
-  checkBoxkUsual?: string;
-  checkBoxkUnusual?: string;
+  checkBoxUsual?: string;
+  checkBoxUnusual?: string;
   plant?: string;
 }
 
@@ -43,8 +43,8 @@ export interface TabDataState {
   startDate?: string;
   endDate?: string;
   dayHisDate?: number;
-  checkBoxkUsual?: string;
-  checkBoxkUnusual?: string;
+  checkBoxUsual?: string;
+  checkBoxUnusual?: string;
   plant?: string;
 }
 export type MUIColor =

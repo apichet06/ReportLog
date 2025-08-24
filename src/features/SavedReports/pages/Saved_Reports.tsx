@@ -29,18 +29,13 @@ import {
   type GridPaginationModel,
 } from "@mui/x-data-grid-premium";
 import type { Dayjs } from "dayjs";
-import Checkbox from '@mui/material/Checkbox';
-import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import { resultData } from "@/shared/utils/useToken";
+import GetUserlogin from "@/shared/utils/serviceUser";
+import type { User } from "@/layouts/userType";
 export default function Saved_Reports() {
-  const [value, setValue] = useState("1");
-
-  const handleChange = (_event: SyntheticEvent, newValue: string) => {
-    setValue(newValue);
-  };
-
-
-
+  const [sessionUser, setSessonUser] = useState<User>({} as User);
   const [tapData, setTapData] = useState("DUC");
 
   const [loadingDataGrid, setLoadnigDataGrid] = useState(false);
@@ -62,21 +57,25 @@ export default function Saved_Reports() {
   const [dateStart, setDateStart] = useState<Dayjs | null>(null);
   const [dateEnd, setDateEnd] = useState<Dayjs | null>(null);
 
-  const countAll = {
+  const countAllDuc = {
     ducYesterdayCount: 0,
-    dccYesterdayCount: 0,
     ducTwoDaysAgoCount: 0,
+    ducAllCount: 0,
+  };
+
+  const countAllDcc = {
+    dccYesterdayCount: 0,
     dccTwoDaysAgoCount: 0,
     dccAllCount: 0,
-    ducAllCount: 0
-  }
+  };
 
-  const [countsDucAll, setCountDucAll] = useState(countAll);
-  const [countsDccAll, setCountDccAll] = useState(countAll);
+  const [countsDucAll, setCountDucAll] = useState(countAllDuc);
+  const [countsDccAll, setCountDccAll] = useState(countAllDcc);
 
-
-  const [checkBoxkUsual, setCheckBoxUsual] = useState("Usual Event");
-  const [checkBoxkUnusual, setCheckBoxUnusual] = useState("Unusual Event");
+  const [checkBoxdccUsual, setCheckBoxdccUsual] = useState("Usual Event");
+  const [checkBoxdccUnusual, setCheckBoxdccUnusual] = useState("Unusual Event");
+  const [checkBoxducUsual, setCheckBoxducUsual] = useState("Usual Event");
+  const [checkBoxducUnusual, setCheckBoxducUnusual] = useState("Unusual Event");
 
   const [valueRedio, setValueRedio] = useState("Usual Event");
   const handleChangeRedio = (event: ChangeEvent<HTMLInputElement>) => {
@@ -87,9 +86,28 @@ export default function Saved_Reports() {
     SetTextSearch("");
     fetchData("DUC", dayHisDateduc, SetDataDUC);
     fetchData("DCC", dayHisDatedcc, SetDataDCC);
-    setDateStart(null)
-    setDateEnd(null)
+    setDateStart(null);
+    setDateEnd(null);
+  };
+  const appIds = useMemo(() => {
+    return sessionUser?.app_Id
+      ? sessionUser.app_Id
+          .split(",")
+          .map((id) => id.trim())
+          .sort((a, b) => Number(a) - Number(b))
+      : [];
+  }, [sessionUser?.app_Id]);
 
+  const [value, setValue] = useState<string>(appIds[0] ?? "1");
+
+  useEffect(() => {
+    if (appIds.length > 0) {
+      setValue(appIds[0]); // กำหนด tab แรก
+    }
+  }, [appIds]);
+
+  const handleChange = (_: SyntheticEvent, newValue: string) => {
+    setValue(newValue);
   };
 
   const handleEditClick = useCallback(
@@ -116,8 +134,61 @@ export default function Saved_Reports() {
 
   // เพิ่ม dependencies เพื่อให้ function อัปเดตเมื่อข้อมูลเปลี่ยน
 
-  const dataCount_new = useCallback(async () => {
-    // Helper function สำหรับสร้างวันที่เป็น string เพื่อลดการเขียนโค้ดซ้ำ
+  // const dataCount = useCallback(async () => {
+  //   // Helper function สำหรับสร้างวันที่เป็น string เพื่อลดการเขียนโค้ดซ้ำ
+  //   const createDateStr = (daysToSubtract: number): string => {
+  //     const targetDate = new Date();
+  //     targetDate.setDate(targetDate.getDate() - daysToSubtract);
+  //     return datetime.DateSearch(targetDate);
+  //   };
+
+  //   const yesterdayStr = createDateStr(1);
+  //   const twoDaysAgoStr = createDateStr(2);
+
+  //   // พารามิเตอร์ร่วมที่ใช้ในการเรียก API ทุกครั้ง
+  //   const commonParams = {
+  //     checkBoxUsual,
+  //     checkBoxUnusual,
+  //   };
+
+  //   // Helper function สำหรับเรียก API และคืนค่าจำนวนผลลัพธ์ พร้อมจัดการ error
+  //   const getLogCount = async (params: object): Promise<number> => {
+  //     try {
+  //       const response = await reportSaveLog.GetSaveReportLogService(params);
+  //       return response.data.result.length;
+  //     } catch (error) {
+  //       console.error(`Failed to fetch logs for params: ${JSON.stringify(params)}`, error);
+  //       return 0; // คืนค่า 0 เพื่อป้องกันแอปพังเมื่อ API error
+  //     }
+  //   };
+
+  //   try {
+  //     // เรียก API ทั้งหมดพร้อมกัน (parallel) เพื่อประสิทธิภาพที่ดีกว่า
+  //     const [ducYesterdayCount, dccYesterdayCount, ducTwoDaysAgoCount, dccTwoDaysAgoCount, dccAllCount, ducAllCount,
+  //     ] = await Promise.all([
+
+  //       getLogCount({ tapData: "DUC", startDate: yesterdayStr, endDate: yesterdayStr, ...commonParams }),
+  //       getLogCount({ tapData: "DCC", startDate: yesterdayStr, endDate: yesterdayStr, ...commonParams }),
+  //       getLogCount({ tapData: "DUC", endDate: twoDaysAgoStr, ...commonParams }),
+  //       getLogCount({ tapData: "DCC", endDate: twoDaysAgoStr, ...commonParams }),
+  //       getLogCount({ tapData: "DCC", ...commonParams }),
+  //       getLogCount({ tapData: "DUC", ...commonParams }),
+  //     ]);
+
+  //     setCountDucAll({
+  //       ducYesterdayCount, ducTwoDaysAgoCount, dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount, ducAllCount,
+  //     });
+  //     setCountDccAll({
+  //       ducYesterdayCount, ducTwoDaysAgoCount, dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount, ducAllCount,
+  //     });
+
+  //   } catch (error) {
+  //     // ดักจับ error ที่อาจเกิดจาก Promise.all
+  //     console.error("An error occurred while fetching report counts in parallel:", error);
+  //   }
+  // }, [checkBoxUnusual, checkBoxUsual]);
+
+  const dataCount = useCallback(async () => {
     const createDateStr = (daysToSubtract: number): string => {
       const targetDate = new Date();
       targetDate.setDate(targetDate.getDate() - daysToSubtract);
@@ -126,109 +197,159 @@ export default function Saved_Reports() {
 
     const yesterdayStr = createDateStr(1);
     const twoDaysAgoStr = createDateStr(2);
-
-    // พารามิเตอร์ร่วมที่ใช้ในการเรียก API ทุกครั้ง
-    const commonParams = {
-      checkBoxkUsual,
-      checkBoxkUnusual,
-    };
-
-    // Helper function สำหรับเรียก API และคืนค่าจำนวนผลลัพธ์ พร้อมจัดการ error
+    const plant = sessionUser.plant;
     const getLogCount = async (params: object): Promise<number> => {
       try {
         const response = await reportSaveLog.GetSaveReportLogService(params);
         return response.data.result.length;
       } catch (error) {
-        console.error(`Failed to fetch logs for params: ${JSON.stringify(params)}`, error);
-        return 0; // คืนค่า 0 เพื่อป้องกันแอปพังเมื่อ API error
+        console.error(
+          `Failed to fetch logs for params: ${JSON.stringify(params)}`,
+          error
+        );
+        return 0;
       }
     };
 
     try {
-      // เรียก API ทั้งหมดพร้อมกัน (parallel) เพื่อประสิทธิภาพที่ดีกว่า
-      const [ducYesterdayCount, dccYesterdayCount, ducTwoDaysAgoCount, dccTwoDaysAgoCount, dccAllCount, ducAllCount,
-      ] = await Promise.all([
+      // DUC ใช้ checkBoxducUsual, checkBoxducUnusual
+      const [ducYesterdayCount, ducTwoDaysAgoCount, ducAllCount] =
+        await Promise.all([
+          getLogCount({
+            tapData: "DUC",
+            startDate: yesterdayStr,
+            endDate: yesterdayStr,
+            checkBoxUsual: checkBoxducUsual,
+            checkBoxUnusual: checkBoxducUnusual,
+            plant,
+          }),
+          getLogCount({
+            tapData: "DUC",
+            endDate: twoDaysAgoStr,
+            checkBoxUsual: checkBoxducUsual,
+            checkBoxUnusual: checkBoxducUnusual,
+            plant,
+          }),
+          getLogCount({
+            tapData: "DUC",
+            checkBoxUsual: checkBoxducUsual,
+            checkBoxUnusual: checkBoxducUnusual,
+            plant,
+          }),
+        ]);
 
-        getLogCount({ tapData: "DUC", startDate: yesterdayStr, endDate: yesterdayStr, ...commonParams }),
-        getLogCount({ tapData: "DCC", startDate: yesterdayStr, endDate: yesterdayStr, ...commonParams }),
-        getLogCount({ tapData: "DUC", endDate: twoDaysAgoStr, ...commonParams }),
-        getLogCount({ tapData: "DCC", endDate: twoDaysAgoStr, ...commonParams }),
-        getLogCount({ tapData: "DCC", ...commonParams }),
-        getLogCount({ tapData: "DUC", ...commonParams }),
-      ]);
+      // DCC ใช้ checkBoxdccUsual, checkBoxdccUnusual
+      const [dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount] =
+        await Promise.all([
+          getLogCount({
+            tapData: "DCC",
+            startDate: yesterdayStr,
+            endDate: yesterdayStr,
+            checkBoxUsual: checkBoxdccUsual,
+            checkBoxUnusual: checkBoxdccUnusual,
+            plant,
+          }),
+          getLogCount({
+            tapData: "DCC",
+            endDate: twoDaysAgoStr,
+            checkBoxUsual: checkBoxdccUsual,
+            checkBoxUnusual: checkBoxdccUnusual,
+            plant,
+          }),
+          getLogCount({
+            tapData: "DCC",
+            checkBoxUsual: checkBoxdccUsual,
+            checkBoxUnusual: checkBoxdccUnusual,
+            plant,
+          }),
+        ]);
 
-      setCountDucAll({
-        ducYesterdayCount, ducTwoDaysAgoCount, dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount, ducAllCount,
-      });
-      setCountDccAll({
-        ducYesterdayCount, ducTwoDaysAgoCount, dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount, ducAllCount,
-      });
-
+      setCountDucAll({ ducYesterdayCount, ducTwoDaysAgoCount, ducAllCount });
+      setCountDccAll({ dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount });
     } catch (error) {
-      // ดักจับ error ที่อาจเกิดจาก Promise.all
-      console.error("An error occurred while fetching report counts in parallel:", error);
+      console.error("An error occurred while fetching report counts:", error);
     }
-  }, [checkBoxkUnusual, checkBoxkUsual]);
-
-
-
-
-
+  }, [
+    sessionUser.plant,
+    checkBoxducUsual,
+    checkBoxducUnusual,
+    checkBoxdccUsual,
+    checkBoxdccUnusual,
+  ]);
 
   const fetchData = useCallback(
-    async (tapData: "DUC" | "DCC", dayHistory: number, setData: (data: ReportSaveLog[]) => void) => {
+    async (
+      tapData: "DUC" | "DCC",
+      dayHistory: number,
+      setData: (data: ReportSaveLog[]) => void
+    ) => {
       try {
         setLoadnigDataGrid(true);
-
+        const plant = resultData?.plant;
         const { startDate, endDate } = datetime.buildDateParams(dayHistory);
-
+        const checkBoxUsual =
+          tapData === "DUC" ? checkBoxducUsual : checkBoxdccUsual;
+        const checkBoxUnusual =
+          tapData === "DUC" ? checkBoxducUnusual : checkBoxdccUnusual;
         const res = await reportSaveLog.GetSaveReportLogService({
           tapData,
           startDate,
           endDate,
-          checkBoxkUsual,
-          checkBoxkUnusual,
+          checkBoxUsual,
+          checkBoxUnusual,
+          plant,
         });
 
-        const newData = res.data.result.map((item: ReportSaveLog, index: number) => ({
-          ...item,
-          no: index + 1,
-        }));
+        const newData = res.data.result.map(
+          (item: ReportSaveLog, index: number) => ({
+            ...item,
+            no: index + 1,
+          })
+        );
 
         setData(newData);
         SetTextSearch("");
-        setDateStart(null)
-        setDateEnd(null)
+        setDateStart(null);
+        setDateEnd(null);
       } catch (err) {
         console.log(err);
       } finally {
         setLoadnigDataGrid(false);
       }
     },
-    [checkBoxkUnusual, checkBoxkUsual]
+    [checkBoxducUsual, checkBoxdccUsual, checkBoxducUnusual, checkBoxdccUnusual]
   );
 
   const handleSearch = useCallback(
     async (dayHistory: number, setData: (data: ReportSaveLog[]) => void) => {
       try {
         setLoadnigDataGrid(true);
-
-        const { startDate, endDate } = datetime.buildDateParamsSearch(dayHistory, dateStart, dateEnd);
-
-
+        const plant = resultData?.plant ?? "";
+        const checkBoxUsual =
+          tapData === "DUC" ? checkBoxducUsual : checkBoxdccUsual;
+        const checkBoxUnusual =
+          tapData === "DUC" ? checkBoxducUnusual : checkBoxdccUnusual;
+        const { startDate, endDate } = datetime.buildDateParamsSearch(
+          dayHistory,
+          dateStart,
+          dateEnd
+        );
         const res = await reportSaveLog.SearchSaveReportLogService({
           Search: textSearch,
           tapData,
           startDate,
           endDate,
-          checkBoxkUsual,
-          checkBoxkUnusual,
+          checkBoxUsual,
+          checkBoxUnusual,
+          plant,
         });
 
-        const newData = res.data.result.map((item: ReportSaveLog, index: number) => ({
-          ...item,
-          no: index + 1,
-        }));
+        const newData = res.data.result.map(
+          (item: ReportSaveLog, index: number) => ({
+            ...item,
+            no: index + 1,
+          })
+        );
 
         setData(newData);
       } catch (err) {
@@ -237,16 +358,35 @@ export default function Saved_Reports() {
         setLoadnigDataGrid(false);
       }
     },
-    [dateStart, dateEnd, textSearch, tapData, checkBoxkUsual, checkBoxkUnusual]
+    [
+      tapData,
+      checkBoxducUsual,
+      checkBoxdccUsual,
+      checkBoxducUnusual,
+      checkBoxdccUnusual,
+      dateStart,
+      dateEnd,
+      textSearch,
+    ]
   );
+
+  const fetchUserData = useCallback(async () => {
+    const emp_no = resultData?.emp_no;
+    try {
+      const user = await GetUserlogin(emp_no as string);
+
+      if (user.status == 200) setSessonUser(user.data.result[0]);
+    } catch (error) {
+      console.error("Failed to fetch user data:", error);
+    }
+  }, []);
 
   useEffect(() => {
     fetchData("DUC", dayHisDateduc, SetDataDUC);
     fetchData("DCC", dayHisDatedcc, SetDataDCC);
-
-    // dataCount();
-    dataCount_new()
-  }, [dataCount_new, fetchData, dayHisDateduc, dayHisDatedcc]);
+    fetchUserData();
+    dataCount();
+  }, [dataCount, fetchData, dayHisDateduc, dayHisDatedcc, fetchUserData]);
 
   const handleClose = () => {
     setOpen(false);
@@ -266,8 +406,9 @@ export default function Saved_Reports() {
     try {
       Swal.fire({
         title: `Are you sure?`,
-        html: `<b>Action:</b> ${valueRedio}<br/><b>Comment:</b> ${conment || "<i>No comment</i>"
-          }`,
+        html: `<b>Action:</b> ${valueRedio}<br/><b>Comment:</b> ${
+          conment || "<i>No comment</i>"
+        }`,
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
@@ -304,27 +445,24 @@ export default function Saved_Reports() {
     page: 0,
   });
 
-  // สร้าง config ของคอลัมน์ DCC โดยส่ง handler เข้าไป
   const dccColumns = useMemo(
-    () => getColumnsDCC(handleEditClick),
-    [handleEditClick]
+    () => getColumnsDCC(handleEditClick, sessionUser.is_accept),
+    [handleEditClick, sessionUser.is_accept]
   );
   const ducColumns = useMemo(
-    () => getColumnsDUC(handleEditClick),
-    [handleEditClick]
+    () => getColumnsDUC(handleEditClick, sessionUser.is_accept),
+    [handleEditClick, sessionUser.is_accept]
   );
-  // const theme = useTheme();
-  // const isExtraLargeScreen = useMediaQuery(theme.breakpoints.up('xl'));
 
-  // const isBelow600 = useMediaQuery('(max-width:600px)');
-  // const isBetween601And900 = useMediaQuery('(min-width:601px) and (max-width:900px)');
-  // const isBetween901And1200 = useMediaQuery('(min-width:901px) and (max-width:1200px)');
-  const isBetween1201And1536 = useMediaQuery("(min-width:1201px) and (max-width:1536px)");
+  const isBetween1201And1536 = useMediaQuery(
+    "(min-width:1201px) and (max-width:1536px)"
+  );
   const isAbove1537 = useMediaQuery("(min-width:1537px)");
   const handleSearchAll = async () => {
     await handleSearch(Number(dayHisDateduc), SetDataDUC);
     await handleSearch(Number(dayHisDatedcc), SetDataDCC);
   };
+
   return (
     <>
       <Container disableGutters maxWidth={false}>
@@ -373,278 +511,309 @@ export default function Saved_Reports() {
                       textColor="secondary"
                       indicatorColor="secondary"
                     >
-                      <Tab
-                        label={`DUC Log (${countsDucAll.ducAllCount})`}
-                        value="1"
-                        onClick={() => setTapData("DUC")}
-                      />
-                      <Tab
-                        label={`DCC Log (${countsDccAll.dccAllCount})`}
-                        value="2"
-                        onClick={() => setTapData("DCC")}
-                      />
+                      {appIds.includes("1") && (
+                        <Tab
+                          label={`DUC Log (${countsDucAll.ducAllCount})`}
+                          value="1"
+                          onClick={() => setTapData("DUC")}
+                        />
+                      )}
+
+                      {appIds.includes("2") && (
+                        <Tab
+                          label={`DCC Log (${countsDccAll.dccAllCount})`}
+                          value="2"
+                          onClick={() => setTapData("DCC")}
+                        />
+                      )}
                     </TabList>
                   </Box>
-                  <TabPanel value="1">
-                    <Grid
-                      container
-                      spacing={2}
-                      justifyContent="start"
-                      alignItems="end"
-                    >
+                  {appIds.includes("1") && (
+                    <TabPanel value="1">
                       <Grid
-                        size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}
-                        mb={3}
-                        justifyContent="flex-start"
-                        display="flex"
+                        container
+                        spacing={2}
+                        justifyContent="start"
+                        alignItems="end"
                       >
-                        <ButtonGroup
-                          disableElevation
-                          variant="outlined"
-                          aria-label="Disabled button group"
+                        <Grid
+                          size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}
+                          mb={3}
+                          justifyContent="flex-start"
+                          display="flex"
                         >
-                          <Button
-                            variant="contained"
-                            color={colerTodayduc}
-                            onClick={() => {
-                              setsDayHisDateDuc(1);
-                              setColerTodayDuc("secondary");
-                              setColerHistoryDuc("primary");
-                            }}
+                          <ButtonGroup
+                            disableElevation
+                            variant="outlined"
+                            aria-label="Disabled button group"
                           >
-                            Latest Data ({countsDucAll.ducYesterdayCount})
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color={colerHistoryduc}
-                            onClick={() => {
-                              setsDayHisDateDuc(0);
-                              setColerTodayDuc("primary");
-                              setColerHistoryDuc("secondary");
-                            }}
-                          >
-                            Previous Data ({countsDucAll.ducTwoDaysAgoCount})
-                          </Button>
-                        </ButtonGroup>
-                      </Grid>
-                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3}
-                        justifyContent="flex-end"
-                        display="flex">
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              checked={checkBoxkUsual === "Usual Event"}
-                              onChange={(e) =>
-                                setCheckBoxUsual(e.target.checked ? "Usual Event" : "")
-                              }
-                            />
-                          }
-                          label="Usual Event"
-                        />
+                            <Button
+                              variant="contained"
+                              color={colerTodayduc}
+                              onClick={() => {
+                                setsDayHisDateDuc(1);
+                                setColerTodayDuc("secondary");
+                                setColerHistoryDuc("primary");
+                              }}
+                            >
+                              Latest Data ({countsDucAll.ducYesterdayCount})
+                            </Button>
+                            <Button
+                              variant="contained"
+                              color={colerHistoryduc}
+                              onClick={() => {
+                                setsDayHisDateDuc(0);
+                                setColerTodayDuc("primary");
+                                setColerHistoryDuc("secondary");
+                              }}
+                            >
+                              Previous Data ({countsDucAll.ducTwoDaysAgoCount})
+                            </Button>
+                          </ButtonGroup>
+                        </Grid>
+                        <Grid
+                          size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}
+                          mb={3}
+                          justifyContent="flex-end"
+                          display="flex"
+                        >
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={checkBoxducUsual === "Usual Event"}
+                                onChange={(e) =>
+                                  setCheckBoxducUsual(
+                                    e.target.checked ? "Usual Event" : ""
+                                  )
+                                }
+                              />
+                            }
+                            label="Usual Event"
+                          />
 
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              checked={checkBoxkUnusual === "Unusual Event"}
-                              onChange={(e) =>
-                                setCheckBoxUnusual(e.target.checked ? "Unusual Event" : "")
-                              }
-                            />
-                          }
-                          label="Unusual Event"
-                        />
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={checkBoxducUnusual === "Unusual Event"}
+                                onChange={(e) =>
+                                  setCheckBoxducUnusual(
+                                    e.target.checked ? "Unusual Event" : ""
+                                  )
+                                }
+                              />
+                            }
+                            label="Unusual Event"
+                          />
+                        </Grid>
                       </Grid>
-                    </Grid>
-                    {/* {window.innerWidth} */}
-                    <Container
-                      fixed
-                      disableGutters
-                      maxWidth={isAbove1537 ? "xl" : "lg"}
-                    >
-                      <DataGridPremium
-                        getRowId={(row) => row.id.toString()}
-                        loading={loadingDataGrid}
-                        rows={dataDuc}
-                        columns={ducColumns}
-                        pagination
-                        initialState={{
-                          pinnedColumns: {
-                            left: ["no"],
-                            right: [
-                              "event_type",
-                              "admin_confirm_event",
-                              "manage",
-                            ],
-                          },
-                        }}
-                        paginationModel={paginationModel}
-                        onPaginationModelChange={setPaginationModel}
-                        pageSizeOptions={[5, 10, 15, 20, 40, 60, 80, 100]}
-                        disablePivoting
-                        disableColumnMenu
-                        disableColumnSorting
-                        disableColumnFilter
-                        getRowClassName={(params) =>
-                          params.row.unauthorized === "Y" ||
+                      {/* {window.innerWidth} */}
+                      <Container
+                        fixed
+                        disableGutters
+                        maxWidth={isAbove1537 ? "xl" : "lg"}
+                      >
+                        <DataGridPremium
+                          getRowId={(row) => row.id.toString()}
+                          loading={loadingDataGrid}
+                          rows={dataDuc}
+                          columns={ducColumns}
+                          pagination
+                          initialState={{
+                            pinnedColumns: {
+                              left: ["no"],
+                              right: [
+                                "event_type",
+                                "admin_confirm_event",
+                                "manage",
+                              ],
+                            },
+                          }}
+                          paginationModel={paginationModel}
+                          onPaginationModelChange={setPaginationModel}
+                          pageSizeOptions={[5, 10, 15, 20, 40, 60, 80, 100]}
+                          disablePivoting
+                          disableColumnMenu
+                          disableColumnSorting
+                          disableColumnFilter
+                          getRowClassName={(params) =>
+                            params.row.unauthorized === "Y" ||
                             params.row.download_more_10_files_day === "Y" ||
-                            params.row.employee_resigning_within_one_month === "Y"
-                            ? "row--highlight"
-                            : ""
-                        }
-                        showToolbar={true}
-                        slotProps={{
-                          toolbar: {
-                            csvOptions: { disableToolbarButton: true },
-                            printOptions: { disableToolbarButton: true },
-                            showQuickFilter: false,
-                          },
-                        }}
-                        sx={{
-                          ...(isAbove1537 ? { marginInline: "-9%" } : {}),
-                          ...(isBetween1201And1536
-                            ? { marginInline: "-10%" }
-                            : {}),
-                          "& .row--highlight": {
-                            bgcolor: "rgba(255,165,0,0.1)",
-                            color: "orange",
-                            "&:hover": { bgcolor: "rgba(0, 128, 0, 0.15)" },
-                          },
-                          fontSize: "12px",
-                        }}
-                      />
-                    </Container>
-                  </TabPanel>
-                  <TabPanel value="2">
-                    <Grid
-                      container
-                      spacing={2}
-                      justifyContent="start"
-                      alignItems="end"
-                    >
+                            params.row.employee_resigning_within_one_month ===
+                              "Y"
+                              ? "row--highlight"
+                              : ""
+                          }
+                          showToolbar={true}
+                          slotProps={{
+                            toolbar: {
+                              csvOptions: { disableToolbarButton: true },
+                              printOptions: { disableToolbarButton: true },
+                              excelOptions: {
+                                disableToolbarButton:
+                                  sessionUser.is_export == false ? true : false,
+                              },
+                              showQuickFilter: false,
+                            },
+                          }}
+                          sx={{
+                            ...(isAbove1537 ? { marginInline: "-9%" } : {}),
+                            ...(isBetween1201And1536
+                              ? { marginInline: "-10%" }
+                              : {}),
+                            "& .row--highlight": {
+                              bgcolor: "rgba(255,165,0,0.1)",
+                              color: "orange",
+                              "&:hover": { bgcolor: "rgba(0, 128, 0, 0.15)" },
+                            },
+                            fontSize: "12px",
+                          }}
+                        />
+                      </Container>
+                    </TabPanel>
+                  )}
+                  {appIds.includes("2") && (
+                    <TabPanel value="2">
                       <Grid
-                        size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}
-                        mb={3}
-                        justifyContent="flex-start"
-                        display="flex"
+                        container
+                        spacing={2}
+                        justifyContent="start"
+                        alignItems="end"
                       >
-                        <ButtonGroup
-                          disableElevation
-                          variant="outlined"
-                          aria-label="Disabled button group"
+                        <Grid
+                          size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}
+                          mb={3}
+                          justifyContent="flex-start"
+                          display="flex"
                         >
-                          <Button
-                            variant="contained"
-                            color={colerTodaydcc}
-                            onClick={() => {
-                              setsDayHisDateDcc(1);
-                              setColerTodayDcc("secondary");
-                              setColerHistoryDcc("primary");
-                            }}
+                          <ButtonGroup
+                            disableElevation
+                            variant="outlined"
+                            aria-label="Disabled button group"
                           >
-                            Latest Data ({countsDccAll.dccYesterdayCount})
-                          </Button>
-                          <Button
-                            variant="contained"
-                            color={colerHistorydcc}
-                            onClick={() => {
-                              setsDayHisDateDcc(0);
-                              setColerTodayDcc("primary");
-                              setColerHistoryDcc("secondary");
-                            }}
-                          >
-                            Previous Data ({countsDccAll.dccTwoDaysAgoCount}
-                            )
-                          </Button>
-                        </ButtonGroup>
+                            <Button
+                              variant="contained"
+                              color={colerTodaydcc}
+                              onClick={() => {
+                                setsDayHisDateDcc(1);
+                                setColerTodayDcc("secondary");
+                                setColerHistoryDcc("primary");
+                              }}
+                            >
+                              Latest Data ({countsDccAll.dccYesterdayCount})
+                            </Button>
+                            <Button
+                              variant="contained"
+                              color={colerHistorydcc}
+                              onClick={() => {
+                                setsDayHisDateDcc(0);
+                                setColerTodayDcc("primary");
+                                setColerHistoryDcc("secondary");
+                              }}
+                            >
+                              Previous Data ({countsDccAll.dccTwoDaysAgoCount})
+                            </Button>
+                          </ButtonGroup>
+                        </Grid>
+                        <Grid
+                          size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}
+                          mb={3}
+                          justifyContent="flex-end"
+                          display="flex"
+                        >
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={checkBoxdccUsual === "Usual Event"}
+                                onChange={(e) =>
+                                  setCheckBoxdccUsual(
+                                    e.target.checked ? "Usual Event" : ""
+                                  )
+                                }
+                              />
+                            }
+                            label="Usual Event"
+                          />
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={checkBoxdccUnusual === "Unusual Event"}
+                                onChange={(e) =>
+                                  setCheckBoxdccUnusual(
+                                    e.target.checked ? "Unusual Event" : ""
+                                  )
+                                }
+                              />
+                            }
+                            label="Unusual Event"
+                          />
+                        </Grid>
                       </Grid>
-                      <Grid size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }} mb={3}
-                        justifyContent="flex-end"
-                        display="flex">
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              checked={checkBoxkUsual === "Usual Event"}
-                              onChange={(e) =>
-                                setCheckBoxUsual(e.target.checked ? "Usual Event" : "")
-                              }
-                            />
+                      <Container
+                        fixed
+                        disableGutters
+                        maxWidth={isAbove1537 ? "xl" : "lg"}
+                      >
+                        <DataGridPremium
+                          rows={dataDcc}
+                          columns={dccColumns}
+                          loading={loadingDataGrid}
+                          getRowId={(row) => row.id.toString()}
+                          pagination
+                          paginationModel={paginationModel}
+                          onPaginationModelChange={(model) =>
+                            setPaginationModel(model)
                           }
-                          label="Usual Event"
-                        />
-
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              checked={checkBoxkUnusual === "Unusual Event"}
-                              onChange={(e) =>
-                                setCheckBoxUnusual(e.target.checked ? "Unusual Event" : "")
-                              }
-                            />
-                          }
-                          label="Unusual Event"
-                        />
-                      </Grid>
-                    </Grid>
-                    <Container
-                      fixed
-                      disableGutters
-                      maxWidth={isAbove1537 ? "xl" : "lg"}
-                    >
-                      <DataGridPremium
-                        rows={dataDcc}
-                        columns={dccColumns}
-                        loading={loadingDataGrid}
-                        getRowId={(row) => row.id.toString()}
-                        pagination
-                        paginationModel={paginationModel}
-                        onPaginationModelChange={(model) =>
-                          setPaginationModel(model)
-                        }
-                        pageSizeOptions={[5, 10, 15, 20, 40, 60, 80, 100]}
-                        disablePivoting
-                        disableColumnSorting
-                        disableColumnFilter
-                        disableColumnMenu
-                        initialState={{
-                          pinnedColumns: {
-                            left: ["no"],
-                            right: [
-                              "event_type",
-                              "admin_confirm_event",
-                              "manage",
-                            ],
-                          },
-                        }}
-                        getRowClassName={(params) =>
-                          params.row.unauthorized === "Y" ||
+                          pageSizeOptions={[5, 10, 15, 20, 40, 60, 80, 100]}
+                          disablePivoting
+                          disableColumnSorting
+                          disableColumnFilter
+                          disableColumnMenu
+                          initialState={{
+                            pinnedColumns: {
+                              left: ["no"],
+                              right: [
+                                "event_type",
+                                "admin_confirm_event",
+                                "manage",
+                              ],
+                            },
+                          }}
+                          getRowClassName={(params) =>
+                            params.row.unauthorized === "Y" ||
                             params.row.download_more_10_files_day === "Y" ||
-                            params.row.employee_resigning_within_one_month === "Y"
-                            ? "row--highlight"
-                            : ""
-                        }
-                        showToolbar={true}
-                        slotProps={{
-                          toolbar: {
-                            csvOptions: { disableToolbarButton: true },
-                            printOptions: { disableToolbarButton: true },
-                            showQuickFilter: false,
-                          },
-                        }}
-                        sx={{
-                          ...(isAbove1537 ? { marginInline: "-9%" } : {}),
-                          ...(isBetween1201And1536
-                            ? { marginInline: "-10%" }
-                            : {}),
-                          "& .row--highlight": {
-                            bgcolor: "rgba(255,165,0,0.1)",
-                            color: "orange",
-                            "&:hover": { bgcolor: "rgba(0, 128, 0, 0.15)" },
-                          },
-                          fontSize: "12px",
-                        }}
-                      />
-                    </Container>
-                  </TabPanel>
+                            params.row.employee_resigning_within_one_month ===
+                              "Y"
+                              ? "row--highlight"
+                              : ""
+                          }
+                          showToolbar={true}
+                          slotProps={{
+                            toolbar: {
+                              csvOptions: { disableToolbarButton: true },
+                              printOptions: { disableToolbarButton: true },
+                              showQuickFilter: false,
+                              excelOptions: {
+                                disableToolbarButton:
+                                  sessionUser.is_export == false ? true : false,
+                              },
+                            },
+                          }}
+                          sx={{
+                            ...(isAbove1537 ? { marginInline: "-9%" } : {}),
+                            ...(isBetween1201And1536
+                              ? { marginInline: "-10%" }
+                              : {}),
+                            "& .row--highlight": {
+                              bgcolor: "rgba(255,165,0,0.1)",
+                              color: "orange",
+                              "&:hover": { bgcolor: "rgba(0, 128, 0, 0.15)" },
+                            },
+                            fontSize: "12px",
+                          }}
+                        />
+                      </Container>
+                    </TabPanel>
+                  )}
                 </TabContext>
               </Grid>
             </Box>

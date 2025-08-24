@@ -9,6 +9,7 @@ import ReportLogPages from "@/features/report-log/pages/ReportLogPage";
 import ReportLogByIdPage from "@/features/report-log/pages/ReportLogByIdPage";
 import ReportLogByIdPages from "@/features/reportLog/pages/ReportLogByIdPage";
 import UpdateOnEmailPage from "@/features/save-onemail/page/SaveOnemailpage";
+import UsersPermissionPage from "@/features/mageusers/page/UsersPermissionPage";
 
 
 
@@ -27,6 +28,7 @@ const AppRouter = () => {
         <Route path="/reportlog/:id?/:tap?" element={<ReportLogByIdPages />} />
         <Route path="/saved_report" element={<Saved_Reports />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/userpermission" element={<UsersPermissionPage />} />
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Route>
       <Route path="*" element={<Navigate to="/ErrorPermissionPage" replace />}
