@@ -1,15 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import ApprovedSaveOnemailService from "../service/service";
 import { useNavigate, useParams } from "react-router-dom";
 import { resultData } from "@/shared/utils/useToken";
+import { sendPost } from "@/shared/utils/logout";
 
 export default function UpdateOnEmailPage() {
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("Updating...");
-    const [countdown, setCountdown] = useState(9);
+    const [countdown, setCountdown] = useState(4);
     const navigate = useNavigate();
     const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -19,7 +20,17 @@ export default function UpdateOnEmailPage() {
         datetime: string;
     }>();
 
+    const handlelogin = useCallback(async () => {
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+            sendPost()
+        }
+        return;
+    }, [])
+
     useEffect(() => {
+        handlelogin()
         const updateData = async () => {
             if (!plant || !app_log || !datetime) {
                 setMessage("Invalid or missing parameters.");
@@ -59,7 +70,7 @@ export default function UpdateOnEmailPage() {
         };
 
         updateData();
-    }, [plant, app_log, datetime, navigate]);
+    }, [plant, app_log, datetime, navigate, handlelogin]);
 
     return (
         <Container sx={{ textAlign: "center", mt: 5 }}>
@@ -77,7 +88,7 @@ export default function UpdateOnEmailPage() {
                             {message} ({countdown})
                         </p>
                     ) : (
-                        <p>Go!</p>
+                        ''
                     )}
                 </Typography>
             )}

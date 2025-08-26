@@ -10,10 +10,15 @@ import ReportLogByIdPage from "@/features/report-log/pages/ReportLogByIdPage";
 import ReportLogByIdPages from "@/features/reportLog/pages/ReportLogByIdPage";
 import UpdateOnEmailPage from "@/features/save-onemail/page/SaveOnemailpage";
 import UsersPermissionPage from "@/features/mageusers/page/UsersPermissionPage";
-
-
+import type { User } from "@/layouts/userType";
+import sharedUsers from "@/shared/hooks/sharedUsers";
 
 const AppRouter = () => {
+  const userDataString = localStorage.getItem("user");
+  const resultData: User | null = userDataString
+    ? JSON.parse(userDataString)
+    : null;
+  const { sessionUser } = sharedUsers(resultData?.emp_no as string)
 
   return (
     <Routes>
@@ -28,12 +33,13 @@ const AppRouter = () => {
         <Route path="/reportlog/:id?/:tap?" element={<ReportLogByIdPages />} />
         <Route path="/saved_report" element={<Saved_Reports />} />
         <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/userpermission" element={<UsersPermissionPage />} />
+        {sessionUser?.status?.toLowerCase() === "admin" && (
+          <Route path="/userpermission" element={<UsersPermissionPage />} />
+        )}
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Route>
       <Route path="*" element={<Navigate to="/ErrorPermissionPage" replace />}
       />
-
     </Routes>
   );
 };

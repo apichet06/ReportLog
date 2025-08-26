@@ -16,7 +16,13 @@ export const useUsersPermission = () => {
     // setLoading(true);
     try {
       const users = await userService.getUsersPermission();
-      setData(users);
+       const newData = users.map(
+                (item: UsersPermission, index: number) => ({
+                  ...item,
+                  no: index + 1,
+                })
+              );
+      setData(newData);
       const apps = await userService.getAppname();
       setAppName(apps);
       const plants = await userService.getbuPlant();

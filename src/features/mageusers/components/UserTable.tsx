@@ -1,11 +1,14 @@
-import { DataGrid, type GridColDef } from "@mui/x-data-grid";
+import { DataGridPremium, type GridColDef, type GridRenderCellParams } from "@mui/x-data-grid-premium";
 import type { UsersPermission } from "../types/UsersPermission";
-import { Button, Container, } from "@mui/material";
+import Button from '@mui/material/Button';
+import Container from '@mui/material/Container';
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import datetime from "@/shared/utils/handleDatetime";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DoneIcon from "@mui/icons-material/Done";
 import { useState } from "react";
+import { fNumber } from "@/shared/utils/formatNumber";
+import ColumnHeaderWithInfo from "../constants/ColumnHeaderWithInfo";
 interface Props {
   rows: UsersPermission[];
   onEdit: (row: UsersPermission) => void;
@@ -16,16 +19,46 @@ interface Props {
 
 export default function UserTable({ rows, onEdit, onDelete, isAbove1537, isBetween1201And1536 }: Props) {
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", flex: 0.5 },
-    { field: "emp_no", headerName: "Emp No", flex: 0.6 },
-    { field: "emp_email", headerName: "Email", flex: 1 },
-    { field: "fullname", headerName: "Full Name", flex: 1.3 },
-    { field: "app_Names", headerName: "App ID", flex: 1 },
+    {
+      field: "no",
+      headerName: "NO",
+      align: "center",
+      sortable: false,
+      renderHeader: () => <ColumnHeaderWithInfo field="no" label="NO" />,
+      headerAlign: "center", flex: 0.5, minWidth: 100,
+      renderCell: (params: GridRenderCellParams) => {
+        const sortedRowIds = params.api.getSortedRowIds();
+        const rowIndex = sortedRowIds.indexOf(params.id);
+        return fNumber(rowIndex + 1);
+      },
+    },
+    {
+      field: "emp_no", headerName: "Emp No", minWidth: 100,
+      renderHeader: () => <ColumnHeaderWithInfo field="emp_no" label="Emp No" />,
+    },
+    {
+      field: "emp_email", headerName: "Email", minWidth: 180,
+      renderHeader: () => <ColumnHeaderWithInfo field="emp_email" label="Email" />,
+    },
+    {
+      field: "plant_Name", headerName: "Plant Name", minWidth: 120,
+      renderHeader: () => <ColumnHeaderWithInfo field="fullname" label="Plant Name" />,
+    },
+    {
+      field: "fullname", headerName: "Full Name", minWidth: 190,
+      renderHeader: () => <ColumnHeaderWithInfo field="fullname" label="FullName" />,
+    },
+
+    {
+      field: "app_Names", headerName: "App ID", minWidth: 100,
+      renderHeader: () => <ColumnHeaderWithInfo field="app_Names" label="App Name" />,
+    },
     {
       field: "is_email",
       headerName: "is Email",
       renderCell: (params) => params.row.is_email && <DoneIcon />,
-      flex: 1,
+      renderHeader: () => <ColumnHeaderWithInfo field="is_email" label="Is Email" />,
+      minWidth: 100,
       align: "center",
       headerAlign: "center",
     },
@@ -33,34 +66,41 @@ export default function UserTable({ rows, onEdit, onDelete, isAbove1537, isBetwe
       field: "is_accept",
       headerName: "is Accept",
       renderCell: (params) => params.row.is_accept && <DoneIcon />,
+      renderHeader: () => <ColumnHeaderWithInfo field="is_accept" label="Is Accept" />,
       align: "center",
       headerAlign: "center",
-      flex: 1,
+      minWidth: 100
     },
     {
       field: "is_review",
       headerName: "is Review",
       renderCell: (params) => params.row.is_review && <DoneIcon />,
+      renderHeader: () => <ColumnHeaderWithInfo field="is_review" label="Is Review" />,
       align: "center",
       headerAlign: "center",
-      flex: 1,
+      minWidth: 100
     },
     {
       field: "is_export",
       headerName: "is Export",
       renderCell: (params) => params.row.is_export && <DoneIcon />,
+      renderHeader: () => <ColumnHeaderWithInfo field="is_export" label="Is Export" />,
       align: "center",
       headerAlign: "center",
-      flex: 1,
+      minWidth: 100
     },
-    { field: "created_by", headerName: "Created By", flex: 1 },
+    { field: "created_by", headerName: "Created By", minWidth: 100, },
     {
       field: "created_date",
       headerName: "Created Date",
       renderCell: (params) => datetime.DateTimeLongTH(params.row.created_date),
-      flex: 1,
+      renderHeader: () => <ColumnHeaderWithInfo field="created_date" label="Created Date" />,
+      minWidth: 130
     },
-    { field: "updated_by", headerName: "Updated By", flex: 1 },
+    {
+      field: "updated_by", headerName: "Updated By", minWidth: 120,
+      renderHeader: () => <ColumnHeaderWithInfo field="updated_by" label="Updated By" />,
+    },
     {
       field: "updated_date",
       headerName: "Updated Date",
@@ -68,12 +108,16 @@ export default function UserTable({ rows, onEdit, onDelete, isAbove1537, isBetwe
         params.row.updated_date != null
           ? datetime.DateTimeLongTH(params.row.updated_date)
           : "",
-      flex: 1,
+      renderHeader: () => <ColumnHeaderWithInfo field="updated_date" label="Updated Date" />,
+      minWidth: 120
     },
-    { field: "status", headerName: "Status", flex: 1 },
+    {
+      field: "status", headerName: "Status", minWidth: 100,
+      renderHeader: () => <ColumnHeaderWithInfo field="status" label="Status" />,
+    },
     {
       field: "actions",
-      headerName: "Magnage",
+      headerName: "",
       headerAlign: "center",
       align: "center",
       renderCell: (params) => (
@@ -84,7 +128,6 @@ export default function UserTable({ rows, onEdit, onDelete, isAbove1537, isBetwe
             size="small"
             color="primary"
           >
-            {" "}
             <DriveFileRenameOutlineIcon />
           </Button>
           <Button
@@ -96,12 +139,12 @@ export default function UserTable({ rows, onEdit, onDelete, isAbove1537, isBetwe
           </Button>
         </>
       ),
-      flex: 1.3,
+      minWidth: 150
     },
   ];
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 10,
+    pageSize: 10
   });
 
   return (
@@ -110,22 +153,30 @@ export default function UserTable({ rows, onEdit, onDelete, isAbove1537, isBetwe
       disableGutters
       maxWidth={isAbove1537 ? "xl" : "lg"}
     >
-      <DataGrid
+      <DataGridPremium
         rows={rows}
         columns={columns}
         getRowId={(row) => row.id}
         pageSizeOptions={[5, 10, 15, 20, 40, 60, 80, 100]}
+        disablePivoting
         disableColumnSorting
         disableColumnFilter
         disableColumnMenu
+        pagination
         showToolbar
         slotProps={{
           toolbar: {
             csvOptions: { disableToolbarButton: true },
             printOptions: { disableToolbarButton: true },
             excelOptions: {
-              disableToolbarButton: false,
+              disableToolbarButton: true,
             },
+          },
+        }}
+        initialState={{
+          pinnedColumns: {
+            left: ["no"],
+            right: ["actions"],
           },
         }}
         sx={{
@@ -133,11 +184,6 @@ export default function UserTable({ rows, onEdit, onDelete, isAbove1537, isBetwe
           ...(isBetween1201And1536
             ? { marginInline: "-10%" }
             : {}),
-          "& .row--highlight": {
-            bgcolor: "rgba(255,165,0,0.1)",
-            color: "orange",
-            "&:hover": { bgcolor: "rgba(0, 128, 0, 0.15)" },
-          },
           fontSize: "12px",
         }}
         paginationModel={paginationModel}

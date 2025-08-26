@@ -32,7 +32,7 @@ export default function ReportLogToolbar({
 }: Props) {
     return (
         <Grid container spacing={2} alignItems="center" mb={3}>
-            <Grid size={{ xs: 12, sm: 12, md: 10, lg: 6, xl: 6 }}>
+            <Grid size={{ xs: 12, sm: 12, md: 6, lg: 6, xl: 6 }}>
                 <TextField
                     label="Search..."
                     type="search"
@@ -42,7 +42,7 @@ export default function ReportLogToolbar({
                     fullWidth
                 />
             </Grid>
-            <Grid size={{ xs: 12, sm: 12, md: 1, lg: 4, xl: 4 }}>
+            <Grid size={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <Grid container spacing={2} alignItems="center">
                         <Grid size={{ xs: 12, sm: 6, md: 6, lg: 6, xl: 6 }} >

@@ -36,6 +36,9 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import InsertChartIcon from '@mui/icons-material/InsertChart';
 import { sendPost } from "@/shared/utils/logout";
 import Avatar from '@mui/material/Avatar';
+import SettingsIcon from '@mui/icons-material/Settings';
+import sharedUsers from "@/shared/hooks/sharedUsers";
+
 const drawerWidth = 240;
 
 /* ---------- styled components ---------- */
@@ -90,6 +93,7 @@ const capitalize = (str?: string): string => {
 
 const MainLayout = ({ children }: { children?: React.ReactNode }) => {
     const theme = useTheme();
+
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
     const userDataString = localStorage.getItem("user");
@@ -98,7 +102,8 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
         ? JSON.parse(userDataString)
         : null;
 
-
+    const { sessionUser } = sharedUsers(resultData?.emp_no as string)
+    // console.log(sessionUser);
     const hendleLogout = () => {
         // แจ้ง Logout ไปยัง CaaS
         localStorage.removeItem("token");
@@ -117,14 +122,15 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
         { label: "Dashboard Chart", icon: <InsertChartIcon />, path: "/dashboard" },
         { label: "Report Log", icon: <InboxIcon />, path: "/reportlog" },
         { label: "Audit Report Log", icon: <DescriptionIcon />, path: "/saved_report" },
-        { label: "User Permission", icon: <DescriptionIcon />, path: "/userpermission" },
+        // { label: "User Permission", icon: <DescriptionIcon />, path: "/userpermission" },
     ];
-
+    if (sessionUser?.status?.toLowerCase() === "admin") {
+        menuItems.push({ label: "User Permission", icon: <SettingsIcon />, path: "/userpermission" });
+    }
     const { setToken, setUser } = useAuthContext();
     const [isAppInitialized, setIsAppInitialized] = useState(false);
 
     const userId = getUserIdFromCookie();
-
 
     const handlelogin = useCallback(async () => {
         if (!userId) {
@@ -181,8 +187,8 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
                         <List>
                             <ListItem>
                                 {/* <img id="profile-img" src="https://fits/emp_pic/533566.jpg" alt="" className="img-login"></img> */}
-                                <Avatar alt="Remy Sharp" src={`https://fits/emp_pic/${resultData?.emp_no}.jpg`} sx={{ mr: 2 }} />
-                                <ListItemText>{capitalize(resultData?.firstname)} {capitalize(resultData?.lastname)} ({capitalize(resultData?.status)} {'>'} {resultData?.plant_Name})</ListItemText>
+                                <Avatar alt="Remy Sharp" src={`https://fits/emp_pic/${sessionUser?.emp_no}.jpg`} sx={{ mr: 2 }} />
+                                <ListItemText>{capitalize(sessionUser?.firstname)} {capitalize(sessionUser?.lastname)} ({capitalize(sessionUser?.status)} {'>'} {sessionUser?.plant_Name})</ListItemText>
                             </ListItem>
                         </List>
                         <Button color="inherit" onClick={hendleLogout} startIcon={<LogoutIcon />}>Logout</Button>

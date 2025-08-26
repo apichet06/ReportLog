@@ -8,11 +8,13 @@ export interface ApiResponse<T> {
   message: string;
 }
 
-const ChartService = (Year: string) =>
-  axiosInstance.get<ApiResponse<ChartData[]>>("/Chart/" + Year);
+const ChartService = (Year: string, plant: string) =>
+  axiosInstance.get<ApiResponse<ChartData[]>>("/Chart/" + Year + "/" + plant);
 
-const ChartBarService = (Year: string) =>
-  axiosInstance.get<ApiResponse<CartBarData[]>>("/Chart/BarChart/" + Year);
+const ChartBarService = (Year: string, plant: string) =>
+  axiosInstance.get<ApiResponse<CartBarData[]>>(
+    "/Chart/BarChart/" + Year + "/" + plant
+  );
 
 const _Chart = {
   ChartService,

@@ -33,9 +33,19 @@ import { colors } from '../components/utils';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { type SelectChangeEvent } from '@mui/material/Select';
+import type { User } from '@/layouts/userType';
+import sharedUsers from '@/shared/hooks/sharedUsers';
 
 
 const DashboardPage = () => {
+
+    const userDataString = localStorage.getItem("user");
+    const resultData: User | null = userDataString
+        ? JSON.parse(userDataString)
+        : null;
+    const { sessionUser } = sharedUsers(resultData?.emp_no as string)
+
+
     const [chartData, setChartData] = useState<ChartJsData<'pie'>>(initialChartData);
     const [chartBar, setChartBar] = useState<ChartJsData<'bar'>>(initialChartBarData);
     const [data, setData] = useState(0);
@@ -56,7 +66,7 @@ const DashboardPage = () => {
     const handleChart = useCallback(async () => {
         try {
 
-            const response = await _Chart.ChartService(Year);
+            const response = await _Chart.ChartService(Year, sessionUser.plant);
             const apiData = response.data.result;
             setData(apiData.length)
             if (apiData && apiData.length > 0) {
@@ -73,7 +83,7 @@ const DashboardPage = () => {
             console.error("Failed to fetch chart data:", err);
 
         }
-    }, [Year]);
+    }, [Year, sessionUser.plant]);
 
     // const handleChartBar = useCallback(async () => {
     //     try {
@@ -124,7 +134,7 @@ const DashboardPage = () => {
 
     const handleChartBar = useCallback(async () => {
         try {
-            const response = await _Chart.ChartBarService(Year);
+            const response = await _Chart.ChartBarService(Year, sessionUser.plant);
             const apiDatabar: CartBarData[] = response.data.result;
 
             if (!apiDatabar?.length) return;
@@ -170,7 +180,7 @@ const DashboardPage = () => {
         } catch (err) {
             console.error('Failed to fetch chart data:', err);
         }
-    }, [Year]);
+    }, [Year, sessionUser.plant]);
 
 
     useEffect(() => {

@@ -1,0 +1,16 @@
+export const columnDescriptionsEN: Record<string, string> = {
+  no: "Row number / Running index",
+  emp_no: "Employee number",
+  emp_email: "Employee email",
+  fullname: "First Name Last Name",
+  app_Names: "Application Name",
+  is_email: "Is Email",
+  is_accept: "Is Accept",
+  is_review: "Is Review",
+  is_export: "Is Export",
+  create_by: "Create By",
+  created_date: "Create Date",
+  updated_by: "Update By",
+  updated_date: "Update Date",
+  status: "Status",
+};

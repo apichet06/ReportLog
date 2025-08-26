@@ -21,6 +21,7 @@ const GetSaveReportLogService = (data: TabDataState) =>
       checkBoxUsual: data.checkBoxUsual,
       checkBoxUnusual: data.checkBoxUnusual,
       plant: data.plant,
+      Search: data.Search,
     },
   });
 
@@ -32,6 +33,7 @@ const buildSearchParams = (searchData: SearchData) => ({
   dayHisDate: searchData.dayHisDate,
   checkBoxUsual: searchData.checkBoxUsual,
   checkBoxUnusual: searchData.checkBoxUnusual,
+  plant: searchData.plant,
 });
 
 const ApprovedReportLogEditService = (editingId: number, data: EditAccept) =>

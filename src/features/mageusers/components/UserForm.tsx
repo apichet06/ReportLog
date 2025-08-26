@@ -4,24 +4,21 @@ import type {
   BuPlant,
   UsersPermission,
 } from "../types/UsersPermission";
-import {
-  Button,
-  TextField,
-  Box,
-  Grid,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  FormControlLabel,
-  Checkbox,
-  DialogActions,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  FormHelperText,
-} from "@mui/material";
-
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import DialogActions from '@mui/material/DialogActions';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import FormHelperText from '@mui/material/FormHelperText';
 interface Props {
   defaultValues?: UsersPermission;
   onSubmit: (data: UsersPermission) => void;
@@ -170,6 +167,7 @@ export default function UserForm({
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
+                  label="Status"
                   defaultValue={defaultValues?.status || ""}
                   {...register("status", { required: "Please select status" })}
                 >

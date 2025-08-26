@@ -4,14 +4,16 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { authService } from "../auth/services/authService";
+import { sendPost } from '@/shared/utils/logout';
 
 export default function ErrorPermissionPage() {
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const heldleClick = () => {
         authService.logout();
-        navigate('/login');
+        sendPost();
+        // navigate('/login');
     }
     return (
         <>
@@ -23,7 +25,7 @@ export default function ErrorPermissionPage() {
                             Not eligible for the privilege
                         </Typography>
                         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                            Please contact it to request access rights.
+                            Please contact Admin to request access rights.
                         </Typography>
                     </CardContent>
                     <CardActions>

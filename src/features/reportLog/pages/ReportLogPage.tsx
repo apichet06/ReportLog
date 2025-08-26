@@ -34,13 +34,18 @@ import { useMediaQuery } from "@mui/system";
 import type { Dayjs } from "dayjs";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import { resultData } from "@/shared/utils/useToken";
-import GetUserlogin from "@/shared/utils/serviceUser";
+// import GetUserlogin from "@/shared/utils/serviceUser";
 import type { User } from "@/layouts/userType";
 
+import sharedUsers from "@/shared/hooks/sharedUsers";
+
 export default function ReportLogPage() {
-  const [sessionUser, setSessonUser] = useState<User>({} as User);
-  // const { id, tap } = useParams<{ id: string, tap: string }>();
+
+  const userDataString = localStorage.getItem("user");
+  const resultData: User | null = userDataString
+    ? JSON.parse(userDataString)
+    : null;
+  const { sessionUser } = sharedUsers(resultData?.emp_no as string)
 
   const appIds = useMemo(() => {
     return sessionUser?.app_Id
@@ -98,16 +103,6 @@ export default function ReportLogPage() {
     setValueRedio((event.target as HTMLInputElement).value);
   };
 
-  const fetchUserData = useCallback(async () => {
-    const emp_no = resultData?.emp_no;
-    try {
-      const user = await GetUserlogin(emp_no as string);
-
-      if (user.status == 200) setSessonUser(user.data.result[0]);
-    } catch (error) {
-      console.error("Failed to fetch user data:", error);
-    }
-  }, []);
 
   const countAllDuc = {
     ducYesterdayCount: 0,
@@ -338,14 +333,14 @@ export default function ReportLogPage() {
   ]);
 
   useEffect(() => {
-    fetchUserData();
+    // fetchUserData();
     dataCount();
     fetchData("DUC", dayHisDateduc, SetDataDUC);
     fetchData("DCC", dayHisDatedcc, SetDataDCC);
-  }, [dataCount, dayHisDatedcc, dayHisDateduc, fetchData, fetchUserData]);
+  }, [dataCount, dayHisDatedcc, dayHisDateduc, fetchData,]);
 
   const hendleSubmit = async () => {
-    const email = resultData?.emp_email ?? "";
+    const email = sessionUser?.emp_email ?? "";
 
     try {
       Swal.fire({
@@ -564,8 +559,7 @@ export default function ReportLogPage() {
                               onClick={handleClickOpen}
                               startIcon={<SaveIcon />}
                             >
-                              {" "}
-                              Audit
+                              Save
                             </Button>
                           )}
 
@@ -724,8 +718,7 @@ export default function ReportLogPage() {
                               onClick={handleClickOpen}
                               startIcon={<SaveIcon />}
                             >
-                              {" "}
-                              Audit
+                              Save
                             </Button>
                           )}
 

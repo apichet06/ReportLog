@@ -17,11 +17,19 @@ import Swal from "sweetalert2";
 import datetime from "@/shared/utils/handleDatetime";
 import type { ReportLog } from '../types/reportlog';
 import reportLogService from '../service/reportlogService';
-import { resultData } from '@/shared/utils/useToken';
-import GetUserlogin from '@/shared/utils/serviceUser';
+
 import type { User } from '@/layouts/userType';
+import sharedUsers from '@/shared/hooks/sharedUsers';
 
 export default function ReportLogByIdPage() {
+
+
+    const userDataString = localStorage.getItem("user");
+    const resultData: User | null = userDataString
+        ? JSON.parse(userDataString)
+        : null;
+    const { sessionUser } = sharedUsers(resultData?.emp_no as string)
+
 
     const { id, tap } = useParams<{ id: string, tap: string }>();
     const [editingId, setEditingId] = useState<number | null>(null);
@@ -29,7 +37,7 @@ export default function ReportLogByIdPage() {
     // const navigatoin = useNavigate();
     const [open, setOpen] = useState(false);
     const [conment, setComment] = useState<string>("");
-    const [sessionUser, setSessonUser] = useState<User>({} as User);
+
     const [valueRedio, setValueRedio] = useState('Usual Event');
     const handleChangeRedio = (event: ChangeEvent<HTMLInputElement>) => {
         setValueRedio((event.target as HTMLInputElement).value);
@@ -65,7 +73,7 @@ export default function ReportLogByIdPage() {
             return;
         }
 
-        const email = resultData?.emp_email ?? "";
+        const email = sessionUser?.emp_email ?? "";
         try {
             Swal.fire({
                 title: `Are you sure?`,
@@ -101,25 +109,12 @@ export default function ReportLogByIdPage() {
         }
     };
 
-    const fetchUserData = useCallback(async () => {
-        const emp_no = resultData?.emp_no;
-        try {
-
-            const user = await GetUserlogin(emp_no as string)
-
-            if (user.status == 200)
-                setSessonUser(user.data.result[0]);
-        } catch (error) {
-            console.error('Failed to fetch user data:', error);
-        }
-    }, []);
 
 
 
     useEffect(() => {
         LoadingData();
-        fetchUserData()
-    }, [LoadingData, fetchUserData]);
+    }, [LoadingData,]);
 
     const color = data?.admin_confirm_event === "Usual Event" ? "green" : "red";
     const colorevent = data?.event_type === "Usual Event" ? "green" : "red";

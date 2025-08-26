@@ -31,14 +31,21 @@ import {
 import type { Dayjs } from "dayjs";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import { resultData } from "@/shared/utils/useToken";
-import GetUserlogin from "@/shared/utils/serviceUser";
+
 import type { User } from "@/layouts/userType";
+import sharedUsers from "@/shared/hooks/sharedUsers";
 export default function Saved_Reports() {
-  const [sessionUser, setSessonUser] = useState<User>({} as User);
+
+  const userDataString = localStorage.getItem("user");
+  const resultData: User | null = userDataString
+    ? JSON.parse(userDataString)
+    : null;
+  const { sessionUser } = sharedUsers(resultData?.emp_no as string)
+
+
   const [tapData, setTapData] = useState("DUC");
 
-  const [loadingDataGrid, setLoadnigDataGrid] = useState(false);
+  const [loadingDataGrid, setLoadigDataGrid] = useState(false);
 
   const [dataDuc, SetDataDUC] = useState<ReportSaveLog[]>([]);
   const [dataDcc, SetDataDCC] = useState<ReportSaveLog[]>([]);
@@ -92,9 +99,9 @@ export default function Saved_Reports() {
   const appIds = useMemo(() => {
     return sessionUser?.app_Id
       ? sessionUser.app_Id
-          .split(",")
-          .map((id) => id.trim())
-          .sort((a, b) => Number(a) - Number(b))
+        .split(",")
+        .map((id) => id.trim())
+        .sort((a, b) => Number(a) - Number(b))
       : [];
   }, [sessionUser?.app_Id]);
 
@@ -222,6 +229,7 @@ export default function Saved_Reports() {
             checkBoxUsual: checkBoxducUsual,
             checkBoxUnusual: checkBoxducUnusual,
             plant,
+            Search: textSearch,
           }),
           getLogCount({
             tapData: "DUC",
@@ -229,12 +237,14 @@ export default function Saved_Reports() {
             checkBoxUsual: checkBoxducUsual,
             checkBoxUnusual: checkBoxducUnusual,
             plant,
+            Search: textSearch,
           }),
           getLogCount({
             tapData: "DUC",
             checkBoxUsual: checkBoxducUsual,
             checkBoxUnusual: checkBoxducUnusual,
             plant,
+            Search: textSearch,
           }),
         ]);
 
@@ -248,6 +258,7 @@ export default function Saved_Reports() {
             checkBoxUsual: checkBoxdccUsual,
             checkBoxUnusual: checkBoxdccUnusual,
             plant,
+            Search: textSearch,
           }),
           getLogCount({
             tapData: "DCC",
@@ -255,12 +266,14 @@ export default function Saved_Reports() {
             checkBoxUsual: checkBoxdccUsual,
             checkBoxUnusual: checkBoxdccUnusual,
             plant,
+            Search: textSearch,
           }),
           getLogCount({
             tapData: "DCC",
             checkBoxUsual: checkBoxdccUsual,
             checkBoxUnusual: checkBoxdccUnusual,
             plant,
+            Search: textSearch,
           }),
         ]);
 
@@ -274,7 +287,7 @@ export default function Saved_Reports() {
     checkBoxducUsual,
     checkBoxducUnusual,
     checkBoxdccUsual,
-    checkBoxdccUnusual,
+    checkBoxdccUnusual
   ]);
 
   const fetchData = useCallback(
@@ -284,8 +297,10 @@ export default function Saved_Reports() {
       setData: (data: ReportSaveLog[]) => void
     ) => {
       try {
-        setLoadnigDataGrid(true);
-        const plant = resultData?.plant;
+        setLoadigDataGrid(true);
+        const plant = sessionUser?.plant;
+        console.log(tapData);
+
         const { startDate, endDate } = datetime.buildDateParams(dayHistory);
         const checkBoxUsual =
           tapData === "DUC" ? checkBoxducUsual : checkBoxdccUsual;
@@ -314,26 +329,28 @@ export default function Saved_Reports() {
       } catch (err) {
         console.log(err);
       } finally {
-        setLoadnigDataGrid(false);
+        setLoadigDataGrid(false);
       }
     },
-    [checkBoxducUsual, checkBoxdccUsual, checkBoxducUnusual, checkBoxdccUnusual]
+    [checkBoxducUsual, checkBoxdccUsual, checkBoxducUnusual, checkBoxdccUnusual, sessionUser?.plant]
   );
 
   const handleSearch = useCallback(
     async (dayHistory: number, setData: (data: ReportSaveLog[]) => void) => {
       try {
-        setLoadnigDataGrid(true);
-        const plant = resultData?.plant ?? "";
-        const checkBoxUsual =
-          tapData === "DUC" ? checkBoxducUsual : checkBoxdccUsual;
-        const checkBoxUnusual =
-          tapData === "DUC" ? checkBoxducUnusual : checkBoxdccUnusual;
+
+        setLoadigDataGrid(true);
+        const plant = sessionUser.plant;
         const { startDate, endDate } = datetime.buildDateParamsSearch(
           dayHistory,
           dateStart,
           dateEnd
         );
+        const checkBoxUsual =
+          tapData === "DUC" ? checkBoxducUsual : checkBoxdccUsual;
+        const checkBoxUnusual =
+          tapData === "DUC" ? checkBoxducUnusual : checkBoxdccUnusual;
+
         const res = await reportSaveLog.SearchSaveReportLogService({
           Search: textSearch,
           tapData,
@@ -341,7 +358,7 @@ export default function Saved_Reports() {
           endDate,
           checkBoxUsual,
           checkBoxUnusual,
-          plant,
+          plant
         });
 
         const newData = res.data.result.map(
@@ -355,38 +372,30 @@ export default function Saved_Reports() {
       } catch (err) {
         console.log(err);
       } finally {
-        setLoadnigDataGrid(false);
+
+        setLoadigDataGrid(false);
       }
     },
     [
+      sessionUser.plant,
+      dateStart,
+      dateEnd,
       tapData,
       checkBoxducUsual,
       checkBoxdccUsual,
       checkBoxducUnusual,
       checkBoxdccUnusual,
-      dateStart,
-      dateEnd,
       textSearch,
     ]
   );
 
-  const fetchUserData = useCallback(async () => {
-    const emp_no = resultData?.emp_no;
-    try {
-      const user = await GetUserlogin(emp_no as string);
 
-      if (user.status == 200) setSessonUser(user.data.result[0]);
-    } catch (error) {
-      console.error("Failed to fetch user data:", error);
-    }
-  }, []);
 
   useEffect(() => {
     fetchData("DUC", dayHisDateduc, SetDataDUC);
     fetchData("DCC", dayHisDatedcc, SetDataDCC);
-    fetchUserData();
     dataCount();
-  }, [dataCount, fetchData, dayHisDateduc, dayHisDatedcc, fetchUserData]);
+  }, [dataCount, fetchData, dayHisDateduc, dayHisDatedcc]);
 
   const handleClose = () => {
     setOpen(false);
@@ -402,13 +411,12 @@ export default function Saved_Reports() {
       return;
     }
 
-    const email = resultData?.emp_email ?? "";
+    const email = sessionUser?.emp_email ?? "";
     try {
       Swal.fire({
         title: `Are you sure?`,
-        html: `<b>Action:</b> ${valueRedio}<br/><b>Comment:</b> ${
-          conment || "<i>No comment</i>"
-        }`,
+        html: `<b>Action:</b> ${valueRedio}<br/><b>Comment:</b> ${conment || "<i>No comment</i>"
+          }`,
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
@@ -515,7 +523,7 @@ export default function Saved_Reports() {
                         <Tab
                           label={`DUC Log (${countsDucAll.ducAllCount})`}
                           value="1"
-                          onClick={() => setTapData("DUC")}
+                          onClick={() => { setTapData("DUC"), handleClear() }}
                         />
                       )}
 
@@ -523,7 +531,7 @@ export default function Saved_Reports() {
                         <Tab
                           label={`DCC Log (${countsDccAll.dccAllCount})`}
                           value="2"
-                          onClick={() => setTapData("DCC")}
+                          onClick={() => { setTapData("DCC"), handleClear() }}
                         />
                       )}
                     </TabList>
@@ -637,8 +645,8 @@ export default function Saved_Reports() {
                           disableColumnFilter
                           getRowClassName={(params) =>
                             params.row.unauthorized === "Y" ||
-                            params.row.download_more_10_files_day === "Y" ||
-                            params.row.employee_resigning_within_one_month ===
+                              params.row.download_more_10_files_day === "Y" ||
+                              params.row.employee_resigning_within_one_month ===
                               "Y"
                               ? "row--highlight"
                               : ""
@@ -780,8 +788,8 @@ export default function Saved_Reports() {
                           }}
                           getRowClassName={(params) =>
                             params.row.unauthorized === "Y" ||
-                            params.row.download_more_10_files_day === "Y" ||
-                            params.row.employee_resigning_within_one_month ===
+                              params.row.download_more_10_files_day === "Y" ||
+                              params.row.employee_resigning_within_one_month ===
                               "Y"
                               ? "row--highlight"
                               : ""
