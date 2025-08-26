@@ -43,7 +43,9 @@ export default function Saved_Reports() {
   const { sessionUser } = sharedUsers(resultData?.emp_no as string)
 
 
-  const [tapData, setTapData] = useState("DUC");
+
+
+
 
   const [loadingDataGrid, setLoadigDataGrid] = useState(false);
 
@@ -95,6 +97,7 @@ export default function Saved_Reports() {
     fetchData("DCC", dayHisDatedcc, SetDataDCC);
     setDateStart(null);
     setDateEnd(null);
+    dataCount("")
   };
   const appIds = useMemo(() => {
     return sessionUser?.app_Id
@@ -139,63 +142,9 @@ export default function Saved_Reports() {
     [dataDuc, dataDcc, value]
   );
 
-  // เพิ่ม dependencies เพื่อให้ function อัปเดตเมื่อข้อมูลเปลี่ยน
 
-  // const dataCount = useCallback(async () => {
-  //   // Helper function สำหรับสร้างวันที่เป็น string เพื่อลดการเขียนโค้ดซ้ำ
-  //   const createDateStr = (daysToSubtract: number): string => {
-  //     const targetDate = new Date();
-  //     targetDate.setDate(targetDate.getDate() - daysToSubtract);
-  //     return datetime.DateSearch(targetDate);
-  //   };
 
-  //   const yesterdayStr = createDateStr(1);
-  //   const twoDaysAgoStr = createDateStr(2);
-
-  //   // พารามิเตอร์ร่วมที่ใช้ในการเรียก API ทุกครั้ง
-  //   const commonParams = {
-  //     checkBoxUsual,
-  //     checkBoxUnusual,
-  //   };
-
-  //   // Helper function สำหรับเรียก API และคืนค่าจำนวนผลลัพธ์ พร้อมจัดการ error
-  //   const getLogCount = async (params: object): Promise<number> => {
-  //     try {
-  //       const response = await reportSaveLog.GetSaveReportLogService(params);
-  //       return response.data.result.length;
-  //     } catch (error) {
-  //       console.error(`Failed to fetch logs for params: ${JSON.stringify(params)}`, error);
-  //       return 0; // คืนค่า 0 เพื่อป้องกันแอปพังเมื่อ API error
-  //     }
-  //   };
-
-  //   try {
-  //     // เรียก API ทั้งหมดพร้อมกัน (parallel) เพื่อประสิทธิภาพที่ดีกว่า
-  //     const [ducYesterdayCount, dccYesterdayCount, ducTwoDaysAgoCount, dccTwoDaysAgoCount, dccAllCount, ducAllCount,
-  //     ] = await Promise.all([
-
-  //       getLogCount({ tapData: "DUC", startDate: yesterdayStr, endDate: yesterdayStr, ...commonParams }),
-  //       getLogCount({ tapData: "DCC", startDate: yesterdayStr, endDate: yesterdayStr, ...commonParams }),
-  //       getLogCount({ tapData: "DUC", endDate: twoDaysAgoStr, ...commonParams }),
-  //       getLogCount({ tapData: "DCC", endDate: twoDaysAgoStr, ...commonParams }),
-  //       getLogCount({ tapData: "DCC", ...commonParams }),
-  //       getLogCount({ tapData: "DUC", ...commonParams }),
-  //     ]);
-
-  //     setCountDucAll({
-  //       ducYesterdayCount, ducTwoDaysAgoCount, dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount, ducAllCount,
-  //     });
-  //     setCountDccAll({
-  //       ducYesterdayCount, ducTwoDaysAgoCount, dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount, ducAllCount,
-  //     });
-
-  //   } catch (error) {
-  //     // ดักจับ error ที่อาจเกิดจาก Promise.all
-  //     console.error("An error occurred while fetching report counts in parallel:", error);
-  //   }
-  // }, [checkBoxUnusual, checkBoxUsual]);
-
-  const dataCount = useCallback(async () => {
+  const dataCount = useCallback(async (searchText?: string) => {
     const createDateStr = (daysToSubtract: number): string => {
       const targetDate = new Date();
       targetDate.setDate(targetDate.getDate() - daysToSubtract);
@@ -205,90 +154,81 @@ export default function Saved_Reports() {
     const yesterdayStr = createDateStr(1);
     const twoDaysAgoStr = createDateStr(2);
     const plant = sessionUser.plant;
+
     const getLogCount = async (params: object): Promise<number> => {
       try {
-        const response = await reportSaveLog.GetSaveReportLogService(params);
+        const response = await reportSaveLog.SearchSaveReportLogService(params);
         return response.data.result.length;
       } catch (error) {
-        console.error(
-          `Failed to fetch logs for params: ${JSON.stringify(params)}`,
-          error
-        );
+        console.error(`Failed to fetch logs for params: ${JSON.stringify(params)}`, error);
         return 0;
       }
     };
 
     try {
-      // DUC ใช้ checkBoxducUsual, checkBoxducUnusual
-      const [ducYesterdayCount, ducTwoDaysAgoCount, ducAllCount] =
-        await Promise.all([
-          getLogCount({
-            tapData: "DUC",
-            startDate: yesterdayStr,
-            endDate: yesterdayStr,
-            checkBoxUsual: checkBoxducUsual,
-            checkBoxUnusual: checkBoxducUnusual,
-            plant,
-            Search: textSearch,
-          }),
-          getLogCount({
-            tapData: "DUC",
-            endDate: twoDaysAgoStr,
-            checkBoxUsual: checkBoxducUsual,
-            checkBoxUnusual: checkBoxducUnusual,
-            plant,
-            Search: textSearch,
-          }),
-          getLogCount({
-            tapData: "DUC",
-            checkBoxUsual: checkBoxducUsual,
-            checkBoxUnusual: checkBoxducUnusual,
-            plant,
-            Search: textSearch,
-          }),
-        ]);
+      // DUC
+      const [ducYesterdayCount, ducTwoDaysAgoCount, ducAllCount] = await Promise.all([
+        getLogCount({
+          Search: searchText,   // ✅ ใช้ค่าตอนกดค้นหา
+          tapData: "DUC",
+          startDate: yesterdayStr,
+          endDate: yesterdayStr,
+          checkBoxUsual: checkBoxducUsual,
+          checkBoxUnusual: checkBoxducUnusual,
+          plant,
+        }),
+        getLogCount({
+          Search: searchText,
+          tapData: "DUC",
+          endDate: twoDaysAgoStr,
+          checkBoxUsual: checkBoxducUsual,
+          checkBoxUnusual: checkBoxducUnusual,
+          plant,
+        }),
+        getLogCount({
+          Search: searchText,
+          tapData: "DUC",
+          checkBoxUsual: checkBoxducUsual,
+          checkBoxUnusual: checkBoxducUnusual,
+          plant,
+        }),
+      ]);
 
-      // DCC ใช้ checkBoxdccUsual, checkBoxdccUnusual
-      const [dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount] =
-        await Promise.all([
-          getLogCount({
-            tapData: "DCC",
-            startDate: yesterdayStr,
-            endDate: yesterdayStr,
-            checkBoxUsual: checkBoxdccUsual,
-            checkBoxUnusual: checkBoxdccUnusual,
-            plant,
-            Search: textSearch,
-          }),
-          getLogCount({
-            tapData: "DCC",
-            endDate: twoDaysAgoStr,
-            checkBoxUsual: checkBoxdccUsual,
-            checkBoxUnusual: checkBoxdccUnusual,
-            plant,
-            Search: textSearch,
-          }),
-          getLogCount({
-            tapData: "DCC",
-            checkBoxUsual: checkBoxdccUsual,
-            checkBoxUnusual: checkBoxdccUnusual,
-            plant,
-            Search: textSearch,
-          }),
-        ]);
+      // DCC
+      const [dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount] = await Promise.all([
+        getLogCount({
+          Search: searchText,
+          tapData: "DCC",
+          startDate: yesterdayStr,
+          endDate: yesterdayStr,
+          checkBoxUsual: checkBoxdccUsual,
+          checkBoxUnusual: checkBoxdccUnusual,
+          plant,
+        }),
+        getLogCount({
+          Search: searchText,
+          tapData: "DCC",
+          endDate: twoDaysAgoStr,
+          checkBoxUsual: checkBoxdccUsual,
+          checkBoxUnusual: checkBoxdccUnusual,
+          plant,
+        }),
+        getLogCount({
+          Search: searchText,
+          tapData: "DCC",
+          checkBoxUsual: checkBoxdccUsual,
+          checkBoxUnusual: checkBoxdccUnusual,
+          plant,
+        }),
+      ]);
 
       setCountDucAll({ ducYesterdayCount, ducTwoDaysAgoCount, ducAllCount });
       setCountDccAll({ dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount });
     } catch (error) {
       console.error("An error occurred while fetching report counts:", error);
     }
-  }, [
-    sessionUser.plant,
-    checkBoxducUsual,
-    checkBoxducUnusual,
-    checkBoxdccUsual,
-    checkBoxdccUnusual
-  ]);
+  }, [sessionUser.plant, checkBoxducUsual, checkBoxducUnusual, checkBoxdccUsual, checkBoxdccUnusual]);
+
 
   const fetchData = useCallback(
     async (
@@ -299,7 +239,7 @@ export default function Saved_Reports() {
       try {
         setLoadigDataGrid(true);
         const plant = sessionUser?.plant;
-        console.log(tapData);
+
 
         const { startDate, endDate } = datetime.buildDateParams(dayHistory);
         const checkBoxUsual =
@@ -336,7 +276,7 @@ export default function Saved_Reports() {
   );
 
   const handleSearch = useCallback(
-    async (dayHistory: number, setData: (data: ReportSaveLog[]) => void) => {
+    async (tapData: "DUC" | "DCC", dayHistory: number, setData: (data: ReportSaveLog[]) => void) => {
       try {
 
         setLoadigDataGrid(true);
@@ -376,17 +316,7 @@ export default function Saved_Reports() {
         setLoadigDataGrid(false);
       }
     },
-    [
-      sessionUser.plant,
-      dateStart,
-      dateEnd,
-      tapData,
-      checkBoxducUsual,
-      checkBoxdccUsual,
-      checkBoxducUnusual,
-      checkBoxdccUnusual,
-      textSearch,
-    ]
+    [sessionUser.plant, dateStart, dateEnd, checkBoxducUsual, checkBoxdccUsual, checkBoxducUnusual, checkBoxdccUnusual, textSearch]
   );
 
 
@@ -402,6 +332,7 @@ export default function Saved_Reports() {
     setEditingId(null);
     setComment("");
     setValueRedio("Usual Event");
+
   };
 
   const handleDialogSubmit = async () => {
@@ -467,8 +398,9 @@ export default function Saved_Reports() {
   );
   const isAbove1537 = useMediaQuery("(min-width:1537px)");
   const handleSearchAll = async () => {
-    await handleSearch(Number(dayHisDateduc), SetDataDUC);
-    await handleSearch(Number(dayHisDatedcc), SetDataDCC);
+    await handleSearch("DUC", Number(dayHisDateduc), SetDataDUC);
+    await handleSearch("DCC", Number(dayHisDatedcc), SetDataDCC);;
+    await dataCount(textSearch);
   };
 
   return (
@@ -523,7 +455,7 @@ export default function Saved_Reports() {
                         <Tab
                           label={`DUC Log (${countsDucAll.ducAllCount})`}
                           value="1"
-                          onClick={() => { setTapData("DUC"), handleClear() }}
+
                         />
                       )}
 
@@ -531,7 +463,7 @@ export default function Saved_Reports() {
                         <Tab
                           label={`DCC Log (${countsDccAll.dccAllCount})`}
                           value="2"
-                          onClick={() => { setTapData("DCC"), handleClear() }}
+
                         />
                       )}
                     </TabList>

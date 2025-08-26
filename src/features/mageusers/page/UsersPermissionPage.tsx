@@ -92,7 +92,7 @@ export default function UsersPermissionPage() {
   const isBetween1201And1536 = useMediaQuery("(min-width:1201px) and (max-width:1536px)");
   const isAbove1537 = useMediaQuery("(min-width:1537px)");
   return (
-    <div>
+    <>
       <h2>Users Permission</h2>
       <>
         <Container
@@ -143,6 +143,7 @@ export default function UsersPermissionPage() {
         maxWidth="md"
         fullWidth
         onClose={() => setOpen(false)}
+        container={document.body}
       >
         <div style={{ padding: 20 }}>
           <UserForm
@@ -153,6 +154,6 @@ export default function UsersPermissionPage() {
           />
         </div>
       </Dialog>
-    </div>
+    </>
   );
 }

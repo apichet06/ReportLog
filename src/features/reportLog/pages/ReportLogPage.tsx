@@ -128,6 +128,9 @@ export default function ReportLogPage() {
     SetTextSearch("");
     fetchData("DUC", dayHisDateduc, SetDataDUC);
     fetchData("DCC", dayHisDatedcc, SetDataDCC);
+    setDateStart(null);
+    setDateEnd(null);
+    dataCount("")
   };
 
   const handleClickOpen = () => {
@@ -190,7 +193,7 @@ export default function ReportLogPage() {
     ]
   );
   const handleSearch = useCallback(
-    async (dayHistory: number, setData: (data: ReportLog[]) => void) => {
+    async (tapData: "DUC" | "DCC", dayHistory: number, setData: (data: ReportLog[]) => void) => {
       try {
         const plant = sessionUser.plant;
         setLoadingDataGrid(true);
@@ -229,20 +232,10 @@ export default function ReportLogPage() {
         setLoadingDataGrid(false);
       }
     },
-    [
-      sessionUser.plant,
-      dateStart,
-      dateEnd,
-      tapData,
-      checkBoxducUsual,
-      checkBoxdccUsual,
-      checkBoxducUnusual,
-      checkBoxdccUnusual,
-      textSearch,
-    ]
+    [sessionUser.plant, dateStart, dateEnd, checkBoxducUsual, checkBoxdccUsual, checkBoxducUnusual, checkBoxdccUnusual, textSearch]
   );
 
-  const dataCount = useCallback(async () => {
+  const dataCount = useCallback(async (searchText?: string) => {
     const createDateStr = (daysToSubtract: number): string => {
       const targetDate = new Date();
       targetDate.setDate(targetDate.getDate() - daysToSubtract);
@@ -252,85 +245,81 @@ export default function ReportLogPage() {
     const yesterdayStr = createDateStr(1);
     const twoDaysAgoStr = createDateStr(2);
     const plant = sessionUser.plant;
+
     const getLogCount = async (params: object): Promise<number> => {
       try {
-        const response = await reportLogService.GetReportLogService(params);
-
+        const response = await reportLogService.SearchReportLogService(params);
         return response.data.result.length;
       } catch (error) {
-        console.error(
-          `Failed to fetch logs for params: ${JSON.stringify(params)}`,
-          error
-        );
+        console.error(`Failed to fetch logs for params: ${JSON.stringify(params)}`, error);
         return 0;
       }
     };
 
     try {
-      // DUC ใช้ checkBoxducUsual, checkBoxducUnusual
-      const [ducYesterdayCount, ducTwoDaysAgoCount, ducAllCount] =
-        await Promise.all([
-          getLogCount({
-            tapData: "DUC",
-            startDate: yesterdayStr,
-            endDate: yesterdayStr,
-            checkBoxUsual: checkBoxducUsual,
-            checkBoxUnusual: checkBoxducUnusual,
-            plant,
-          }),
-          getLogCount({
-            tapData: "DUC",
-            endDate: twoDaysAgoStr,
-            checkBoxUsual: checkBoxducUsual,
-            checkBoxUnusual: checkBoxducUnusual,
-            plant,
-          }),
-          getLogCount({
-            tapData: "DUC",
-            checkBoxUsual: checkBoxducUsual,
-            checkBoxUnusual: checkBoxducUnusual,
-            plant,
-          }),
-        ]);
+      // DUC
+      const [ducYesterdayCount, ducTwoDaysAgoCount, ducAllCount] = await Promise.all([
+        getLogCount({
+          Search: searchText,   // ✅ ใช้ค่าตอนกดค้นหา
+          tapData: "DUC",
+          startDate: yesterdayStr,
+          endDate: yesterdayStr,
+          checkBoxUsual: checkBoxducUsual,
+          checkBoxUnusual: checkBoxducUnusual,
+          plant,
+        }),
+        getLogCount({
+          Search: searchText,
+          tapData: "DUC",
+          endDate: twoDaysAgoStr,
+          checkBoxUsual: checkBoxducUsual,
+          checkBoxUnusual: checkBoxducUnusual,
+          plant,
+        }),
+        getLogCount({
+          Search: searchText,
+          tapData: "DUC",
+          checkBoxUsual: checkBoxducUsual,
+          checkBoxUnusual: checkBoxducUnusual,
+          plant,
+        }),
+      ]);
 
-      // DCC ใช้ checkBoxdccUsual, checkBoxdccUnusual
-      const [dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount] =
-        await Promise.all([
-          getLogCount({
-            tapData: "DCC",
-            startDate: yesterdayStr,
-            endDate: yesterdayStr,
-            checkBoxUsual: checkBoxdccUsual,
-            checkBoxUnusual: checkBoxdccUnusual,
-            plant,
-          }),
-          getLogCount({
-            tapData: "DCC",
-            endDate: twoDaysAgoStr,
-            checkBoxUsual: checkBoxdccUsual,
-            checkBoxUnusual: checkBoxdccUnusual,
-            plant,
-          }),
-          getLogCount({
-            tapData: "DCC",
-            checkBoxUsual: checkBoxdccUsual,
-            checkBoxUnusual: checkBoxdccUnusual,
-            plant,
-          }),
-        ]);
+      // DCC
+      const [dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount] = await Promise.all([
+        getLogCount({
+          Search: searchText,
+          tapData: "DCC",
+          startDate: yesterdayStr,
+          endDate: yesterdayStr,
+          checkBoxUsual: checkBoxdccUsual,
+          checkBoxUnusual: checkBoxdccUnusual,
+          plant,
+        }),
+        getLogCount({
+          Search: searchText,
+          tapData: "DCC",
+          endDate: twoDaysAgoStr,
+          checkBoxUsual: checkBoxdccUsual,
+          checkBoxUnusual: checkBoxdccUnusual,
+          plant,
+        }),
+        getLogCount({
+          Search: searchText,
+          tapData: "DCC",
+          checkBoxUsual: checkBoxdccUsual,
+          checkBoxUnusual: checkBoxdccUnusual,
+          plant,
+        }),
+      ]);
 
       setCountDucAll({ ducYesterdayCount, ducTwoDaysAgoCount, ducAllCount });
       setCountDccAll({ dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount });
     } catch (error) {
       console.error("An error occurred while fetching report counts:", error);
     }
-  }, [
-    sessionUser.plant,
-    checkBoxducUsual,
-    checkBoxducUnusual,
-    checkBoxdccUsual,
-    checkBoxdccUnusual,
-  ]);
+  }, [sessionUser.plant, checkBoxducUsual, checkBoxducUnusual, checkBoxdccUsual, checkBoxdccUnusual]);
+
 
   useEffect(() => {
     // fetchUserData();
@@ -387,10 +376,14 @@ export default function ReportLogPage() {
   );
   const isAbove1537 = useMediaQuery("(min-width:1537px)");
 
+
+
   const handleSearchAll = async () => {
-    await handleSearch(Number(dayHisDateduc), SetDataDUC);
-    await handleSearch(Number(dayHisDatedcc), SetDataDCC);
+    await handleSearch("DUC", Number(dayHisDateduc), SetDataDUC);
+    await handleSearch("DCC", Number(dayHisDatedcc), SetDataDCC);;
+    await dataCount(textSearch);
   };
+
 
   const dccColumns = useMemo(
     () => getColumnsDCC(sessionUser.is_review),
