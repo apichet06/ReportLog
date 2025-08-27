@@ -1,8 +1,8 @@
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import SearchIcon from "@mui/icons-material/Search";
-import CancelPresentation from "@mui/icons-material/CancelPresentation";
+// import Button from '@mui/material/Button';
+// import SearchIcon from "@mui/icons-material/Search";
+// import CancelPresentation from "@mui/icons-material/CancelPresentation";
 
 
 
@@ -13,8 +13,8 @@ import type { Dayjs } from 'dayjs';
 interface Props {
     textSearch: string;
     onSearchChange: (value: string) => void;
-    onSearchClick: () => void;
-    onClearClick: () => void;
+    // onSearchClick: () => void;
+    // onClearClick: () => void;
 
     // setDateStart: React.Dispatch<React.SetStateAction<Dayjs | null>>;
     // setDatetEnd: React.Dispatch<React.SetStateAction<Dayjs | null>>;
@@ -25,8 +25,8 @@ interface Props {
 export default function ReportLogToolbar({
     textSearch,
     onSearchChange,
-    onSearchClick,
-    onClearClick,
+    // onSearchClick,
+    // onClearClick,
     // setDateStart,
     // setDatetEnd,
     // dateStart,
@@ -34,7 +34,7 @@ export default function ReportLogToolbar({
 }: Props) {
     return (
         <Grid container spacing={2} alignItems="center" mb={3}>
-            <Grid size={{ xs: 12, sm: 12, md: 9, lg: 10, xl: 10 }}>
+            <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}>
                 <TextField
                     label="Search..."
                     type="search"
@@ -46,16 +46,12 @@ export default function ReportLogToolbar({
             </Grid>
 
 
-            <Grid size={{ xs: 12, sm: 12, md: 1.5, lg: 1, xl: 1 }}>
+            {/* <Grid size={{ xs: 12, sm: 12, md: 1.5, lg: 1, xl: 1 }}>
                 <Button fullWidth variant="contained" onClick={onSearchClick} title="Search" aria-label="search">
                     <SearchIcon />
                 </Button>
-            </Grid>
-            <Grid size={{ xs: 12, sm: 12, md: 1.5, lg: 1, xl: 1 }}>
-                <Button fullWidth variant="contained" color="error" onClick={onClearClick} title="Clear search" aria-label="clear search">
-                    <CancelPresentation />
-                </Button>
-            </Grid>
+            </Grid> */}
+
         </Grid>
     );
 }

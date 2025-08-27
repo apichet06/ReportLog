@@ -12,6 +12,7 @@ import UpdateOnEmailPage from "@/features/save-onemail/page/SaveOnemailpage";
 import UsersPermissionPage from "@/features/mageusers/page/UsersPermissionPage";
 import type { User } from "@/layouts/userType";
 import sharedUsers from "@/shared/hooks/sharedUsers";
+import DataGridCheckboxSelection from "@/features/reportLog/pages/testdatagridPage";
 
 const AppRouter = () => {
   const userDataString = localStorage.getItem("user");
@@ -28,6 +29,7 @@ const AppRouter = () => {
       <Route element={<MainLayout />}>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/reportlog" element={<ReportLogPage />} />
+        <Route path="/report-testdatagrid" element={<DataGridCheckboxSelection />} />
         <Route path="/report-log" element={<ReportLogPages />} />
         <Route path="/report-log/:id?/:tap?" element={<ReportLogByIdPage />} />
         <Route path="/reportlog/:id?/:tap?" element={<ReportLogByIdPages />} />

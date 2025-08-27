@@ -1,5 +1,5 @@
 import { DataGridPremium } from "@mui/x-data-grid-premium";
-
+import CancelPresentation from "@mui/icons-material/CancelPresentation";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
@@ -37,7 +37,7 @@ import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 // import GetUserlogin from "@/shared/utils/serviceUser";
 import type { User } from "@/layouts/userType";
-
+import SearchIcon from '@mui/icons-material/Search';
 import sharedUsers from "@/shared/hooks/sharedUsers";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -85,10 +85,7 @@ export default function ReportLogPage() {
   const [tapData, setTapData] = useState("DUC");
 
   const [loadingDataGrid, setLoadingDataGrid] = useState(false);
-  // const [loadingExport, setLoadingExport] = useState(false)
 
-  const [dataDuc, SetDataDUC] = useState<ReportLog[]>([]);
-  const [dataDcc, SetDataDCC] = useState<ReportLog[]>([]);
   const [textSearch, SetTextSearch] = useState<string>("");
 
   const [conment, setComment] = useState<string>("");
@@ -110,34 +107,18 @@ export default function ReportLogPage() {
   };
 
 
-  const countAllDuc = {
-    ducYesterdayCount: 0,
-    ducTwoDaysAgoCount: 0,
-    ducAllCount: 0,
-  };
-
-  const countAllDcc = {
-    dccYesterdayCount: 0,
-    dccTwoDaysAgoCount: 0,
-    dccAllCount: 0,
-  };
-
-  const [countsDucAll, setCountDucAll] = useState(countAllDuc);
-  const [countsDccAll, setCountDccAll] = useState(countAllDcc);
-
   const [checkBoxdccUsual, setCheckBoxdccUsual] = useState("Usual Event");
   const [checkBoxdccUnusual, setCheckBoxdccUnusual] = useState("Unusual Event");
   const [checkBoxducUsual, setCheckBoxducUsual] = useState("Usual Event");
   const [checkBoxducUnusual, setCheckBoxducUnusual] = useState("Unusual Event");
 
   const handleClear = () => {
-    SetTextSearch("");
-    fetchData("DUC", dayHisDateduc, textSearch, SetDataDUC);
-    fetchData("DCC", dayHisDatedcc, textSearch, SetDataDCC);
     setDateStart(null);
     setDateEnd(null);
-    dataCount("")
+    setPendingStart(null);
+    setPendingEnd(null);
   };
+
 
   const handleClickOpen = () => {
     let numericIds = null;
@@ -156,196 +137,225 @@ export default function ReportLogPage() {
   };
 
 
-  const handleSearch = useCallback(
-    async (tapData: "DUC" | "DCC", dayHistory: number, setData: (data: ReportLog[]) => void) => {
-      try {
-        const plant = sessionUser.plant;
-        setLoadingDataGrid(true);
+  // const handleSearch = useCallback(
+  //   async (tapData: "DUC" | "DCC", dayHistory: number, setData: (data: ReportLog[]) => void) => {
+  //     try {
+  //       const plant = sessionUser.plant;
+  //       setLoadingDataGrid(true);
 
-        const { startDate, endDate } = datetime.buildDateParamsSearch(
-          dayHistory,
-          dateStart,
-          dateEnd
-        );
-        const checkBoxUsual =
-          tapData === "DUC" ? checkBoxducUsual : checkBoxdccUsual;
-        const checkBoxUnusual =
-          tapData === "DUC" ? checkBoxducUnusual : checkBoxdccUnusual;
+  //       const { startDate, endDate } = datetime.buildDateParamsSearch(
+  //         dayHistory,
+  //         dateStart,
+  //         dateEnd
+  //       );
+  //       const checkBoxUsual =
+  //         tapData === "DUC" ? checkBoxducUsual : checkBoxdccUsual;
+  //       const checkBoxUnusual =
+  //         tapData === "DUC" ? checkBoxducUnusual : checkBoxdccUnusual;
 
-        const res = await reportLogService.SearchReportLogService({
-          Search: textSearch,
-          tapData,
-          startDate,
-          endDate,
-          checkBoxUsual,
-          checkBoxUnusual,
-          plant,
-        });
+  //       const res = await reportLogService.SearchReportLogService({
+  //         Search: textSearch,
+  //         tapData,
+  //         startDate,
+  //         endDate,
+  //         checkBoxUsual,
+  //         checkBoxUnusual,
+  //         plant,
+  //       });
 
-        const newData = res.data.result.map(
-          (item: ReportLog, index: number) => ({
-            ...item,
-            no: index + 1,
-          })
-        );
+  //       const newData = res.data.result.map(
+  //         (item: ReportLog, index: number) => ({
+  //           ...item,
+  //           no: index + 1,
+  //         })
+  //       );
 
-        setData(newData);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setLoadingDataGrid(false);
-      }
-    },
-    [sessionUser.plant, dateStart, dateEnd, checkBoxducUsual, checkBoxdccUsual, checkBoxducUnusual, checkBoxdccUnusual, textSearch]
-  );
+  //       setData(newData);
+  //     } catch (err) {
+  //       console.log(err);
+  //     } finally {
+  //       setLoadingDataGrid(false);
+  //     }
+  //   },
+  //   [sessionUser.plant, dateStart, dateEnd, checkBoxducUsual, checkBoxdccUsual, checkBoxducUnusual, checkBoxdccUnusual, textSearch]
+  // );
 
-  const dataCount = useCallback(async (searchText?: string, dateStart?: Dayjs | null, dateEnd?: Dayjs | null) => {
-    const createDateStr = (daysToSubtract: number): string => {
-      const targetDate = new Date();
-      targetDate.setDate(targetDate.getDate() - daysToSubtract);
-      return datetime.DateSearch(targetDate);
-    };
-
-
-    const searchStartDate = dateStart ? datetime.DateSearch(dateStart.toDate()) : "";
-    const searchEndDate = dateEnd ? datetime.DateSearch(dateEnd.toDate()) : "";
-
-    console.log(searchStartDate, searchEndDate);
+  //   const dataCount = useCallback(async (searchText?: string, dateStart?: Dayjs | null, dateEnd?: Dayjs | null) => {
+  //     const createDateStr = (daysToSubtract: number): string => {
+  //       const targetDate = new Date();
+  //       targetDate.setDate(targetDate.getDate() - daysToSubtract);
+  //       return datetime.DateSearch(targetDate);
+  //     };
 
 
-    const yesterdayStr = createDateStr(1);
-    const twoDaysAgoStr = createDateStr(2);
-    const plant = sessionUser.plant;
+  //     const searchStartDate = dateStart ? datetime.DateSearch(dateStart.toDate()) : "";
+  //     const searchEndDate = dateEnd ? datetime.DateSearch(dateEnd.toDate()) : "";
 
-    const getLogCount = async (params: object): Promise<number> => {
-      try {
-        const response = await reportLogService.SearchReportLogService(params);
-        return response.data.result.length;
-      } catch (error) {
-        console.error(`Failed to fetch logs for params: ${JSON.stringify(params)}`, error);
-        return 0;
-      }
-    };
+  //     console.log(searchStartDate, searchEndDate);
 
-    try {
-      // DUC
-      const [ducYesterdayCount, ducTwoDaysAgoCount, ducAllCount] = await Promise.all([
-        getLogCount({
-          Search: searchText,
-          tapData: "DUC",
-          startDate: yesterdayStr,
-          endDate: yesterdayStr,
-          checkBoxUsual: checkBoxducUsual,
-          checkBoxUnusual: checkBoxducUnusual,
-          plant,
-        }),
-        getLogCount({
-          Search: searchText,
-          tapData: "DUC",
-          endDate: twoDaysAgoStr,
-          checkBoxUsual: checkBoxducUsual,
-          checkBoxUnusual: checkBoxducUnusual,
-          plant,
-        }),
-        getLogCount({
-          Search: searchText,
-          tapData: "DUC",
-          checkBoxUsual: checkBoxducUsual,
-          checkBoxUnusual: checkBoxducUnusual,
-          plant,
-        }),
-      ]);
 
-      // DCC
-      const [dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount] = await Promise.all([
-        getLogCount({
-          Search: searchText,
-          tapData: "DCC",
-          startDate: yesterdayStr,
-          endDate: yesterdayStr,
-          checkBoxUsual: checkBoxdccUsual,
-          checkBoxUnusual: checkBoxdccUnusual,
-          plant,
-        }),
-        getLogCount({
-          Search: searchText,
-          tapData: "DCC",
-          endDate: twoDaysAgoStr,
-          checkBoxUsual: checkBoxdccUsual,
-          checkBoxUnusual: checkBoxdccUnusual,
-          plant,
-        }),
-        getLogCount({
-          Search: searchText,
-          tapData: "DCC",
-          checkBoxUsual: checkBoxdccUsual,
-          checkBoxUnusual: checkBoxdccUnusual,
-          plant,
-        }),
-      ]);
+  //     const yesterdayStr = createDateStr(1);
+  //     const twoDaysAgoStr = createDateStr(2);
+  //     const plant = sessionUser.plant;
 
-      setCountDucAll({ ducYesterdayCount, ducTwoDaysAgoCount, ducAllCount });
-      setCountDccAll({ dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount });
-    } catch (error) {
-      console.error("An error occurred while fetching report counts:", error);
+  //     const getLogCount = async (params: object): Promise<number> => {
+  //       try {
+  //         const response = await reportLogService.SearchReportLogService(params);
+  //         return response.data.result.length;
+  //       } catch (error) {
+  //         console.error(`Failed to fetch logs for params: ${JSON.stringify(params)}`, error);
+  //         return 0;
+  //       }
+  //     };
+
+  //     try {
+  //       // DUC
+  //       const [ducYesterdayCount, ducTwoDaysAgoCount, ducAllCount] = await Promise.all([
+  //         getLogCount({
+  //           Search: searchText,
+  //           tapData: "DUC",
+  //           startDate: yesterdayStr,
+  //           endDate: yesterdayStr,
+  //           checkBoxUsual: checkBoxducUsual,
+  //           checkBoxUnusual: checkBoxducUnusual,
+  //           plant,
+  //         }),
+  //         getLogCount({
+  //           Search: searchText,
+  //           tapData: "DUC",
+  //           endDate: twoDaysAgoStr,
+  //           checkBoxUsual: checkBoxducUsual,
+  //           checkBoxUnusual: checkBoxducUnusual,
+  //           plant,
+  //         }),
+  //         getLogCount({
+  //           Search: searchText,
+  //           tapData: "DUC",
+  //           checkBoxUsual: checkBoxducUsual,
+  //           checkBoxUnusual: checkBoxducUnusual,
+  //           plant,
+  //         }),
+  //       ]);
+
+  //       // DCC
+  //    const [ducYesterdayCount, ducTwoDaysAgoCount, ducAllCount] = await Promise.all([
+  //   getLogCount({
+  //     Search: searchText,
+  //     tapData: "DUC",
+  //     startDate: yesterdayStr,
+  //     endDate: yesterdayStr,
+  //     checkBoxUsual: checkBoxducUsual,
+  //     checkBoxUnusual: checkBoxducUnusual,
+  //     plant,
+  //   }),
+  //   getLogCount({
+  //     Search: searchText,
+  //     tapData: "DUC",
+  //     startDate: "", // <-- อันนี้ไม่จำเป็น แต่ให้ส่งเป็นช่วงสองวัน
+  //     endDate: twoDaysAgoStr,
+  //     checkBoxUsual: checkBoxducUsual,
+  //     checkBoxUnusual: checkBoxducUnusual,
+  //     plant,
+  //   }),
+  //   getLogCount({
+  //     Search: searchText,
+  //     tapData: "DUC",
+  //     startDate: searchStartDate,   // 👈 เพิ่ม
+  //     endDate: searchEndDate,       // 👈 เพิ่ม
+  //     checkBoxUsual: checkBoxducUsual,
+  //     checkBoxUnusual: checkBoxducUnusual,
+  //     plant,
+  //   }),
+  // ]);
+
+  //       // setCountDucAll({ ducYesterdayCount, ducTwoDaysAgoCount, ducAllCount });
+  //       // setCountDccAll({ dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount });
+  //     } catch (error) {
+  //       console.error("An error occurred while fetching report counts:", error);
+  //     }
+  //   }, [sessionUser.plant, checkBoxducUsual, checkBoxducUnusual, checkBoxdccUsual, checkBoxdccUnusual]);
+
+
+  // const fetchData = useCallback(
+  //   async (
+  //     tapData: "DUC" | "DCC",
+  //     dayHistory: number, textSearch: string,
+  //     setData: (data: ReportLog[]) => void
+  //   ) => {
+  //     try {
+  //       setLoadingDataGrid(true);
+  //       const plant = sessionUser.plant;
+  //       const { startDate, endDate } = datetime.buildDateParams(dayHistory);
+  //       // console.log(textSearch, tapData, dayHistory, startDate, endDate);
+  //       const checkBoxUsual =
+  //         tapData === "DUC" ? checkBoxducUsual : checkBoxdccUsual;
+  //       const checkBoxUnusual =
+  //         tapData === "DUC" ? checkBoxducUnusual : checkBoxdccUnusual;
+  //       const res = await reportLogService.GetReportLogService({
+  //         tapData,
+  //         startDate,
+  //         endDate,
+  //         checkBoxUsual,
+  //         checkBoxUnusual,
+  //         plant,
+  //         Search: textSearch
+  //       });
+
+  //       const newData = res.data.result.map(
+  //         (item: ReportLog, index: number) => ({
+  //           ...item,
+  //           no: index + 1,
+  //         })
+  //       );
+  //       setData(newData);
+  //       // SetTextSearch("");
+  //       setDateStart(null);
+  //       setDateEnd(null);
+  //     } catch (err) {
+  //       console.log(err);
+  //     } finally {
+  //       setLoadingDataGrid(false);
+  //     }
+  //   },
+  //   [checkBoxdccUnusual, checkBoxdccUsual, checkBoxducUnusual, checkBoxducUsual, sessionUser.plant]
+  // );
+
+
+  const [pendingStart, setPendingStart] = useState<Dayjs | null>(null);
+  const [pendingEnd, setPendingEnd] = useState<Dayjs | null>(null);
+
+  const handleApplyDate = () => {
+    if (pendingStart && pendingEnd) {
+      setDateStart(pendingStart);
+      setDateEnd(pendingEnd);
     }
-  }, [sessionUser.plant, checkBoxducUsual, checkBoxducUnusual, checkBoxdccUsual, checkBoxdccUnusual]);
+  };
 
-
-  const fetchData = useCallback(
-    async (
-      tapData: "DUC" | "DCC",
-      dayHistory: number, textSearch: string,
-      setData: (data: ReportLog[]) => void
-    ) => {
-      try {
-        setLoadingDataGrid(true);
-        const plant = sessionUser.plant;
-        const { startDate, endDate } = datetime.buildDateParams(dayHistory);
-        // console.log(textSearch, tapData, dayHistory, startDate, endDate);
-        const checkBoxUsual =
-          tapData === "DUC" ? checkBoxducUsual : checkBoxdccUsual;
-        const checkBoxUnusual =
-          tapData === "DUC" ? checkBoxducUnusual : checkBoxdccUnusual;
-        const res = await reportLogService.GetReportLogService({
-          tapData,
-          startDate,
-          endDate,
-          checkBoxUsual,
-          checkBoxUnusual,
-          plant,
-          Search: textSearch
-        });
-
-        const newData = res.data.result.map(
-          (item: ReportLog, index: number) => ({
-            ...item,
-            no: index + 1,
-          })
-        );
-        setData(newData);
-        // SetTextSearch("");
-        setDateStart(null);
-        setDateEnd(null);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setLoadingDataGrid(false);
-      }
-    },
-    [checkBoxdccUnusual, checkBoxdccUsual, checkBoxducUnusual, checkBoxducUsual, sessionUser.plant]
-  );
 
 
   const [datasDuc, setDatasDuc] = useState<ReportLog[]>([]);
   const [datasDcc, setDatasDcc] = useState<ReportLog[]>([]);
+  const [ducCounts, setDucCounts] = useState({
+    all: 0,
+    latest: 0,
+    previous: 0
+  });
+
+  const [dccCounts, setDccCounts] = useState({
+    all: 0,
+    latest: 0,
+    previous: 0
+  });
+
   const fetchDuc = useCallback(async () => {
     try {
       setLoadingDataGrid(true);
       const plant = sessionUser?.plant;
       const { startDate, endDate } = datetime.buildDateParamsSearch(dayHisDateduc, dateStart, dateEnd);
+
+      // ข้อมูลที่จะแสดงในตาราง
       const res = await reportLogService.GetReportLogService({
-        tapData,
+        tapData: "DUC",
         startDate,
         endDate,
         checkBoxUsual: checkBoxducUsual,
@@ -353,19 +363,58 @@ export default function ReportLogPage() {
         plant,
         Search: textSearch
       });
-      const newData = res.data.result.map(
-        (item: ReportLog, index: number) => ({
-          ...item,
-          no: index + 1,
-        })
-      );
+
+      const newData = res.data.result.map((item: ReportLog, index: number) => ({
+        ...item,
+        no: index + 1,
+      }));
+
       setDatasDuc(newData);
+
+      // ---------- คำนวณ count ----------
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      const twoDaysAgo = new Date();
+      twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+      // latest data (เมื่อวาน)
+      const resLatest = await reportLogService.GetReportLogService({
+        tapData: "DUC",
+        startDate: datetime.DateSearch(yesterday),
+        endDate: datetime.DateSearch(yesterday),
+        checkBoxUsual: checkBoxducUsual,
+        checkBoxUnusual: checkBoxducUnusual,
+        plant,
+        Search: textSearch
+      });
+
+
+      // previous data (สองวันก่อน)
+      const date_Start = dateEnd == null ? null : dateStart;
+      const resPrev = await reportLogService.GetReportLogService({
+        tapData: "DUC",
+        startDate: date_Start ? datetime.DateSearch(date_Start.toDate()) : "",
+        endDate: dateEnd ? datetime.DateSearch(dateEnd.toDate()) : datetime.DateSearch(twoDaysAgo),
+        checkBoxUsual: checkBoxducUsual,
+        checkBoxUnusual: checkBoxducUnusual,
+        plant,
+        Search: textSearch
+      });
+
+      setDucCounts({
+        all: resLatest.data.result.length + resPrev.data.result.length,
+        latest: resLatest.data.result.length,
+        previous: resPrev.data.result.length,
+      });
+
     } catch (err) {
       console.error(err);
     } finally {
       setLoadingDataGrid(false);
     }
-  }, [checkBoxducUnusual, checkBoxducUsual, dateEnd, dateStart, dayHisDateduc, sessionUser?.plant, tapData, textSearch])
+  }, [checkBoxducUnusual, checkBoxducUsual, dateEnd, dateStart, dayHisDateduc, sessionUser?.plant, textSearch]);
+
 
 
   const fetchDcc = useCallback(async () => {
@@ -377,8 +426,8 @@ export default function ReportLogPage() {
         tapData,
         startDate,
         endDate,
-        checkBoxUsual: checkBoxducUsual,
-        checkBoxUnusual: checkBoxducUnusual,
+        checkBoxUsual: checkBoxdccUsual,
+        checkBoxUnusual: checkBoxdccUnusual,
         plant,
         Search: textSearch
       });
@@ -389,27 +438,56 @@ export default function ReportLogPage() {
         })
       );
       setDatasDcc(newData);
+
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      const twoDaysAgo = new Date();
+      twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+      // latest data (เมื่อวาน)
+      const resLatest = await reportLogService.GetReportLogService({
+        tapData: "DCC",
+        startDate: datetime.DateSearch(yesterday),
+        endDate: datetime.DateSearch(yesterday),
+        checkBoxUsual: checkBoxdccUsual,
+        checkBoxUnusual: checkBoxdccUnusual,
+        plant,
+        Search: textSearch
+      });
+
+      // previous data (สองวันก่อน)
+      const date_Start = dateEnd == null ? null : dateStart;
+      const resPrev = await reportLogService.GetReportLogService({
+        tapData: "DCC",
+        startDate: date_Start ? datetime.DateSearch(date_Start.toDate()) : "",
+        endDate: dateEnd ? datetime.DateSearch(dateEnd.toDate()) : datetime.DateSearch(twoDaysAgo),
+        checkBoxUsual: checkBoxdccUsual,
+        checkBoxUnusual: checkBoxdccUnusual,
+        plant,
+        Search: textSearch
+      });
+
+      setDccCounts({
+        all: resLatest.data.result.length + resPrev.data.result.length,
+        latest: resLatest.data.result.length,
+        previous: resPrev.data.result.length,
+      });
+
     } catch (err) {
       console.error(err);
     } finally {
       setLoadingDataGrid(false);
     }
-  }, [checkBoxducUnusual, checkBoxducUsual, dateEnd, dateStart, dayHisDatedcc, sessionUser?.plant, tapData, textSearch])
+  }, [checkBoxdccUnusual, checkBoxdccUsual, dateEnd, dateStart, dayHisDatedcc, sessionUser?.plant, tapData, textSearch])
 
 
   useEffect(() => {
     fetchDuc()
     fetchDcc()
 
-  }, [fetchDuc, fetchDcc, dataCount, textSearch]);
+  }, [fetchDuc, fetchDcc, textSearch]);
 
-  // useEffect(() => {
-  //   fetchDuc()
-  //   // fetchUserData();
-  //   dataCount(textSearch);
-  //   fetchData("DUC", dayHisDateduc, textSearch, SetDataDUC);
-  //   fetchData("DCC", dayHisDatedcc, textSearch, SetDataDCC);
-  // }, [dataCount, dayHisDatedcc, dayHisDateduc, fetchData, fetchDuc, textSearch]);
 
   const hendleSubmit = async () => {
     const email = sessionUser?.emp_email ?? "";
@@ -440,9 +518,9 @@ export default function ReportLogPage() {
           );
 
           handleClose();
-          dataCount();
-          fetchData("DUC", dayHisDateduc, textSearch, SetDataDUC);
-          fetchData("DCC", dayHisDatedcc, textSearch, SetDataDCC);
+          fetchDcc();
+          fetchDuc();
+
         }
       });
     } catch (err) {
@@ -458,14 +536,6 @@ export default function ReportLogPage() {
     "(min-width:1201px) and (max-width:1536px)"
   );
   const isAbove1537 = useMediaQuery("(min-width:1537px)");
-
-
-
-  const handleSearchAll = async () => {
-    await handleSearch("DUC", Number(dayHisDateduc), SetDataDUC);
-    await handleSearch("DCC", Number(dayHisDatedcc), SetDataDCC);
-    await dataCount(textSearch, dateStart, dateEnd);
-  };
 
 
   const dccColumns = useMemo(
@@ -491,10 +561,6 @@ export default function ReportLogPage() {
               <ReportLogToolbar
                 textSearch={textSearch}
                 onSearchChange={SetTextSearch}
-                onSearchClick={handleSearchAll}
-                onClearClick={handleClear}
-                // setDateStart={setDateStart}
-                // setDatetEnd={setDateEnd}
                 dateStart={dateStart}
                 dateEnd={dateEnd}
               />
@@ -526,7 +592,7 @@ export default function ReportLogPage() {
                     >
                       {appIds.includes("1") && (
                         <Tab
-                          label={`DUC Log (${countsDucAll.ducAllCount})`}
+                          label={`DUC Log (${ducCounts.all})`}
                           value="1"
                           onClick={() => setTapData("DUC")}
                         />
@@ -534,7 +600,7 @@ export default function ReportLogPage() {
 
                       {appIds.includes("2") && (
                         <Tab
-                          label={`DCC Log (${countsDccAll.dccAllCount})`}
+                          label={`DCC Log (${dccCounts.all})`}
                           value="2"
                           onClick={() => setTapData("DCC")}
                         />
@@ -571,7 +637,7 @@ export default function ReportLogPage() {
                             >
                               Latest Data
                               ({
-                                countsDucAll.ducYesterdayCount
+                                ducCounts.latest
                               })
                             </Button>
                             <Button
@@ -583,7 +649,7 @@ export default function ReportLogPage() {
                                 setColerHistoryDuc("secondary");
                               }}
                             >
-                              Previous Data ({countsDucAll.ducTwoDaysAgoCount})
+                              Previous Data ({ducCounts.previous})
                             </Button>
                           </ButtonGroup>
                         </Grid>
@@ -621,33 +687,43 @@ export default function ReportLogPage() {
                             label="Unusual Event"
                           />
                         </Grid>
-                        <Grid size={{ xs: 12, sm: 12, md: 4, lg: 11, xl: 10.5 }} mb={2} >
+                        <Grid size={{ xs: 12, sm: 12, md: 10, lg: 11, xl: 11 }} mb={2} >
                           {dayHisDateduc === 0 && (
                             <>
                               <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <Grid container spacing={2} alignItems="center" justifyContent="flex-end" display="flex">
-                                  <Grid size={{ xs: 12, sm: 6, md: 6, lg: 6, xl: 2 }}  >
+                                  <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2, xl: 2 }}  >
                                     <DatePicker
                                       label="Start Date"
-                                      value={dateStart}
+                                      value={pendingStart}
                                       format="DD/MM/YYYY"
                                       disableFuture
                                       maxDate={twoDaysAgo}
-                                      onChange={(newValue) => setDateStart(newValue)}
+                                      onChange={(newValue) => setPendingStart(newValue)}
                                       slotProps={{ textField: { fullWidth: true, size: "small" } }}
                                     />
                                   </Grid>
-                                  <Grid size={{ xs: 12, sm: 6, md: 6, lg: 6, xl: 2 }} >
+                                  <Grid size={{ xs: 12, sm: 12, md: 4, lg: 6, xl: 2 }} >
                                     <DatePicker
                                       label="End Date"
-                                      value={dateEnd}
+                                      value={pendingEnd}
                                       format="DD/MM/YYYY"
                                       disableFuture
-                                      minDate={dateStart as Dayjs}
+                                      minDate={pendingStart as Dayjs}
                                       maxDate={twoDaysAgo}
-                                      onChange={(newValue) => setDateEnd(newValue)}
+                                      onChange={(newValue) => setPendingEnd(newValue)}
                                       slotProps={{ textField: { fullWidth: true, size: "small" } }}
                                     />
+                                  </Grid>
+                                  <Grid size={{ xs: 12, sm: 12, md: 1.5, lg: 1, xl: 1 }}>
+                                    <Button variant="contained" fullWidth onClick={handleApplyDate}  >
+                                      <SearchIcon />
+                                    </Button>
+                                  </Grid>
+                                  <Grid size={{ xs: 12, sm: 12, md: 1.5, lg: 1, xl: 1 }}>
+                                    <Button fullWidth variant="contained" color="error" onClick={handleClear} title="Clear search" aria-label="clear search">
+                                      <CancelPresentation />
+                                    </Button>
                                   </Grid>
                                 </Grid>
                               </LocalizationProvider>
@@ -655,16 +731,16 @@ export default function ReportLogPage() {
                           )}
 
                         </Grid>
-
                         <Grid
-                          size={{ xs: 6, sm: 6, md: 6, lg: 1, xl: 1.5 }}
-                          mb={2}
+                          size={{ xs: 12, sm: 12, md: 2, lg: 1, xl: 1 }}
+                          mb={2.2}
                           justifyContent="flex-end"
                           display="flex"
                         >
                           {sessionUser.is_accept && (
                             <Button
                               variant="contained"
+                              fullWidth
                               color="success"
                               onClick={handleClickOpen}
                               startIcon={<SaveIcon />}
@@ -766,7 +842,7 @@ export default function ReportLogPage() {
                                 setColerHistoryDcc("primary");
                               }}
                             >
-                              Latest Data ({countsDccAll.dccYesterdayCount})
+                              Latest Data ({dccCounts.latest})
                             </Button>
                             <Button
                               variant="contained"
@@ -777,7 +853,7 @@ export default function ReportLogPage() {
                                 setColerHistoryDcc("secondary");
                               }}
                             >
-                              Previous Data ({countsDccAll.dccTwoDaysAgoCount})
+                              Previous Data ({dccCounts.previous})
                             </Button>
                           </ButtonGroup>
                         </Grid>
@@ -814,33 +890,43 @@ export default function ReportLogPage() {
                             label="Unusual Event"
                           />
                         </Grid>
-                        <Grid size={{ xs: 12, sm: 12, md: 4, lg: 11, xl: 10.5 }} mb={2} >
+                        <Grid size={{ xs: 12, sm: 12, md: 10, lg: 11, xl: 11 }} mb={2} >
                           {dayHisDatedcc === 0 && (
                             <>
                               <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <Grid container spacing={2} alignItems="center" justifyContent="flex-end" display="flex">
-                                  <Grid size={{ xs: 12, sm: 6, md: 6, lg: 6, xl: 2 }}  >
+                                  <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2, xl: 2 }}  >
                                     <DatePicker
                                       label="Start Date"
-                                      value={dateStart}
+                                      value={pendingStart}
                                       format="DD/MM/YYYY"
                                       disableFuture
                                       maxDate={twoDaysAgo}
-                                      onChange={(newValue) => setDateStart(newValue)}
+                                      onChange={(newValue) => setPendingStart(newValue)}
                                       slotProps={{ textField: { fullWidth: true, size: "small" } }}
                                     />
                                   </Grid>
-                                  <Grid size={{ xs: 12, sm: 6, md: 6, lg: 6, xl: 2 }} >
+                                  <Grid size={{ xs: 12, sm: 12, md: 4, lg: 6, xl: 2 }} >
                                     <DatePicker
                                       label="End Date"
-                                      value={dateEnd}
+                                      value={pendingEnd}
                                       format="DD/MM/YYYY"
                                       disableFuture
-                                      minDate={dateStart as Dayjs}
+                                      minDate={pendingStart as Dayjs}
                                       maxDate={twoDaysAgo}
-                                      onChange={(newValue) => setDateEnd(newValue)}
+                                      onChange={(newValue) => setPendingEnd(newValue)}
                                       slotProps={{ textField: { fullWidth: true, size: "small" } }}
                                     />
+                                  </Grid>
+                                  <Grid size={{ xs: 12, sm: 12, md: 1.5, lg: 1, xl: 1 }}>
+                                    <Button variant="contained" fullWidth onClick={handleApplyDate}  >
+                                      <SearchIcon />
+                                    </Button>
+                                  </Grid>
+                                  <Grid size={{ xs: 12, sm: 12, md: 1.5, lg: 1, xl: 1 }}>
+                                    <Button fullWidth variant="contained" color="error" onClick={handleClear} title="Clear search" aria-label="clear search">
+                                      <CancelPresentation />
+                                    </Button>
                                   </Grid>
                                 </Grid>
                               </LocalizationProvider>
@@ -849,15 +935,17 @@ export default function ReportLogPage() {
 
                         </Grid>
                         <Grid
-                          size={{ xs: 6, sm: 6, md: 6, lg: 1.5, xl: 1.5 }}
-                          mb={2}
+                          size={{ xs: 12, sm: 12, md: 2, lg: 1, xl: 1 }}
+                          mb={2.2}
                           justifyContent="flex-end"
                           display="flex"
+
                         >
                           {sessionUser.is_accept && (
                             <Button
                               variant="contained"
                               color="success"
+                              fullWidth
                               onClick={handleClickOpen}
                               startIcon={<SaveIcon />}
                             >

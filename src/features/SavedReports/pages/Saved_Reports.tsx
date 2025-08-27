@@ -31,23 +31,24 @@ import {
 import type { Dayjs } from "dayjs";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
-
+import SearchIcon from "@mui/icons-material/Search";
+import CancelPresentation from "@mui/icons-material/CancelPresentation";
 import type { User } from "@/layouts/userType";
 import sharedUsers from "@/shared/hooks/sharedUsers";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 export default function Saved_Reports() {
-
+  const twoDaysAgo = dayjs().subtract(2, "day");
   const userDataString = localStorage.getItem("user");
   const resultData: User | null = userDataString
     ? JSON.parse(userDataString)
     : null;
   const { sessionUser } = sharedUsers(resultData?.emp_no as string)
-
-
-
   const [loadingDataGrid, setLoadingDataGrid] = useState(false);
 
-  const [dataDuc, SetDataDUC] = useState<ReportSaveLog[]>([]);
-  const [dataDcc, SetDataDCC] = useState<ReportSaveLog[]>([]);
+
   const [textSearch, SetTextSearch] = useState<string>("");
 
   const [dayHisDateduc, setsDayHisDateDuc] = useState(1);
@@ -63,21 +64,8 @@ export default function Saved_Reports() {
   const [dateStart, setDateStart] = useState<Dayjs | null>(null);
   const [dateEnd, setDateEnd] = useState<Dayjs | null>(null);
 
-  const countAllDuc = {
-    ducYesterdayCount: 0,
-    ducTwoDaysAgoCount: 0,
-    ducAllCount: 0,
-  };
-
-  const countAllDcc = {
-    dccYesterdayCount: 0,
-    dccTwoDaysAgoCount: 0,
-    dccAllCount: 0,
-  };
-
-  const [countsDucAll, setCountDucAll] = useState(countAllDuc);
-  const [countsDccAll, setCountDccAll] = useState(countAllDcc);
-
+  const [datasDuc, setDatasDuc] = useState<ReportSaveLog[]>([]);
+  const [datasDcc, setDatasDcc] = useState<ReportSaveLog[]>([]);
   const [checkBoxdccUsual, setCheckBoxdccUsual] = useState("Usual Event");
   const [checkBoxdccUnusual, setCheckBoxdccUnusual] = useState("Unusual Event");
   const [checkBoxducUsual, setCheckBoxducUsual] = useState("Usual Event");
@@ -89,13 +77,22 @@ export default function Saved_Reports() {
   };
 
   const handleClear = () => {
-    SetTextSearch("");
-    fetchData("DUC", dayHisDateduc, SetDataDUC);
-    fetchData("DCC", dayHisDatedcc, SetDataDCC);
+    setPendingStart(null);
+    setPendingEnd(null);
     setDateStart(null);
     setDateEnd(null);
-    dataCount("")
   };
+
+  const [pendingStart, setPendingStart] = useState<Dayjs | null>(null);
+  const [pendingEnd, setPendingEnd] = useState<Dayjs | null>(null);
+  const handleApplyDate = () => {
+    if (pendingStart && pendingEnd) {
+      setDateStart(pendingStart);
+      setDateEnd(pendingEnd);
+    }
+  };
+
+
   const appIds = useMemo(() => {
     return sessionUser?.app_Id
       ? sessionUser.app_Id
@@ -119,7 +116,7 @@ export default function Saved_Reports() {
 
   const handleEditClick = useCallback(
     (id: number) => {
-      const activeData = value === "1" ? dataDuc : dataDcc;
+      const activeData = value === "1" ? datasDuc : datasDcc;
 
       const rowToEdit = activeData?.find((row) => row.id == id);
 
@@ -136,200 +133,123 @@ export default function Saved_Reports() {
         Swal.fire("Error", `Could not find data for item ID: ${id}`, "error");
       }
     },
-    [dataDuc, dataDcc, value]
+    [value, datasDuc, datasDcc]
   );
 
 
 
-  const dataCount = useCallback(async (searchText?: string) => {
-    const createDateStr = (daysToSubtract: number): string => {
-      const targetDate = new Date();
-      targetDate.setDate(targetDate.getDate() - daysToSubtract);
-      return datetime.DateSearch(targetDate);
-    };
-
-    const yesterdayStr = createDateStr(1);
-    const twoDaysAgoStr = createDateStr(2);
-    const plant = sessionUser.plant;
-
-    const getLogCount = async (params: object): Promise<number> => {
-      try {
-        const response = await reportSaveLog.SearchSaveReportLogService(params);
-        return response.data.result.length;
-      } catch (error) {
-        console.error(`Failed to fetch logs for params: ${JSON.stringify(params)}`, error);
-        return 0;
-      }
-    };
-
-    try {
-      // DUC
-      const [ducYesterdayCount, ducTwoDaysAgoCount, ducAllCount] = await Promise.all([
-        getLogCount({
-          Search: searchText,   // ✅ ใช้ค่าตอนกดค้นหา
-          tapData: "DUC",
-          startDate: yesterdayStr,
-          endDate: yesterdayStr,
-          checkBoxUsual: checkBoxducUsual,
-          checkBoxUnusual: checkBoxducUnusual,
-          plant,
-        }),
-        getLogCount({
-          Search: searchText,
-          tapData: "DUC",
-          endDate: twoDaysAgoStr,
-          checkBoxUsual: checkBoxducUsual,
-          checkBoxUnusual: checkBoxducUnusual,
-          plant,
-        }),
-        getLogCount({
-          Search: searchText,
-          tapData: "DUC",
-          checkBoxUsual: checkBoxducUsual,
-          checkBoxUnusual: checkBoxducUnusual,
-          plant,
-        }),
-      ]);
-
-      // DCC
-      const [dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount] = await Promise.all([
-        getLogCount({
-          Search: searchText,
-          tapData: "DCC",
-          startDate: yesterdayStr,
-          endDate: yesterdayStr,
-          checkBoxUsual: checkBoxdccUsual,
-          checkBoxUnusual: checkBoxdccUnusual,
-          plant,
-        }),
-        getLogCount({
-          Search: searchText,
-          tapData: "DCC",
-          endDate: twoDaysAgoStr,
-          checkBoxUsual: checkBoxdccUsual,
-          checkBoxUnusual: checkBoxdccUnusual,
-          plant,
-        }),
-        getLogCount({
-          Search: searchText,
-          tapData: "DCC",
-          checkBoxUsual: checkBoxdccUsual,
-          checkBoxUnusual: checkBoxdccUnusual,
-          plant,
-        }),
-      ]);
-
-      setCountDucAll({ ducYesterdayCount, ducTwoDaysAgoCount, ducAllCount });
-      setCountDccAll({ dccYesterdayCount, dccTwoDaysAgoCount, dccAllCount });
-    } catch (error) {
-      console.error("An error occurred while fetching report counts:", error);
-    }
-  }, [sessionUser.plant, checkBoxducUsual, checkBoxducUnusual, checkBoxdccUsual, checkBoxdccUnusual]);
+  // const fetchData = useCallback(
+  //   async (
+  //     tapData: "DUC" | "DCC",
+  //     dayHistory: number,
+  //     setData: (data: ReportSaveLog[]) => void
+  //   ) => {
+  //     try {
+  //       setLoadingDataGrid(true);
+  //       const plant = sessionUser?.plant;
 
 
+  //       const { startDate, endDate } = datetime.buildDateParams(dayHistory);
+  //       const checkBoxUsual =
+  //         tapData === "DUC" ? checkBoxducUsual : checkBoxdccUsual;
+  //       const checkBoxUnusual =
+  //         tapData === "DUC" ? checkBoxducUnusual : checkBoxdccUnusual;
+  //       const res = await reportSaveLog.GetSaveReportLogService({
+  //         tapData,
+  //         startDate,
+  //         endDate,
+  //         checkBoxUsual,
+  //         checkBoxUnusual,
+  //         plant,
+  //         Search: textSearch,
+  //       });
+
+  //       const newData = res.data.result.map(
+  //         (item: ReportSaveLog, index: number) => ({
+  //           ...item,
+  //           no: index + 1,
+  //         })
+  //       );
+
+  //       setData(newData);
+  //       // SetTextSearch("");
+  //       setDateStart(null);
+  //       setDateEnd(null);
+  //     } catch (err) {
+  //       console.log(err);
+  //     } finally {
+  //       setLoadingDataGrid(false);
+  //     }
+  //   },
+  //   [sessionUser?.plant, checkBoxducUsual, checkBoxdccUsual, checkBoxducUnusual, checkBoxdccUnusual, textSearch]
+  // );
+
+  // const handleSearch = useCallback(
+  //   async (tapData: "DUC" | "DCC", dayHistory: number, setData: (data: ReportSaveLog[]) => void) => {
+  //     try {
+
+  //       setLoadingDataGrid(true);
+  //       const plant = sessionUser.plant;
+  //       const { startDate, endDate } = datetime.buildDateParamsSearch(
+  //         dayHistory,
+  //         dateStart,
+  //         dateEnd
+  //       );
+  //       const checkBoxUsual =
+  //         tapData === "DUC" ? checkBoxducUsual : checkBoxdccUsual;
+  //       const checkBoxUnusual =
+  //         tapData === "DUC" ? checkBoxducUnusual : checkBoxdccUnusual;
+
+  //       const res = await reportSaveLog.SearchSaveReportLogService({
+  //         Search: textSearch,
+  //         tapData,
+  //         startDate,
+  //         endDate,
+  //         checkBoxUsual,
+  //         checkBoxUnusual,
+  //         plant
+  //       });
+
+  //       const newData = res.data.result.map(
+  //         (item: ReportSaveLog, index: number) => ({
+  //           ...item,
+  //           no: index + 1,
+  //         })
+  //       );
+
+  //       setData(newData);
+  //     } catch (err) {
+  //       console.log(err);
+  //     } finally {
+
+  //       setLoadingDataGrid(false);
+  //     }
+  //   },
+  //   [sessionUser.plant, dateStart, dateEnd, checkBoxducUsual, checkBoxdccUsual, checkBoxducUnusual, checkBoxdccUnusual, textSearch]
+  // );
 
 
+  const [ducCounts, setDucCounts] = useState({
+    all: 0,
+    latest: 0,
+    previous: 0
+  });
 
+  const [dccCounts, setDccCounts] = useState({
+    all: 0,
+    latest: 0,
+    previous: 0
+  });
 
-  const fetchData = useCallback(
-    async (
-      tapData: "DUC" | "DCC",
-      dayHistory: number,
-      setData: (data: ReportSaveLog[]) => void
-    ) => {
-      try {
-        setLoadingDataGrid(true);
-        const plant = sessionUser?.plant;
-
-
-        const { startDate, endDate } = datetime.buildDateParams(dayHistory);
-        const checkBoxUsual =
-          tapData === "DUC" ? checkBoxducUsual : checkBoxdccUsual;
-        const checkBoxUnusual =
-          tapData === "DUC" ? checkBoxducUnusual : checkBoxdccUnusual;
-        const res = await reportSaveLog.GetSaveReportLogService({
-          tapData,
-          startDate,
-          endDate,
-          checkBoxUsual,
-          checkBoxUnusual,
-          plant,
-          Search: textSearch,
-        });
-
-        const newData = res.data.result.map(
-          (item: ReportSaveLog, index: number) => ({
-            ...item,
-            no: index + 1,
-          })
-        );
-
-        setData(newData);
-        // SetTextSearch("");
-        setDateStart(null);
-        setDateEnd(null);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setLoadingDataGrid(false);
-      }
-    },
-    [sessionUser?.plant, checkBoxducUsual, checkBoxdccUsual, checkBoxducUnusual, checkBoxdccUnusual, textSearch]
-  );
-
-  const handleSearch = useCallback(
-    async (tapData: "DUC" | "DCC", dayHistory: number, setData: (data: ReportSaveLog[]) => void) => {
-      try {
-
-        setLoadingDataGrid(true);
-        const plant = sessionUser.plant;
-        const { startDate, endDate } = datetime.buildDateParamsSearch(
-          dayHistory,
-          dateStart,
-          dateEnd
-        );
-        const checkBoxUsual =
-          tapData === "DUC" ? checkBoxducUsual : checkBoxdccUsual;
-        const checkBoxUnusual =
-          tapData === "DUC" ? checkBoxducUnusual : checkBoxdccUnusual;
-
-        const res = await reportSaveLog.SearchSaveReportLogService({
-          Search: textSearch,
-          tapData,
-          startDate,
-          endDate,
-          checkBoxUsual,
-          checkBoxUnusual,
-          plant
-        });
-
-        const newData = res.data.result.map(
-          (item: ReportSaveLog, index: number) => ({
-            ...item,
-            no: index + 1,
-          })
-        );
-
-        setData(newData);
-      } catch (err) {
-        console.log(err);
-      } finally {
-
-        setLoadingDataGrid(false);
-      }
-    },
-    [sessionUser.plant, dateStart, dateEnd, checkBoxducUsual, checkBoxdccUsual, checkBoxducUnusual, checkBoxdccUnusual, textSearch]
-  );
-
-  const [datasDuc, setDatasDuc] = useState<ReportSaveLog[]>([]);
-  const [datasDcc, setDatasDcc] = useState<ReportSaveLog[]>([]);
   const fetchDuc = useCallback(async () => {
     try {
       setLoadingDataGrid(true);
       const plant = sessionUser?.plant;
       const { startDate, endDate } = datetime.buildDateParamsSearch(dayHisDateduc, dateStart, dateEnd);
+
+      // ข้อมูลที่จะแสดงในตาราง
       const res = await reportSaveLog.GetSaveReportLogService({
-        tapData,
+        tapData: "DUC",
         startDate,
         endDate,
         checkBoxUsual: checkBoxducUsual,
@@ -337,19 +257,58 @@ export default function Saved_Reports() {
         plant,
         Search: textSearch
       });
-      const newData = res.data.result.map(
-        (item: ReportSaveLog, index: number) => ({
-          ...item,
-          no: index + 1,
-        })
-      );
+
+      const newData = res.data.result.map((item: ReportSaveLog, index: number) => ({
+        ...item,
+        no: index + 1,
+      }));
+
       setDatasDuc(newData);
+
+      // ---------- คำนวณ count ----------
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      const twoDaysAgo = new Date();
+      twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+      // latest data (เมื่อวาน)
+      const resLatest = await reportSaveLog.GetSaveReportLogService({
+        tapData: "DUC",
+        startDate: datetime.DateSearch(yesterday),
+        endDate: datetime.DateSearch(yesterday),
+        checkBoxUsual: checkBoxducUsual,
+        checkBoxUnusual: checkBoxducUnusual,
+        plant,
+        Search: textSearch
+      });
+
+
+      // previous data (สองวันก่อน)
+      const date_Start = dateEnd == null ? null : dateStart;
+      const resPrev = await reportSaveLog.GetSaveReportLogService({
+        tapData: "DUC",
+        startDate: date_Start ? datetime.DateSearch(date_Start.toDate()) : "",
+        endDate: dateEnd ? datetime.DateSearch(dateEnd.toDate()) : datetime.DateSearch(twoDaysAgo),
+        checkBoxUsual: checkBoxducUsual,
+        checkBoxUnusual: checkBoxducUnusual,
+        plant,
+        Search: textSearch
+      });
+
+      setDucCounts({
+        all: resLatest.data.result.length + resPrev.data.result.length,
+        latest: resLatest.data.result.length,
+        previous: resPrev.data.result.length,
+      });
+
     } catch (err) {
       console.error(err);
     } finally {
       setLoadingDataGrid(false);
     }
-  }, [checkBoxducUnusual, checkBoxducUsual, dateEnd, dateStart, dayHisDateduc, sessionUser?.plant, tapData, textSearch])
+  }, [checkBoxducUnusual, checkBoxducUsual, dateEnd, dateStart, dayHisDateduc, sessionUser?.plant, textSearch]);
+
 
 
   const fetchDcc = useCallback(async () => {
@@ -361,8 +320,8 @@ export default function Saved_Reports() {
         tapData,
         startDate,
         endDate,
-        checkBoxUsual: checkBoxducUsual,
-        checkBoxUnusual: checkBoxducUnusual,
+        checkBoxUsual: checkBoxdccUsual,
+        checkBoxUnusual: checkBoxdccUnusual,
         plant,
         Search: textSearch
       });
@@ -373,26 +332,57 @@ export default function Saved_Reports() {
         })
       );
       setDatasDcc(newData);
+
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      const twoDaysAgo = new Date();
+      twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+      // latest data (เมื่อวาน)
+      const resLatest = await reportSaveLog.GetSaveReportLogService({
+        tapData: "DCC",
+        startDate: datetime.DateSearch(yesterday),
+        endDate: datetime.DateSearch(yesterday),
+        checkBoxUsual: checkBoxdccUsual,
+        checkBoxUnusual: checkBoxdccUnusual,
+        plant,
+        Search: textSearch
+      });
+
+      // previous data (สองวันก่อน)
+      const date_Start = dateEnd == null ? null : dateStart;
+      const resPrev = await reportSaveLog.GetSaveReportLogService({
+        tapData: "DCC",
+        startDate: date_Start ? datetime.DateSearch(date_Start.toDate()) : "",
+        endDate: dateEnd ? datetime.DateSearch(dateEnd.toDate()) : datetime.DateSearch(twoDaysAgo),
+        checkBoxUsual: checkBoxdccUsual,
+        checkBoxUnusual: checkBoxdccUnusual,
+        plant,
+        Search: textSearch
+      });
+
+      setDccCounts({
+        all: resLatest.data.result.length + resPrev.data.result.length,
+        latest: resLatest.data.result.length,
+        previous: resPrev.data.result.length,
+      });
+
     } catch (err) {
       console.error(err);
     } finally {
       setLoadingDataGrid(false);
     }
-  }, [checkBoxducUnusual, checkBoxducUsual, dateEnd, dateStart, dayHisDatedcc, sessionUser?.plant, tapData, textSearch])
+  }, [checkBoxdccUnusual, checkBoxdccUsual, dateEnd, dateStart, dayHisDatedcc, sessionUser?.plant, tapData, textSearch])
 
 
   useEffect(() => {
     fetchDuc()
     fetchDcc()
 
-  }, [fetchDuc, fetchDcc, dataCount, textSearch]);
+  }, [fetchDuc, fetchDcc, textSearch]);
 
 
-  // useEffect(() => {
-  //   fetchData("DUC", dayHisDateduc, SetDataDUC);
-  //   fetchData("DCC", dayHisDatedcc, SetDataDCC);
-  //   dataCount();
-  // }, [dataCount, fetchData, dayHisDateduc, dayHisDatedcc]);
 
   const handleClose = () => {
     setOpen(false);
@@ -437,8 +427,9 @@ export default function Saved_Reports() {
             icon: "success",
           });
           handleClose(); // ปิด Dialog และรีเซ็ต state
-          fetchData("DUC", dayHisDateduc, SetDataDUC);
-          fetchData("DCC", dayHisDatedcc, SetDataDCC);
+          fetchDcc()
+          fetchDuc()
+
         }
       });
     } catch (err) {
@@ -464,11 +455,7 @@ export default function Saved_Reports() {
     "(min-width:1201px) and (max-width:1536px)"
   );
   const isAbove1537 = useMediaQuery("(min-width:1537px)");
-  const handleSearchAll = async () => {
-    await handleSearch("DUC", Number(dayHisDateduc), SetDataDUC);
-    await handleSearch("DCC", Number(dayHisDatedcc), SetDataDCC);;
-    await dataCount(textSearch);
-  };
+
 
   return (
     <>
@@ -485,12 +472,7 @@ export default function Saved_Reports() {
               <ReportLogToolbar
                 textSearch={textSearch}
                 onSearchChange={SetTextSearch}
-                onSearchClick={handleSearchAll}
-                onClearClick={handleClear}
-                setDateStart={setDateStart}
-                setDatetEnd={setDateEnd}
-                dateStart={dateStart}
-                dateEnd={dateEnd}
+
               />
             </Box>
             <hr />
@@ -520,7 +502,7 @@ export default function Saved_Reports() {
                     >
                       {appIds.includes("1") && (
                         <Tab
-                          label={`DUC Log (${countsDucAll.ducAllCount})`}
+                          label={`DUC Log (${ducCounts.all})`}
                           value="1"
                           onClick={() => setTapData("DUC")}
                         />
@@ -528,7 +510,7 @@ export default function Saved_Reports() {
 
                       {appIds.includes("2") && (
                         <Tab
-                          label={`DCC Log (${countsDccAll.dccAllCount})`}
+                          label={`DCC Log (${dccCounts.all})`}
                           value="2"
                           onClick={() => setTapData("DCC")}
                         />
@@ -563,7 +545,7 @@ export default function Saved_Reports() {
                                 setColerHistoryDuc("primary");
                               }}
                             >
-                              Latest Data ({countsDucAll.ducYesterdayCount})
+                              Latest Data ({ducCounts.latest})
                             </Button>
                             <Button
                               variant="contained"
@@ -574,7 +556,7 @@ export default function Saved_Reports() {
                                 setColerHistoryDuc("secondary");
                               }}
                             >
-                              Previous Data ({countsDucAll.ducTwoDaysAgoCount})
+                              Previous Data ({ducCounts.previous})
                             </Button>
                           </ButtonGroup>
                         </Grid>
@@ -611,6 +593,49 @@ export default function Saved_Reports() {
                             }
                             label="Unusual Event"
                           />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 12, md: 10, lg: 12, xl: 12 }} mb={2} >
+                          {dayHisDateduc === 0 && (
+                            <>
+                              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <Grid container spacing={2} alignItems="center" justifyContent="flex-end" display="flex">
+                                  <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2, xl: 2 }}  >
+                                    <DatePicker
+                                      label="Start Date"
+                                      value={pendingStart}
+                                      format="DD/MM/YYYY"
+                                      disableFuture
+                                      maxDate={twoDaysAgo}
+                                      onChange={(newValue) => setPendingStart(newValue)}
+                                      slotProps={{ textField: { fullWidth: true, size: "small" } }}
+                                    />
+                                  </Grid>
+                                  <Grid size={{ xs: 12, sm: 12, md: 4, lg: 6, xl: 2 }} >
+                                    <DatePicker
+                                      label="End Date"
+                                      value={pendingEnd}
+                                      format="DD/MM/YYYY"
+                                      disableFuture
+                                      minDate={pendingStart as Dayjs}
+                                      maxDate={twoDaysAgo}
+                                      onChange={(newValue) => setPendingEnd(newValue)}
+                                      slotProps={{ textField: { fullWidth: true, size: "small" } }}
+                                    />
+                                  </Grid>
+                                  <Grid size={{ xs: 12, sm: 12, md: 1.5, lg: 1, xl: 1 }}>
+                                    <Button variant="contained" fullWidth onClick={handleApplyDate}  >
+                                      <SearchIcon />
+                                    </Button>
+                                  </Grid>
+                                  <Grid size={{ xs: 12, sm: 12, md: 1.5, lg: 1, xl: 1 }}>
+                                    <Button fullWidth variant="contained" color="error" onClick={handleClear} title="Clear search" aria-label="clear search">
+                                      <CancelPresentation />
+                                    </Button>
+                                  </Grid>
+                                </Grid>
+                              </LocalizationProvider>
+                            </>
+                          )}
                         </Grid>
                       </Grid>
                       {/* {window.innerWidth} */}
@@ -706,7 +731,7 @@ export default function Saved_Reports() {
                                 setColerHistoryDcc("primary");
                               }}
                             >
-                              Latest Data ({countsDccAll.dccYesterdayCount})
+                              Latest Data ({dccCounts.latest})
                             </Button>
                             <Button
                               variant="contained"
@@ -717,7 +742,7 @@ export default function Saved_Reports() {
                                 setColerHistoryDcc("secondary");
                               }}
                             >
-                              Previous Data ({countsDccAll.dccTwoDaysAgoCount})
+                              Previous Data ({dccCounts.previous})
                             </Button>
                           </ButtonGroup>
                         </Grid>
@@ -753,6 +778,50 @@ export default function Saved_Reports() {
                             }
                             label="Unusual Event"
                           />
+                        </Grid>
+                        <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }} mb={2} >
+                          {dayHisDatedcc === 0 && (
+                            <>
+                              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <Grid container spacing={2} alignItems="center" justifyContent="flex-end" display="flex">
+                                  <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2, xl: 2 }}  >
+                                    <DatePicker
+                                      label="Start Date"
+                                      value={pendingStart}
+                                      format="DD/MM/YYYY"
+                                      disableFuture
+                                      maxDate={twoDaysAgo}
+                                      onChange={(newValue) => setPendingStart(newValue)}
+                                      slotProps={{ textField: { fullWidth: true, size: "small" } }}
+                                    />
+                                  </Grid>
+                                  <Grid size={{ xs: 12, sm: 12, md: 4, lg: 6, xl: 2 }} >
+                                    <DatePicker
+                                      label="End Date"
+                                      value={pendingEnd}
+                                      format="DD/MM/YYYY"
+                                      disableFuture
+                                      minDate={pendingStart as Dayjs}
+                                      maxDate={twoDaysAgo}
+                                      onChange={(newValue) => setPendingEnd(newValue)}
+                                      slotProps={{ textField: { fullWidth: true, size: "small" } }}
+                                    />
+                                  </Grid>
+                                  <Grid size={{ xs: 12, sm: 12, md: 1.5, lg: 1, xl: 1 }}>
+                                    <Button variant="contained" fullWidth onClick={handleApplyDate}  >
+                                      <SearchIcon />
+                                    </Button>
+                                  </Grid>
+                                  <Grid size={{ xs: 12, sm: 12, md: 1.5, lg: 1, xl: 1 }}>
+                                    <Button fullWidth variant="contained" color="error" onClick={handleClear} title="Clear search" aria-label="clear search">
+                                      <CancelPresentation />
+                                    </Button>
+                                  </Grid>
+                                </Grid>
+                              </LocalizationProvider>
+                            </>
+                          )}
+
                         </Grid>
                       </Grid>
                       <Container
