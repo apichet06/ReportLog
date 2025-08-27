@@ -125,7 +125,7 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
         // { label: "User Permission", icon: <DescriptionIcon />, path: "/userpermission" },
     ];
     if (sessionUser?.status?.toLowerCase() === "admin") {
-        menuItems.push({ label: "User Permission", icon: <SettingsIcon />, path: "/userpermission" });
+        menuItems.push({ label: "Users Management", icon: <SettingsIcon />, path: "/userpermission" });
     }
     const { setToken, setUser } = useAuthContext();
     const [isAppInitialized, setIsAppInitialized] = useState(false);

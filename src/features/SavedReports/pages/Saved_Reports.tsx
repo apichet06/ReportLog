@@ -44,10 +44,7 @@ export default function Saved_Reports() {
 
 
 
-
-
-
-  const [loadingDataGrid, setLoadigDataGrid] = useState(false);
+  const [loadingDataGrid, setLoadingDataGrid] = useState(false);
 
   const [dataDuc, SetDataDUC] = useState<ReportSaveLog[]>([]);
   const [dataDcc, SetDataDCC] = useState<ReportSaveLog[]>([]);
@@ -85,7 +82,7 @@ export default function Saved_Reports() {
   const [checkBoxdccUnusual, setCheckBoxdccUnusual] = useState("Unusual Event");
   const [checkBoxducUsual, setCheckBoxducUsual] = useState("Usual Event");
   const [checkBoxducUnusual, setCheckBoxducUnusual] = useState("Unusual Event");
-
+  const [tapData, setTapData] = useState("DUC");
   const [valueRedio, setValueRedio] = useState("Usual Event");
   const handleChangeRedio = (event: ChangeEvent<HTMLInputElement>) => {
     setValueRedio((event.target as HTMLInputElement).value);
@@ -230,6 +227,10 @@ export default function Saved_Reports() {
   }, [sessionUser.plant, checkBoxducUsual, checkBoxducUnusual, checkBoxdccUsual, checkBoxdccUnusual]);
 
 
+
+
+
+
   const fetchData = useCallback(
     async (
       tapData: "DUC" | "DCC",
@@ -237,7 +238,7 @@ export default function Saved_Reports() {
       setData: (data: ReportSaveLog[]) => void
     ) => {
       try {
-        setLoadigDataGrid(true);
+        setLoadingDataGrid(true);
         const plant = sessionUser?.plant;
 
 
@@ -253,6 +254,7 @@ export default function Saved_Reports() {
           checkBoxUsual,
           checkBoxUnusual,
           plant,
+          Search: textSearch,
         });
 
         const newData = res.data.result.map(
@@ -263,23 +265,23 @@ export default function Saved_Reports() {
         );
 
         setData(newData);
-        SetTextSearch("");
+        // SetTextSearch("");
         setDateStart(null);
         setDateEnd(null);
       } catch (err) {
         console.log(err);
       } finally {
-        setLoadigDataGrid(false);
+        setLoadingDataGrid(false);
       }
     },
-    [checkBoxducUsual, checkBoxdccUsual, checkBoxducUnusual, checkBoxdccUnusual, sessionUser?.plant]
+    [sessionUser?.plant, checkBoxducUsual, checkBoxdccUsual, checkBoxducUnusual, checkBoxdccUnusual, textSearch]
   );
 
   const handleSearch = useCallback(
     async (tapData: "DUC" | "DCC", dayHistory: number, setData: (data: ReportSaveLog[]) => void) => {
       try {
 
-        setLoadigDataGrid(true);
+        setLoadingDataGrid(true);
         const plant = sessionUser.plant;
         const { startDate, endDate } = datetime.buildDateParamsSearch(
           dayHistory,
@@ -313,19 +315,84 @@ export default function Saved_Reports() {
         console.log(err);
       } finally {
 
-        setLoadigDataGrid(false);
+        setLoadingDataGrid(false);
       }
     },
     [sessionUser.plant, dateStart, dateEnd, checkBoxducUsual, checkBoxdccUsual, checkBoxducUnusual, checkBoxdccUnusual, textSearch]
   );
 
+  const [datasDuc, setDatasDuc] = useState<ReportSaveLog[]>([]);
+  const [datasDcc, setDatasDcc] = useState<ReportSaveLog[]>([]);
+  const fetchDuc = useCallback(async () => {
+    try {
+      setLoadingDataGrid(true);
+      const plant = sessionUser?.plant;
+      const { startDate, endDate } = datetime.buildDateParamsSearch(dayHisDateduc, dateStart, dateEnd);
+      const res = await reportSaveLog.GetSaveReportLogService({
+        tapData,
+        startDate,
+        endDate,
+        checkBoxUsual: checkBoxducUsual,
+        checkBoxUnusual: checkBoxducUnusual,
+        plant,
+        Search: textSearch
+      });
+      const newData = res.data.result.map(
+        (item: ReportSaveLog, index: number) => ({
+          ...item,
+          no: index + 1,
+        })
+      );
+      setDatasDuc(newData);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingDataGrid(false);
+    }
+  }, [checkBoxducUnusual, checkBoxducUsual, dateEnd, dateStart, dayHisDateduc, sessionUser?.plant, tapData, textSearch])
+
+
+  const fetchDcc = useCallback(async () => {
+    try {
+      setLoadingDataGrid(true);
+      const plant = sessionUser?.plant;
+      const { startDate, endDate } = datetime.buildDateParamsSearch(dayHisDatedcc, dateStart, dateEnd);
+      const res = await reportSaveLog.GetSaveReportLogService({
+        tapData,
+        startDate,
+        endDate,
+        checkBoxUsual: checkBoxducUsual,
+        checkBoxUnusual: checkBoxducUnusual,
+        plant,
+        Search: textSearch
+      });
+      const newData = res.data.result.map(
+        (item: ReportSaveLog, index: number) => ({
+          ...item,
+          no: index + 1,
+        })
+      );
+      setDatasDcc(newData);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingDataGrid(false);
+    }
+  }, [checkBoxducUnusual, checkBoxducUsual, dateEnd, dateStart, dayHisDatedcc, sessionUser?.plant, tapData, textSearch])
 
 
   useEffect(() => {
-    fetchData("DUC", dayHisDateduc, SetDataDUC);
-    fetchData("DCC", dayHisDatedcc, SetDataDCC);
-    dataCount();
-  }, [dataCount, fetchData, dayHisDateduc, dayHisDatedcc]);
+    fetchDuc()
+    fetchDcc()
+
+  }, [fetchDuc, fetchDcc, dataCount, textSearch]);
+
+
+  // useEffect(() => {
+  //   fetchData("DUC", dayHisDateduc, SetDataDUC);
+  //   fetchData("DCC", dayHisDatedcc, SetDataDCC);
+  //   dataCount();
+  // }, [dataCount, fetchData, dayHisDateduc, dayHisDatedcc]);
 
   const handleClose = () => {
     setOpen(false);
@@ -455,7 +522,7 @@ export default function Saved_Reports() {
                         <Tab
                           label={`DUC Log (${countsDucAll.ducAllCount})`}
                           value="1"
-
+                          onClick={() => setTapData("DUC")}
                         />
                       )}
 
@@ -463,7 +530,7 @@ export default function Saved_Reports() {
                         <Tab
                           label={`DCC Log (${countsDccAll.dccAllCount})`}
                           value="2"
-
+                          onClick={() => setTapData("DCC")}
                         />
                       )}
                     </TabList>
@@ -555,7 +622,7 @@ export default function Saved_Reports() {
                         <DataGridPremium
                           getRowId={(row) => row.id.toString()}
                           loading={loadingDataGrid}
-                          rows={dataDuc}
+                          rows={datasDuc}
                           columns={ducColumns}
                           pagination
                           initialState={{
@@ -694,7 +761,7 @@ export default function Saved_Reports() {
                         maxWidth={isAbove1537 ? "xl" : "lg"}
                       >
                         <DataGridPremium
-                          rows={dataDcc}
+                          rows={datasDcc}
                           columns={dccColumns}
                           loading={loadingDataGrid}
                           getRowId={(row) => row.id.toString()}

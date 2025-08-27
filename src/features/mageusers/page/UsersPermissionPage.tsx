@@ -93,7 +93,7 @@ export default function UsersPermissionPage() {
   const isAbove1537 = useMediaQuery("(min-width:1537px)");
   return (
     <>
-      <h2>Users Permission</h2>
+      <h2>Users Management</h2>
       <>
         <Container
           fixed

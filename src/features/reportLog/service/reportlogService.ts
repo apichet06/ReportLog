@@ -25,6 +25,7 @@ const GetReportLogService = (data: TabDataState) =>
       checkBoxUsual: data.checkBoxUsual,
       checkBoxUnusual: data.checkBoxUnusual,
       plant: data.plant,
+      Search: data.Search,
     },
   });
 

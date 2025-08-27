@@ -48,7 +48,7 @@ export default function UserForm({
       gap={2}
     >
       {" "}
-      <DialogTitle>{"Form Users Permission"}</DialogTitle>
+      <DialogTitle>{"Users Management"}</DialogTitle>
       <DialogContent>
 
         <Grid container spacing={2} rowSpacing={3} mt={2}>
@@ -260,7 +260,6 @@ export default function UserForm({
             </Grid>
           </Grid>
         </Grid>
-
       </DialogContent>
       <DialogActions>
         <Button type="submit" variant="contained">

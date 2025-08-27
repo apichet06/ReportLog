@@ -46,6 +46,7 @@ export interface TabDataState {
   checkBoxUsual?: string;
   checkBoxUnusual?: string;
   plant?: string;
+  Search?: string;
 }
 export type MUIColor =
   | "primary"
