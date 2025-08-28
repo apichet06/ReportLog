@@ -58,18 +58,6 @@ export const getColumnsDCC = (is_view: boolean): GridColDef[] => {
         },
         {
             field: "event_type",
-            headerName: "EVENT TYPE", flex: 2, minWidth: 130,
-            renderCell: (params) => {
-                const even_type = params.value as string;
-                return (
-                    <span style={{ color: even_type == "Unusual Event" ? "red" : "inherit" }}  >
-                        {even_type}
-                    </span>
-                );
-            },
-        },
-        {
-            field: "event_type",
             headerName: "EVENT TYPE", flex: 2, minWidth: 150,
             renderCell: (params) => {
                 const event_type = params.value as string;

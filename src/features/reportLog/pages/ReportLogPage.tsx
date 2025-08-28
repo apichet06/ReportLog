@@ -83,9 +83,7 @@ export default function ReportLogPage() {
   };
 
   const [tapData, setTapData] = useState("DUC");
-
   const [loadingDataGrid, setLoadingDataGrid] = useState(false);
-
   const [textSearch, SetTextSearch] = useState<string>("");
 
   const [conment, setComment] = useState<string>("");
@@ -260,8 +258,8 @@ export default function ReportLogPage() {
   //   getLogCount({
   //     Search: searchText,
   //     tapData: "DUC",
-  //     startDate: searchStartDate,   // 👈 เพิ่ม
-  //     endDate: searchEndDate,       // 👈 เพิ่ม
+  //     startDate: searchStartDate,   
+  //     endDate: searchEndDate,      
   //     checkBoxUsual: checkBoxducUsual,
   //     checkBoxUnusual: checkBoxducUnusual,
   //     plant,
@@ -481,7 +479,6 @@ export default function ReportLogPage() {
     }
   }, [checkBoxdccUnusual, checkBoxdccUsual, dateEnd, dateStart, dayHisDatedcc, sessionUser?.plant, tapData, textSearch])
 
-
   useEffect(() => {
     fetchDuc()
     fetchDcc()
@@ -495,8 +492,8 @@ export default function ReportLogPage() {
     try {
       Swal.fire({
         title: "Are you sure?",
-        html: `<b>Action:</b> ${valueRedio}<br/><b>Comment:</b> ${conment || "<i>No comment</i>"
-          }`,
+        html: `<b>Action:</b> ${valueRedio}<br/><b>Total :</b> (${dataId.length}) items <br/>
+        <b>Comment:</b> ${conment || "<i>No comment</i>"}`,
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
