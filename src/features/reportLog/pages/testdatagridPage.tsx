@@ -56,9 +56,12 @@ export default function ControlledSelectionGrid() {
         fetchData();
     }, [fetchData]);
 
-    useEffect(() => {
-        console.log('Derived selected IDs:', selectedIds);
-    }, [rowSelectionModel, selectedIds]);
+    console.log(selectedIds);
+
+
+    // useEffect(() => {
+    //     console.log('Derived selected IDs:', selectedIds);
+    // }, [rowSelectionModel, selectedIds]);
 
     const [paginationModel, setPaginationModel] = useState({
         page: 0,

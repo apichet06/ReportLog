@@ -85,6 +85,18 @@ export default function ReportLogPage() {
   const [tapData, setTapData] = useState("DUC");
   const [loadingDataGrid, setLoadingDataGrid] = useState(false);
   const [textSearch, SetTextSearch] = useState<string>("");
+  const [debouncedTextSearch, setDebouncedTextSearch] = useState(textSearch);
+
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      setDebouncedTextSearch(textSearch);
+    }, 500); // Wait 500ms after user stops typing
+
+    return () => {
+      clearTimeout(timerId);
+    };
+  }, [textSearch]);
+
 
   const [conment, setComment] = useState<string>("");
   const [colerTodayduc, setColerTodayDuc] = useState<MUIColor>("secondary");
@@ -359,7 +371,7 @@ export default function ReportLogPage() {
         checkBoxUsual: checkBoxducUsual,
         checkBoxUnusual: checkBoxducUnusual,
         plant,
-        Search: textSearch
+        Search: debouncedTextSearch
       });
 
       const newData = res.data.result.map((item: ReportLog, index: number) => ({
@@ -384,7 +396,7 @@ export default function ReportLogPage() {
         checkBoxUsual: checkBoxducUsual,
         checkBoxUnusual: checkBoxducUnusual,
         plant,
-        Search: textSearch
+        Search: debouncedTextSearch
       });
 
 
@@ -397,7 +409,7 @@ export default function ReportLogPage() {
         checkBoxUsual: checkBoxducUsual,
         checkBoxUnusual: checkBoxducUnusual,
         plant,
-        Search: textSearch
+        Search: debouncedTextSearch
       });
 
       setDucCounts({
@@ -411,7 +423,7 @@ export default function ReportLogPage() {
     } finally {
       setLoadingDataGrid(false);
     }
-  }, [checkBoxducUnusual, checkBoxducUsual, dateEnd, dateStart, dayHisDateduc, sessionUser?.plant, textSearch]);
+  }, [checkBoxducUnusual, checkBoxducUsual, dateEnd, dateStart, dayHisDateduc, sessionUser?.plant, debouncedTextSearch]);
 
 
 
@@ -427,7 +439,7 @@ export default function ReportLogPage() {
         checkBoxUsual: checkBoxdccUsual,
         checkBoxUnusual: checkBoxdccUnusual,
         plant,
-        Search: textSearch
+        Search: debouncedTextSearch
       });
       const newData = res.data.result.map(
         (item: ReportLog, index: number) => ({
@@ -451,7 +463,7 @@ export default function ReportLogPage() {
         checkBoxUsual: checkBoxdccUsual,
         checkBoxUnusual: checkBoxdccUnusual,
         plant,
-        Search: textSearch
+        Search: debouncedTextSearch
       });
 
       // previous data (สองวันก่อน)
@@ -463,7 +475,7 @@ export default function ReportLogPage() {
         checkBoxUsual: checkBoxdccUsual,
         checkBoxUnusual: checkBoxdccUnusual,
         plant,
-        Search: textSearch
+        Search: debouncedTextSearch
       });
 
       setDccCounts({
@@ -477,13 +489,12 @@ export default function ReportLogPage() {
     } finally {
       setLoadingDataGrid(false);
     }
-  }, [checkBoxdccUnusual, checkBoxdccUsual, dateEnd, dateStart, dayHisDatedcc, sessionUser?.plant, tapData, textSearch])
+  }, [checkBoxdccUnusual, checkBoxdccUsual, dateEnd, dateStart, dayHisDatedcc, sessionUser?.plant, tapData, debouncedTextSearch])
 
   useEffect(() => {
     fetchDuc()
     fetchDcc()
-
-  }, [fetchDuc, fetchDcc, textSearch]);
+  }, [fetchDuc, fetchDcc]);
 
 
   const hendleSubmit = async () => {
@@ -700,7 +711,7 @@ export default function ReportLogPage() {
                                       slotProps={{ textField: { fullWidth: true, size: "small" } }}
                                     />
                                   </Grid>
-                                  <Grid size={{ xs: 12, sm: 12, md: 4, lg: 6, xl: 2 }} >
+                                  <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2, xl: 2 }} >
                                     <DatePicker
                                       label="End Date"
                                       value={pendingEnd}
@@ -892,7 +903,7 @@ export default function ReportLogPage() {
                             <>
                               <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <Grid container spacing={2} alignItems="center" justifyContent="flex-end" display="flex">
-                                  <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2, xl: 2 }}  >
+                                  <Grid size={{ xs: 12, sm: 12, md: 2, lg: 2, xl: 2 }}  >
                                     <DatePicker
                                       label="Start Date"
                                       value={pendingStart}
@@ -903,7 +914,7 @@ export default function ReportLogPage() {
                                       slotProps={{ textField: { fullWidth: true, size: "small" } }}
                                     />
                                   </Grid>
-                                  <Grid size={{ xs: 12, sm: 12, md: 4, lg: 6, xl: 2 }} >
+                                  <Grid size={{ xs: 12, sm: 12, md: 2, lg: 2, xl: 2 }} >
                                     <DatePicker
                                       label="End Date"
                                       value={pendingEnd}

@@ -6,6 +6,7 @@ import type {
   TabDataState,
 } from "../types/reportlog";
 import type { AxiosResponse } from "axios";
+import type { GridRowId } from "@mui/x-data-grid";
 // import type { ReportLog, SearchData } from "../types/reportlog";
 
 interface ApiListResponse {
@@ -55,7 +56,7 @@ const exportExcel = (searchData: SearchData): Promise<AxiosResponse<Blob>> => {
 };
 
 const ApprovedReportLogService = (
-  Id: number[],
+  Id: GridRowId[],
   Admin_confirm: string,
   valueRedio: string,
   commont: string

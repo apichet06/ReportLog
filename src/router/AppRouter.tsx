@@ -13,6 +13,7 @@ import UsersPermissionPage from "@/features/mageusers/page/UsersPermissionPage";
 import type { User } from "@/layouts/userType";
 import sharedUsers from "@/shared/hooks/sharedUsers";
 import DataGridCheckboxSelection from "@/features/reportLog/pages/testdatagridPage";
+import ReportCheckAll from "@/features/reportLog/pages/ReportCheckAll";
 
 const AppRouter = () => {
   const userDataString = localStorage.getItem("user");
@@ -31,6 +32,7 @@ const AppRouter = () => {
         <Route path="/reportlog" element={<ReportLogPage />} />
         <Route path="/report-testdatagrid" element={<DataGridCheckboxSelection />} />
         <Route path="/report-log" element={<ReportLogPages />} />
+        <Route path="/report-chackall" element={<ReportCheckAll />} />
         <Route path="/report-log/:id?/:tap?" element={<ReportLogByIdPage />} />
         <Route path="/reportlog/:id?/:tap?" element={<ReportLogByIdPages />} />
         <Route path="/saved_report" element={<Saved_Reports />} />

@@ -45,14 +45,13 @@ export default function UserForm({
       onSubmit={handleSubmit(onSubmit)}
       display="flex"
       flexDirection="column"
-      gap={2}
+      gap={1}
     >
-      {" "}
       <DialogTitle>{"Users Management"}</DialogTitle>
       <DialogContent>
 
         <Grid container spacing={2} rowSpacing={3} mt={2}>
-          <Grid size={{ sm: 12, md: 4, lg: 4, xl: 4 }}>
+          <Grid size={{ sm: 12, md: 3, lg: 3, xl: 3 }}>
             <TextField
               fullWidth
               label="Emp No"
@@ -68,7 +67,7 @@ export default function UserForm({
               inputProps={{ maxLength: 6 }}
             />
           </Grid>
-          <Grid size={{ sm: 12, md: 4, lg: 4, xl: 4 }}>
+          <Grid size={{ sm: 12, md: 3, lg: 3, xl: 3 }}>
             <TextField
               fullWidth
               label="Email"
@@ -83,7 +82,7 @@ export default function UserForm({
               helperText={errors.emp_email ? errors.emp_email.message : null}
             />
           </Grid>
-          <Grid size={{ sm: 12, md: 4, lg: 4, xl: 4 }}>
+          <Grid size={{ sm: 12, md: 3, lg: 3, xl: 3 }}>
             <TextField
               fullWidth
               label="Firstname"
@@ -94,7 +93,7 @@ export default function UserForm({
               helperText={errors.firstname ? errors.firstname.message : null}
             />
           </Grid>
-          <Grid size={{ sm: 12, md: 4, lg: 4, xl: 4 }}>
+          <Grid size={{ sm: 12, md: 3, lg: 3, xl: 3 }}>
             <TextField
               fullWidth
               label="Lastname"
@@ -160,7 +159,7 @@ export default function UserForm({
               )}
             </FormControl>
           </Grid>
-          <Grid size={{ sm: 12, md: 3, lg: 3, xl: 3 }}>
+          <Grid size={{ sm: 12, md: 4, lg: 4, xl: 4 }}>
             <FormControl fullWidth error={!!errors.status}>
               <InputLabel id="demo-simple-select-label">Status</InputLabel>
               <Select
@@ -178,7 +177,7 @@ export default function UserForm({
               )}
             </FormControl>
           </Grid>
-          <Grid size={{ sm: 12, md: 12, lg: 9, xl: 9 }} mt={1}>
+          <Grid size={{ sm: 12, md: 12, lg: 12, xl: 12 }} mt={1}>
             <Grid
               container
               spacing={2}
@@ -258,6 +257,7 @@ export default function UserForm({
                 />
               </Grid>
             </Grid>
+            <hr />
           </Grid>
         </Grid>
       </DialogContent>

@@ -51,6 +51,8 @@ export default function Saved_Reports() {
 
   const [textSearch, SetTextSearch] = useState<string>("");
 
+
+
   const [dayHisDateduc, setsDayHisDateDuc] = useState(1);
   const [dayHisDatedcc, setsDayHisDateDcc] = useState(1);
   const [open, setOpen] = useState(false);
@@ -599,7 +601,7 @@ export default function Saved_Reports() {
                             <>
                               <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <Grid container spacing={2} alignItems="center" justifyContent="flex-end" display="flex">
-                                  <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2, xl: 2 }}  >
+                                  <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2, xl: 2 }}  >
                                     <DatePicker
                                       label="Start Date"
                                       value={pendingStart}
@@ -610,7 +612,7 @@ export default function Saved_Reports() {
                                       slotProps={{ textField: { fullWidth: true, size: "small" } }}
                                     />
                                   </Grid>
-                                  <Grid size={{ xs: 12, sm: 12, md: 4, lg: 6, xl: 2 }} >
+                                  <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2, xl: 2 }} >
                                     <DatePicker
                                       label="End Date"
                                       value={pendingEnd}
@@ -784,7 +786,7 @@ export default function Saved_Reports() {
                             <>
                               <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <Grid container spacing={2} alignItems="center" justifyContent="flex-end" display="flex">
-                                  <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2, xl: 2 }}  >
+                                  <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2, xl: 2 }}  >
                                     <DatePicker
                                       label="Start Date"
                                       value={pendingStart}
@@ -795,7 +797,7 @@ export default function Saved_Reports() {
                                       slotProps={{ textField: { fullWidth: true, size: "small" } }}
                                     />
                                   </Grid>
-                                  <Grid size={{ xs: 12, sm: 12, md: 4, lg: 6, xl: 2 }} >
+                                  <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2, xl: 2 }} >
                                     <DatePicker
                                       label="End Date"
                                       value={pendingEnd}

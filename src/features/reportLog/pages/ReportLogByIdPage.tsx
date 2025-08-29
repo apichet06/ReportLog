@@ -225,9 +225,7 @@ export default function ReportLogByIdPage() {
                                             <img src="/CRUDLogs/applog/img/alert.png" width="20px" height="20px" alt="Alert" />
                                         </>
                                         :
-                                        <>
-                                            <img src="/CRUDLogs/applog/img/success.png" width="20px" height="20px" alt="Success" />
-                                        </>
+                                        '-'
                                     }
                                 </Typography>
                             </Grid>
@@ -242,9 +240,7 @@ export default function ReportLogByIdPage() {
                                             <img src="/CRUDLogs/applog/img/alert.png" width="20px" height="20px" alt="Alert" />
                                         </>
                                         :
-                                        <>
-                                            <img src="/CRUDLogs/applog/img/success.png" width="20px" height="20px" alt="Success" />
-                                        </>
+                                        '-'
                                     }
                                 </Typography>
                             </Grid>
@@ -259,9 +255,7 @@ export default function ReportLogByIdPage() {
                                             <img src="/CRUDLogs/applog/img/alert.png" width="20px" height="20px" alt="Alert" />
                                         </>
                                         :
-                                        <>
-                                            <img src="/CRUDLogs/applog/img/success.png" width="20px" height="20px" alt="Success" />
-                                        </>
+                                        '-'
                                     }
                                 </Typography>
                             </Grid>

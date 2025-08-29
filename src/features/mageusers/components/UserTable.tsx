@@ -42,7 +42,7 @@ export default function UserTable({ rows, onEdit, onDelete, isAbove1537, isBetwe
     },
     {
       field: "plant_Name", headerName: "Plant Name", minWidth: 120,
-      renderHeader: () => <ColumnHeaderWithInfo field="fullname" label="Plant Name" />,
+      renderHeader: () => <ColumnHeaderWithInfo field="plant_name" label="Plant Name" />,
     },
     {
       field: "fullname", headerName: "Full Name", minWidth: 190,
@@ -89,7 +89,10 @@ export default function UserTable({ rows, onEdit, onDelete, isAbove1537, isBetwe
       headerAlign: "center",
       minWidth: 100
     },
-    { field: "created_by", headerName: "Created By", minWidth: 100, },
+    {
+      field: "created_by", headerName: "Created By", minWidth: 100,
+      renderHeader: () => <ColumnHeaderWithInfo field="created_by" label="Created By" />,
+    },
     {
       field: "created_date",
       headerName: "Created Date",
