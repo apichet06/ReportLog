@@ -20,8 +20,10 @@ const AppRouter = () => {
   const resultData: User | null = userDataString
     ? JSON.parse(userDataString)
     : null;
-  const { sessionUser } = sharedUsers(resultData?.emp_no as string)
-
+  const { sessionUser, loading } = sharedUsers(resultData?.emp_no as string)
+  if (loading) {
+    return <div>Loading routes...</div>;
+  }
   return (
     <Routes>
       <Route path="/ErrorPermissionPage" element={<ErrorPermissionPage />} />

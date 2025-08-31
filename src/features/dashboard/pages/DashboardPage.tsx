@@ -184,9 +184,11 @@ const DashboardPage = () => {
 
 
     useEffect(() => {
-        handleChartBar();
-        handleChart();
-    }, [handleChart, handleChartBar]);
+        if (sessionUser?.plant) {
+            handleChartBar();
+            handleChart();
+        }
+    }, [handleChart, handleChartBar, sessionUser.plant]);
 
     return (
         <>

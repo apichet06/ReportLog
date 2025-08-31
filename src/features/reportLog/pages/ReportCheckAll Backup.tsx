@@ -1,4 +1,5 @@
 import { DataGridPremium, type GridRowId, type GridRowSelectionModel } from "@mui/x-data-grid-premium";
+import CancelPresentation from "@mui/icons-material/CancelPresentation";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
@@ -12,7 +13,7 @@ import {
     type SyntheticEvent,
 } from "react";
 import reportLogService from "../service/reportlogService";
-import type { ReportLog } from "../types/reportlog";
+import type { MUIColor, ReportLog } from "../types/reportlog";
 import Swal from "sweetalert2";
 import datetime from "@/shared/utils/handleDatetime";
 
@@ -26,7 +27,8 @@ import TabPanel from "@mui/lab/TabPanel";
 import { getColumnsDUC } from "../constants/reportLogDucColumns";
 import { getColumnsDCC } from "../constants/reportLogDccColumns";
 import ReportLogDialog from "../components/ReportLogDialog";
-import ReportLogToolbars from "../components/ReportLogToolbars";
+import ButtonGroup from "@mui/material/ButtonGroup";
+import ReportLogToolbar from "../components/ReportLogToolbar";
 
 import { useMediaQuery } from "@mui/system";
 import dayjs from "dayjs";
@@ -35,11 +37,15 @@ import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 // import GetUserlogin from "@/shared/utils/serviceUser";
 import type { User } from "@/layouts/userType";
+import SearchIcon from '@mui/icons-material/Search';
 import sharedUsers from "@/shared/hooks/sharedUsers";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
 export default function ReportCheckAll() {
 
-    const twoDaysAgo = dayjs().subtract(1, "day");
+    const twoDaysAgo = dayjs().subtract(2, "day");
 
     const userDataString = localStorage.getItem("user");
     const resultData: User | null = userDataString
@@ -79,9 +85,15 @@ export default function ReportCheckAll() {
     const [tapData, setTapData] = useState("DUC");
     const [loadingDataGrid, setLoadingDataGrid] = useState(false);
     const [textSearch, SetTextSearch] = useState<string>("");
-    const [appliedSearch, setAppliedSearch] = useState<string>("");
-    const [conment, setComment] = useState<string>("");
 
+    const [conment, setComment] = useState<string>("");
+    const [colerTodayduc, setColerTodayDuc] = useState<MUIColor>("secondary");
+    const [colerHistoryduc, setColerHistoryDuc] = useState<MUIColor>("info");
+    const [colerTodaydcc, setColerTodayDcc] = useState<MUIColor>("secondary");
+    const [colerHistorydcc, setColerHistoryDcc] = useState<MUIColor>("info");
+
+    const [dayHisDateduc, setsDayHisDateDuc] = useState(1);
+    const [dayHisDatedcc, setsDayHisDateDcc] = useState(1);
 
     const [dateStart, setDateStart] = useState<Dayjs | null>(null);
     const [dateEnd, setDateEnd] = useState<Dayjs | null>(null);
@@ -99,8 +111,6 @@ export default function ReportCheckAll() {
     const [checkBoxducUnusual, setCheckBoxducUnusual] = useState("Unusual Event");
 
     const handleClear = () => {
-        setAppliedSearch("");
-        SetTextSearch("");
         setDateStart(null);
         setDateEnd(null);
         setPendingStart(null);
@@ -136,8 +146,6 @@ export default function ReportCheckAll() {
             setDateStart(pendingStart);
             setDateEnd(pendingEnd);
         }
-
-        setAppliedSearch(textSearch);
     };
 
 
@@ -146,12 +154,14 @@ export default function ReportCheckAll() {
     const [datasDcc, setDatasDcc] = useState<ReportLog[]>([]);
     const [ducCounts, setDucCounts] = useState({
         all: 0,
-
+        latest: 0,
+        previous: 0
     });
 
     const [dccCounts, setDccCounts] = useState({
         all: 0,
-
+        latest: 0,
+        previous: 0
     });
 
 
@@ -211,11 +221,9 @@ export default function ReportCheckAll() {
         try {
             setLoadingDataGrid(true);
             const plant = sessionUser?.plant;
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            const startDate = dateStart ? datetime.DateSearch(dateStart.toDate()) : "";
-            const endDate = dateEnd ? datetime.DateSearch(dateEnd.toDate()) : datetime.DateSearch(yesterday);
-            // ดึงข้อมูลมาแสดงในตาราง
+            const { startDate, endDate } = datetime.buildDateParamsSearch(dayHisDateduc, dateStart, dateEnd);
+
+            // ข้อมูลที่จะแสดงในตาราง
             const res = await reportLogService.GetReportLogService({
                 tapData: "DUC",
                 startDate,
@@ -223,7 +231,7 @@ export default function ReportCheckAll() {
                 checkBoxUsual: checkBoxducUsual,
                 checkBoxUnusual: checkBoxducUnusual,
                 plant,
-                Search: appliedSearch
+                Search: textSearch
             });
 
             const newData = res.data.result.map((item: ReportLog, index: number) => ({
@@ -234,8 +242,40 @@ export default function ReportCheckAll() {
             setDatasDuc(newData);
 
             // ---------- คำนวณ count ----------
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            const twoDaysAgo = new Date();
+            twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+            // latest data (เมื่อวาน)
+            const resLatest = await reportLogService.GetReportLogService({
+                tapData: "DUC",
+                startDate: datetime.DateSearch(yesterday),
+                endDate: datetime.DateSearch(yesterday),
+                checkBoxUsual: checkBoxducUsual,
+                checkBoxUnusual: checkBoxducUnusual,
+                plant,
+                Search: textSearch
+            });
+
+
+            // previous data (สองวันก่อน)
+            const date_Start = dateEnd == null ? null : dateStart;
+            const resPrev = await reportLogService.GetReportLogService({
+                tapData: "DUC",
+                startDate: date_Start ? datetime.DateSearch(date_Start.toDate()) : "",
+                endDate: dateEnd ? datetime.DateSearch(dateEnd.toDate()) : datetime.DateSearch(twoDaysAgo),
+                checkBoxUsual: checkBoxducUsual,
+                checkBoxUnusual: checkBoxducUnusual,
+                plant,
+                Search: textSearch
+            });
+
             setDucCounts({
-                all: newData.length
+                all: resLatest.data.result.length + resPrev.data.result.length,
+                latest: resLatest.data.result.length,
+                previous: resPrev.data.result.length,
             });
 
         } catch (err) {
@@ -243,7 +283,7 @@ export default function ReportCheckAll() {
         } finally {
             setLoadingDataGrid(false);
         }
-    }, [checkBoxducUnusual, checkBoxducUsual, dateEnd, dateStart, sessionUser?.plant, appliedSearch]);
+    }, [checkBoxducUnusual, checkBoxducUsual, dateEnd, dateStart, dayHisDateduc, sessionUser?.plant, textSearch]);
 
 
 
@@ -251,19 +291,15 @@ export default function ReportCheckAll() {
         try {
             setLoadingDataGrid(true);
             const plant = sessionUser?.plant;
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-
-            const startDate = dateStart ? datetime.DateSearch(dateStart.toDate()) : "";
-            const endDate = dateEnd ? datetime.DateSearch(dateEnd.toDate()) : datetime.DateSearch(yesterday);
+            const { startDate, endDate } = datetime.buildDateParamsSearch(dayHisDatedcc, dateStart, dateEnd);
             const res = await reportLogService.GetReportLogService({
-                tapData: "DCC",
+                tapData,
                 startDate,
-                endDate: endDate,
+                endDate,
                 checkBoxUsual: checkBoxdccUsual,
                 checkBoxUnusual: checkBoxdccUnusual,
                 plant,
-                Search: appliedSearch
+                Search: textSearch
             });
             const newData = res.data.result.map(
                 (item: ReportLog, index: number) => ({
@@ -272,8 +308,40 @@ export default function ReportCheckAll() {
                 })
             );
             setDatasDcc(newData);
+
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            const twoDaysAgo = new Date();
+            twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+            // latest data (เมื่อวาน)
+            const resLatest = await reportLogService.GetReportLogService({
+                tapData: "DCC",
+                startDate: datetime.DateSearch(yesterday),
+                endDate: datetime.DateSearch(yesterday),
+                checkBoxUsual: checkBoxdccUsual,
+                checkBoxUnusual: checkBoxdccUnusual,
+                plant,
+                Search: textSearch
+            });
+
+            // previous data (สองวันก่อน)
+            const date_Start = dateEnd == null ? null : dateStart;
+            const resPrev = await reportLogService.GetReportLogService({
+                tapData: "DCC",
+                startDate: date_Start ? datetime.DateSearch(date_Start.toDate()) : "",
+                endDate: dateEnd ? datetime.DateSearch(dateEnd.toDate()) : datetime.DateSearch(twoDaysAgo),
+                checkBoxUsual: checkBoxdccUsual,
+                checkBoxUnusual: checkBoxdccUnusual,
+                plant,
+                Search: textSearch
+            });
+
             setDccCounts({
-                all: newData.length,
+                all: resLatest.data.result.length + resPrev.data.result.length,
+                latest: resLatest.data.result.length,
+                previous: resPrev.data.result.length,
             });
 
         } catch (err) {
@@ -281,13 +349,13 @@ export default function ReportCheckAll() {
         } finally {
             setLoadingDataGrid(false);
         }
-    }, [checkBoxdccUnusual, checkBoxdccUsual, dateEnd, dateStart, sessionUser?.plant, appliedSearch])
+    }, [checkBoxdccUnusual, checkBoxdccUsual, dateEnd, dateStart, dayHisDatedcc, sessionUser?.plant, tapData, textSearch])
 
     useEffect(() => {
         fetchDuc()
         fetchDcc()
 
-    }, [fetchDuc, fetchDcc]);
+    }, [fetchDuc, fetchDcc, textSearch]);
 
 
     const hendleSubmit = async () => {
@@ -360,18 +428,12 @@ export default function ReportCheckAll() {
                             noValidate
                             autoComplete="off"
                         >
-                            <ReportLogToolbars
+                            <ReportLogToolbar
                                 textSearch={textSearch}
                                 onSearchChange={SetTextSearch}
-                                handleApplyDate={handleApplyDate}
-                                handleClear={handleClear}
-                                twoDaysAgo={twoDaysAgo}
-                                pendingStart={pendingStart}
-                                pendingEnd={pendingEnd}
-                                setPendingStart={setPendingStart}
-                                setPendingEnd={setPendingEnd}
+                                dateStart={dateStart}
+                                dateEnd={dateEnd}
                             />
-
                         </Box>
                         <hr />
                         <Box
@@ -423,9 +485,46 @@ export default function ReportCheckAll() {
                                                 justifyContent="start"
                                                 alignItems="end"
                                             >
-
                                                 <Grid
-                                                    size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
+                                                    size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}
+                                                    mb={3}
+                                                    justifyContent="flex-start"
+                                                    display="flex"
+                                                >
+                                                    <ButtonGroup
+                                                        disableElevation
+                                                        variant="outlined"
+                                                        aria-label="Disabled button group"
+                                                    >
+                                                        <Button
+                                                            variant="contained"
+                                                            color={colerTodayduc}
+                                                            onClick={() => {
+                                                                setsDayHisDateDuc(1);
+                                                                setColerTodayDuc("secondary");
+                                                                setColerHistoryDuc("primary");
+                                                            }}
+                                                        >
+                                                            Latest Data
+                                                            ({
+                                                                ducCounts.latest
+                                                            })
+                                                        </Button>
+                                                        <Button
+                                                            variant="contained"
+                                                            color={colerHistoryduc}
+                                                            onClick={() => {
+                                                                setsDayHisDateDuc(0);
+                                                                setColerTodayDuc("primary");
+                                                                setColerHistoryDuc("secondary");
+                                                            }}
+                                                        >
+                                                            Previous Data ({ducCounts.previous})
+                                                        </Button>
+                                                    </ButtonGroup>
+                                                </Grid>
+                                                <Grid
+                                                    size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}
                                                     mb={1}
                                                     justifyContent="flex-end"
                                                     display="flex"
@@ -458,8 +557,52 @@ export default function ReportCheckAll() {
                                                         label="Unusual Event"
                                                     />
                                                 </Grid>
+                                                <Grid size={{ xs: 12, sm: 12, md: 10, lg: 11, xl: 11 }} mb={2} >
+                                                    {dayHisDateduc === 0 && (
+                                                        <>
+                                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                                <Grid container spacing={2} alignItems="center" justifyContent="flex-end" display="flex">
+                                                                    <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2, xl: 2 }}  >
+                                                                        <DatePicker
+                                                                            label="Start Date"
+                                                                            value={pendingStart}
+                                                                            format="DD/MM/YYYY"
+                                                                            disableFuture
+                                                                            maxDate={twoDaysAgo}
+                                                                            onChange={(newValue) => setPendingStart(newValue)}
+                                                                            slotProps={{ textField: { fullWidth: true, size: "small" } }}
+                                                                        />
+                                                                    </Grid>
+                                                                    <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2, xl: 2 }} >
+                                                                        <DatePicker
+                                                                            label="End Date"
+                                                                            value={pendingEnd}
+                                                                            format="DD/MM/YYYY"
+                                                                            disableFuture
+                                                                            minDate={pendingStart as Dayjs}
+                                                                            maxDate={twoDaysAgo}
+                                                                            onChange={(newValue) => setPendingEnd(newValue)}
+                                                                            slotProps={{ textField: { fullWidth: true, size: "small" } }}
+                                                                        />
+                                                                    </Grid>
+                                                                    <Grid size={{ xs: 12, sm: 12, md: 1.5, lg: 1, xl: 1 }}>
+                                                                        <Button variant="contained" fullWidth onClick={handleApplyDate}  >
+                                                                            <SearchIcon />
+                                                                        </Button>
+                                                                    </Grid>
+                                                                    <Grid size={{ xs: 12, sm: 12, md: 1.5, lg: 1, xl: 1 }}>
+                                                                        <Button fullWidth variant="contained" color="error" onClick={handleClear} title="Clear search" aria-label="clear search">
+                                                                            <CancelPresentation />
+                                                                        </Button>
+                                                                    </Grid>
+                                                                </Grid>
+                                                            </LocalizationProvider>
+                                                        </>
+                                                    )}
+
+                                                </Grid>
                                                 <Grid
-                                                    size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
+                                                    size={{ xs: 12, sm: 12, md: 2, lg: 1, xl: 1 }}
                                                     mb={2.2}
                                                     justifyContent="flex-end"
                                                     display="flex"
@@ -467,6 +610,7 @@ export default function ReportCheckAll() {
                                                     {sessionUser.is_accept && (
                                                         <Button
                                                             variant="contained"
+                                                            fullWidth
                                                             color="success"
                                                             onClick={handleClickOpen}
                                                             startIcon={<SaveIcon />}
@@ -553,9 +697,43 @@ export default function ReportCheckAll() {
                                                 justifyContent="start"
                                                 alignItems="end"
                                             >
-
                                                 <Grid
-                                                    size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
+                                                    size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}
+                                                    mb={3}
+                                                    justifyContent="flex-start"
+                                                    display="flex"
+                                                >
+                                                    <ButtonGroup
+                                                        disableElevation
+                                                        variant="outlined"
+                                                        aria-label="Disabled button group"
+                                                    >
+                                                        <Button
+                                                            variant="contained"
+                                                            color={colerTodaydcc}
+                                                            onClick={() => {
+                                                                setsDayHisDateDcc(1);
+                                                                setColerTodayDcc("secondary");
+                                                                setColerHistoryDcc("primary");
+                                                            }}
+                                                        >
+                                                            Latest Data ({dccCounts.latest})
+                                                        </Button>
+                                                        <Button
+                                                            variant="contained"
+                                                            color={colerHistorydcc}
+                                                            onClick={() => {
+                                                                setsDayHisDateDcc(0);
+                                                                setColerTodayDcc("primary");
+                                                                setColerHistoryDcc("secondary");
+                                                            }}
+                                                        >
+                                                            Previous Data ({dccCounts.previous})
+                                                        </Button>
+                                                    </ButtonGroup>
+                                                </Grid>
+                                                <Grid
+                                                    size={{ xs: 6, sm: 6, md: 6, lg: 6, xl: 6 }}
                                                     mb={1}
                                                     justifyContent="flex-end"
                                                     display="flex"
@@ -587,8 +765,52 @@ export default function ReportCheckAll() {
                                                         label="Unusual Event"
                                                     />
                                                 </Grid>
+                                                <Grid size={{ xs: 12, sm: 12, md: 10, lg: 11, xl: 11 }} mb={2} >
+                                                    {dayHisDatedcc === 0 && (
+                                                        <>
+                                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                                <Grid container spacing={2} alignItems="center" justifyContent="flex-end" display="flex">
+                                                                    <Grid size={{ xs: 12, sm: 6, md: 4, lg: 2, xl: 2 }}  >
+                                                                        <DatePicker
+                                                                            label="Start Date"
+                                                                            value={pendingStart}
+                                                                            format="DD/MM/YYYY"
+                                                                            disableFuture
+                                                                            maxDate={twoDaysAgo}
+                                                                            onChange={(newValue) => setPendingStart(newValue)}
+                                                                            slotProps={{ textField: { fullWidth: true, size: "small" } }}
+                                                                        />
+                                                                    </Grid>
+                                                                    <Grid size={{ xs: 12, sm: 12, md: 4, lg: 2, xl: 2 }} >
+                                                                        <DatePicker
+                                                                            label="End Date"
+                                                                            value={pendingEnd}
+                                                                            format="DD/MM/YYYY"
+                                                                            disableFuture
+                                                                            minDate={pendingStart as Dayjs}
+                                                                            maxDate={twoDaysAgo}
+                                                                            onChange={(newValue) => setPendingEnd(newValue)}
+                                                                            slotProps={{ textField: { fullWidth: true, size: "small" } }}
+                                                                        />
+                                                                    </Grid>
+                                                                    <Grid size={{ xs: 12, sm: 12, md: 1.5, lg: 1, xl: 1 }}>
+                                                                        <Button variant="contained" fullWidth onClick={handleApplyDate}  >
+                                                                            <SearchIcon />
+                                                                        </Button>
+                                                                    </Grid>
+                                                                    <Grid size={{ xs: 12, sm: 12, md: 1.5, lg: 1, xl: 1 }}>
+                                                                        <Button fullWidth variant="contained" color="error" onClick={handleClear} title="Clear search" aria-label="clear search">
+                                                                            <CancelPresentation />
+                                                                        </Button>
+                                                                    </Grid>
+                                                                </Grid>
+                                                            </LocalizationProvider>
+                                                        </>
+                                                    )}
+
+                                                </Grid>
                                                 <Grid
-                                                    size={{ xs: 12, sm: 12, md: 2, lg: 12, xl: 12 }}
+                                                    size={{ xs: 12, sm: 12, md: 2, lg: 1, xl: 1 }}
                                                     mb={2.2}
                                                     justifyContent="flex-end"
                                                     display="flex"
@@ -598,7 +820,7 @@ export default function ReportCheckAll() {
                                                         <Button
                                                             variant="contained"
                                                             color="success"
-
+                                                            fullWidth
                                                             onClick={handleClickOpen}
                                                             startIcon={<SaveIcon />}
                                                         >
