@@ -14,6 +14,7 @@ import type { User } from "@/layouts/userType";
 import sharedUsers from "@/shared/hooks/sharedUsers";
 import DataGridCheckboxSelection from "@/features/reportLog/pages/testdatagridPage";
 import ReportCheckAll from "@/features/reportLog/pages/ReportCheckAll";
+import History from "@/features/history/page/History";
 
 const AppRouter = () => {
   const userDataString = localStorage.getItem("user");
@@ -22,7 +23,7 @@ const AppRouter = () => {
     : null;
   const { sessionUser, loading } = sharedUsers(resultData?.emp_no as string)
   if (loading) {
-    return <div>Loading routes...</div>;
+    return <div>Loading...</div>;
   }
   return (
     <Routes>
@@ -40,7 +41,8 @@ const AppRouter = () => {
         <Route path="/saved_report" element={<Saved_Reports />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         {sessionUser?.status?.toLowerCase() === "admin" && (
-          <Route path="/userpermission" element={<UsersPermissionPage />} />
+          <> <Route path="/userpermission" element={<UsersPermissionPage />} />
+            <Route path="/history" element={<History />} /></>
         )}
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Route>

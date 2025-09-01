@@ -38,6 +38,7 @@ import { sendPost } from "@/shared/utils/logout";
 import Avatar from '@mui/material/Avatar';
 import SettingsIcon from '@mui/icons-material/Settings';
 import sharedUsers from "@/shared/hooks/sharedUsers";
+import { GridHistoryIcon } from "@mui/x-data-grid-premium";
 
 const drawerWidth = 240;
 
@@ -125,6 +126,7 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
         // { label: "User Permission", icon: <DescriptionIcon />, path: "/userpermission" },
     ];
     if (sessionUser?.status?.toLowerCase() === "admin") {
+        menuItems.push({ label: "History", icon: <GridHistoryIcon />, path: "/history" })
         menuItems.push({ label: "Users Management", icon: <SettingsIcon />, path: "/userpermission" });
     }
     const { setToken, setUser } = useAuthContext();

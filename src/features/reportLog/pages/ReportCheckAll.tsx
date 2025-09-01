@@ -387,7 +387,7 @@ export default function ReportCheckAll() {
                                 alignItems="start"
                             >
                                 <Grid size={{ xs: 11, sm: 11, md: 11, lg: 8, xl: 8 }}>
-                                    <h2>Report Log</h2>
+                                    <h2>Review Log</h2>
                                 </Grid>
                             </Grid>
                             <Grid size={12}>
