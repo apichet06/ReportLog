@@ -125,10 +125,15 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
         { label: "Audit Report Log", icon: <DescriptionIcon />, path: "/saved_report" },
         // { label: "User Permission", icon: <DescriptionIcon />, path: "/userpermission" },
     ];
-    if (sessionUser?.status?.toLowerCase() === "admin") {
-        menuItems.push({ label: "History", icon: <GridHistoryIcon />, path: "/history" })
-        menuItems.push({ label: "Users Management", icon: <SettingsIcon />, path: "/userpermission" });
-    }
+    // if (sessionUser?.status?.toLowerCase() === "admin") {
+    //     menuItems.push({ label: "History", icon: <GridHistoryIcon />, path: "/history" })
+    //     menuItems.push({ label: "Users Management", icon: <SettingsIcon />, path: "/userpermission" });
+    // }
+    const adminMenuItems = [
+        { label: "History", icon: <GridHistoryIcon />, path: "/history" },
+        { label: "Users Management", icon: <SettingsIcon />, path: "/userpermission" },
+    ];
+
     const { setToken, setUser } = useAuthContext();
     const [isAppInitialized, setIsAppInitialized] = useState(false);
 
@@ -231,6 +236,26 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
                             </ListItemButton>
                         </ListItem>
                     ))}
+                    {sessionUser?.status?.toLowerCase() === "admin" && (
+                        <>
+                            <Divider />
+                            <Typography variant="subtitle2" sx={{ pl: 2, pt: 1, pb: 1, color: "text.secondary" }}>
+                                Admin Section
+                            </Typography>
+                            {adminMenuItems.map(({ label, icon, path }) => (
+                                <ListItem key={label} disablePadding>
+                                    <ListItemButton
+                                        component={RouterLink}
+                                        to={path}
+                                        onClick={handleDrawerClose}
+                                    >
+                                        <ListItemIcon>{icon}</ListItemIcon>
+                                        <ListItemText primary={label} />
+                                    </ListItemButton>
+                                </ListItem>
+                            ))}
+                        </>
+                    )}
                 </List>
                 <Divider />
             </Drawer>
