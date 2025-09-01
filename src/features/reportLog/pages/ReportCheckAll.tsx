@@ -686,6 +686,7 @@ export default function ReportCheckAll() {
                 open={open}
                 onClose={handleClose}
                 valueRedio={valueRedio}
+                selectedIds={selectedIds}
                 comment={conment}
                 onSubmit={hendleSubmit}
                 onRadioChange={handleChangeRedio}

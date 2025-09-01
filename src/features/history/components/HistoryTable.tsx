@@ -11,9 +11,10 @@ interface Props {
     rows: Histotys[];
     isAbove1537: boolean;
     isBetween1201And1536: boolean;
+    loading: boolean;
 }
 
-export default function HistoryTable({ rows, isAbove1537, isBetween1201And1536 }: Props) {
+export default function HistoryTable({ rows, isAbove1537, isBetween1201And1536, loading }: Props) {
 
     const columns: GridColDef[] = [
         {
@@ -86,20 +87,12 @@ export default function HistoryTable({ rows, isAbove1537, isBetween1201And1536 }
                 getRowId={(row) => row.id}
                 pageSizeOptions={[5, 10, 15, 20, 40, 60, 80, 100]}
                 disablePivoting
+                loading={loading}
+
                 disableColumnSorting
                 disableColumnFilter
                 disableColumnMenu
                 pagination
-                showToolbar
-                slotProps={{
-                    toolbar: {
-                        csvOptions: { disableToolbarButton: true },
-                        printOptions: { disableToolbarButton: true },
-                        excelOptions: {
-                            disableToolbarButton: true,
-                        },
-                    },
-                }}
                 initialState={{
                     pinnedColumns: {
                         left: ["no"],

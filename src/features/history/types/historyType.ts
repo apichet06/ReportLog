@@ -9,3 +9,9 @@ export interface Histotys {
   comment: string;
   processType: string;
 }
+
+export interface Search {
+  Search: string;
+  startDate: string;
+  endDate: string;
+}

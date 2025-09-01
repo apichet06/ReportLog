@@ -93,7 +93,7 @@ export default function UsersPermissionPage() {
   const isAbove1537 = useMediaQuery("(min-width:1537px)");
   return (
     <>
-      <h2>Users Management</h2>
+
       <>
         <Container
           fixed
@@ -106,6 +106,9 @@ export default function UsersPermissionPage() {
               ? { marginInline: "-10%" }
               : {}),
           }}>
+            <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }} mt={2}  >
+              <h2>Users Management</h2>
+            </Grid>
             <Grid
               size={{ sm: 12, xs: 12, md: 12, lg: 12, xl: 12 }}
               mb={2}
