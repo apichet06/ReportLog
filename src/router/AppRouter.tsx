@@ -32,10 +32,10 @@ const AppRouter = () => {
       {/* <Route path="/login" element={<LoginPage />} /> */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/reportlog" element={<ReportLogPage />} />
+        <Route path="/reportlogs" element={<ReportLogPage />} />
         <Route path="/report-testdatagrid" element={<DataGridCheckboxSelection />} />
         <Route path="/report-log" element={<ReportLogPages />} />
-        <Route path="/report-chackall" element={<ReportCheckAll />} />
+        <Route path="/reportlog" element={<ReportCheckAll />} />
         <Route path="/report-log/:id?/:tap?" element={<ReportLogByIdPage />} />
         <Route path="/reportlog/:id?/:tap?" element={<ReportLogByIdPages />} />
         <Route path="/saved_report" element={<Saved_Reports />} />
