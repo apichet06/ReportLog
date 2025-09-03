@@ -22,8 +22,9 @@ export default function HistoryTable({ rows, isAbove1537, isBetween1201And1536, 
             headerName: "NO",
             align: "center",
             sortable: false,
+
             renderHeader: () => <ColumnHeaderWithInfo field="no" label="NO" />,
-            headerAlign: "center", flex: 0.5, minWidth: 80,
+            headerAlign: "center", flex: 0.5, minWidth: 100,
             renderCell: (params: GridRenderCellParams) => {
                 const sortedRowIds = params.api.getSortedRowIds();
                 const rowIndex = sortedRowIds.indexOf(params.id);
@@ -35,7 +36,7 @@ export default function HistoryTable({ rows, isAbove1537, isBetween1201And1536, 
             renderHeader: () => <ColumnHeaderWithInfo field="emp_no" label="Emp No" />,
         },
         {
-            field: "fullname", headerName: "Full Name", flex: 0.5, minWidth: 200,
+            field: "fullname", headerName: "Full Name", flex: 0.5, minWidth: 180,
             renderHeader: () => <ColumnHeaderWithInfo field="fullname" label="Full Name" />,
         },
         {
@@ -43,7 +44,7 @@ export default function HistoryTable({ rows, isAbove1537, isBetween1201And1536, 
             renderHeader: () => <ColumnHeaderWithInfo field="processType" label="ProcessType" />,
         },
         {
-            field: "comment", headerName: "Comment", flex: 0.5, minWidth: 350,
+            field: "comment", headerName: "Comment", flex: 0.5, minWidth: 300,
             renderHeader: () => <ColumnHeaderWithInfo field="comment" label="Comment" />,
         },
         {
@@ -51,13 +52,23 @@ export default function HistoryTable({ rows, isAbove1537, isBetween1201And1536, 
             renderHeader: () => <ColumnHeaderWithInfo field="app_log" label="App Name" />,
         },
         {
-            field: "action", headerName: "Action", flex: 0.5, minWidth: 100,
+            field: "action", headerName: "Action", flex: 0.5, minWidth: 150,
             renderHeader: () => <ColumnHeaderWithInfo field="action" label="Action" />,
         },
         {
-            field: "details", headerName: "Detail", flex: 0.5, minWidth: 600,
+            field: "details", headerName: "Detail", flex: 0.5, minWidth: 620,
             renderHeader: () => <ColumnHeaderWithInfo field="details" label="Details" />,
         },
+        // {
+        //     field: "details", headerName: "Detail", flex: 0.5, minWidth: 620,
+        //     renderHeader: () => <ColumnHeaderWithInfo field="details" label="Details" />,
+        //     renderCell: (params) => {
+        //         const details = params.row.details
+        //         const action = params.row.action
+        //         return `(${action}) ${details}`;
+
+        //     }
+        // },
         {
             field: "action_datetime", headerName: "Action Date", flex: 0.5, minWidth: 120,
             renderCell: (params) =>

@@ -121,7 +121,7 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
 
     const menuItems = [
         { label: "Dashboard Chart", icon: <InsertChartIcon />, path: "/dashboard" },
-        { label: "Report Log", icon: <InboxIcon />, path: "/reportlog" },
+        { label: "Review Log", icon: <InboxIcon />, path: "/reportlog" },
         { label: "Audit Report Log", icon: <DescriptionIcon />, path: "/saved_report" },
         // { label: "User Permission", icon: <DescriptionIcon />, path: "/userpermission" },
     ];

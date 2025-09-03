@@ -28,8 +28,8 @@ export const columnDescriptionsTH: Record<string, string> = {
 export const columnDescriptionsEN: Record<string, string> = {
   no: "Running number",
   group_name: "User group name",
-  username: "User Name (download/upload)",
-  action: "Action (download/upload)",
+  username: "User Name download/upload",
+  action: "Action download/upload ",
   action_date_time: "Date and time of the file download/upload.",
   detail: "Details of the file download/upload.",
   bu: "Business Unit",

@@ -1,4 +1,11 @@
-import { Card, CardContent, Typography, Grid, Divider, Paper, Button, Box } from "@mui/material";
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import Grid from '@mui/material/Grid';
+import Divider from '@mui/material/Divider';
+import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
 import ReportLogDialog from "../components/ReportLogDialog";
 
 import type { User } from "@/layouts/userType";
@@ -49,7 +56,7 @@ export default function ReportLogByIdPage() {
                 <Card sx={{ maxWidth: 1000, margin: "auto", borderRadius: 3, boxShadow: 3 }}>
                     <CardContent>
                         <Typography variant="h5" fontWeight="bold" gutterBottom>
-                            Report Log Detail
+                            Review Log Detail
                             {/* (ID: {data?.id}) */}
                         </Typography>
                         <Divider sx={{ mb: 2 }} />

@@ -8,7 +8,7 @@ import DashboardPage from "@/features/dashboard/pages/DashboardPage";
 import ReportLogPages from "@/features/report-log/pages/ReportLogPage";
 import ReportLogByIdPage from "@/features/report-log/pages/ReportLogByIdPage";
 import ReportLogByIdPages from "@/features/reportLog/pages/ReportLogByIdPage";
-import UpdateOnEmailPage from "@/features/save-onemail/page/SaveOnemailpage";
+import UpdateOnEmailPage from "@/features/save-onemail/page/SaveOnmailpage";
 import UsersPermissionPage from "@/features/mageusers/page/UsersPermissionPage";
 import type { User } from "@/layouts/userType";
 import sharedUsers from "@/shared/hooks/sharedUsers";

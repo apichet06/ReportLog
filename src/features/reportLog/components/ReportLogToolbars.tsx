@@ -52,7 +52,7 @@ export default function ReportLogToolbar({
                 <>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <Grid container spacing={2} alignItems="center" justifyContent="flex-end" display="flex">
-                            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 4, xl: 4 }}  >
+                            <Grid size={{ xs: 12, sm: 12, md: 4, lg: 4, xl: 4 }}  >
                                 <DatePicker
                                     label="Start Date"
                                     value={pendingStart}

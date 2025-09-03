@@ -114,7 +114,7 @@ export default function ReportLogByIdPage() {
                 <Card sx={{ maxWidth: 1000, margin: "auto", borderRadius: 3, boxShadow: 3 }}>
                     <CardContent>
                         <Typography variant="h5" fontWeight="bold" gutterBottom>
-                            Report Log Detail
+                            Review Log Detail
                             {/* (ID: {data?.id}) */}
                         </Typography>
                         <Divider sx={{ mb: 2 }} />

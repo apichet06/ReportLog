@@ -126,7 +126,7 @@ export default function ReportLogByIdPage() {
                 <Card sx={{ maxWidth: 1000, margin: "auto", borderRadius: 3, boxShadow: 3 }}>
                     <CardContent>
                         <Typography variant="h5" fontWeight="bold" gutterBottom>
-                            Report Log Detail
+                            Review Log Detail
                             {/* (ID: {data?.id}) */}
                         </Typography>
                         <Divider sx={{ mb: 2 }} />
@@ -138,7 +138,6 @@ export default function ReportLogByIdPage() {
                                 </Typography>
                                 <Typography variant="body1">{data?.group_name}</Typography>
                             </Grid>
-
                             <Grid size={{ xs: 12, sm: 6 }}>
                                 <Typography variant="subtitle2" color="text.secondary">
                                     USERNAME

@@ -25,7 +25,7 @@ import TabPanel from "@mui/lab/TabPanel";
 
 import { getColumnsDUC } from "../constants/reportLogDucColumns";
 import { getColumnsDCC } from "../constants/reportLogDccColumns";
-import ReportLogDialog from "../components/ReportLogDialog";
+import ReportLogDialogCheckAll from "../components/ReportLogDialogCheckAll";
 import ReportLogToolbars from "../components/ReportLogToolbars";
 
 import { useMediaQuery } from "@mui/system";
@@ -489,7 +489,7 @@ export default function ReportCheckAll() {
                                                     rows={datasDuc}
                                                     columns={ducColumns}
                                                     pagination
-                                                    checkboxSelection
+                                                    checkboxSelection={sessionUser.is_accept}
                                                     disablePivoting
                                                     disableColumnSorting
                                                     disableColumnFilter
@@ -619,7 +619,7 @@ export default function ReportCheckAll() {
                                                     loading={loadingDataGrid}
                                                     rows={datasDcc}
                                                     columns={dccColumns}
-                                                    checkboxSelection
+                                                    checkboxSelection={sessionUser.is_accept}
                                                     pagination
                                                     disablePivoting
                                                     disableColumnSorting
@@ -682,7 +682,7 @@ export default function ReportCheckAll() {
                     </Grid>
                 </Grid>
             </Container>
-            <ReportLogDialog
+            <ReportLogDialogCheckAll
                 open={open}
                 onClose={handleClose}
                 valueRedio={valueRedio}

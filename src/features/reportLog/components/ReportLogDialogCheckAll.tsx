@@ -10,7 +10,7 @@ import Radio from '@mui/material/Radio';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import type { ChangeEvent } from 'react';
-
+import type { GridRowId } from '@mui/x-data-grid';
 
 interface Props {
     open: boolean;
@@ -20,17 +20,17 @@ interface Props {
     onSubmit: () => void;
     onRadioChange: (event: ChangeEvent<HTMLInputElement>) => void;
     onCommentChange: (val: string) => void;
-
+    selectedIds: GridRowId[];
 }
 
-export default function ReportLogDialog({
+export default function ReportLogDialogCheckAll({
     open,
     valueRedio,
     comment,
     onClose,
     onSubmit,
     onRadioChange,
-    onCommentChange
+    onCommentChange, selectedIds
 }: Props) {
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -49,6 +49,7 @@ export default function ReportLogDialog({
                         <FormControlLabel value="Unusual Event" control={<Radio />} label="Unusual Event" />
                     </RadioGroup>
                 </FormControl>
+                <h4>Total: ({selectedIds.length}) Items</h4>
                 <TextField
                     label="Comment"
                     multiline
