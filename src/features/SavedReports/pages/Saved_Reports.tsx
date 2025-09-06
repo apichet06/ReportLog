@@ -376,7 +376,6 @@ export default function Saved_Reports() {
                         justifyContent="start"
                         alignItems="end"
                       >
-
                         <Grid
                           size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }}
                           mb={3}
@@ -443,12 +442,7 @@ export default function Saved_Reports() {
                           disableColumnSorting
                           disableColumnFilter
                           getRowClassName={(params) =>
-                            params.row.unauthorized === "Y" ||
-                              params.row.download_more_10_files_day === "Y" ||
-                              params.row.employee_resigning_within_one_month ===
-                              "Y"
-                              ? "row--highlight"
-                              : ""
+                            params.row.admin_confirm_event === "Unusual Event" ? "row--highlight" : ""
                           }
                           showToolbar={true}
                           slotProps={{

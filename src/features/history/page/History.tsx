@@ -2,9 +2,11 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import HistoryTable from "../components/HistoryTable";
 import { useHistory } from "../hook/useHistory";
 import ReportLogToolbar from '../components/ReportLogToolbar';
-import { Box, Container, Grid } from '@mui/material';
-
-
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import Grid from '@mui/material/Grid';
+// import Typography from '@mui/material/Typography';
+// import PaletteIcon from '@mui/icons-material/Palette';
 
 export default function History() {
     const { row, setAppliedSearch, SetTextSearch, setDateStart, setDateEnd, setPendingStart, setPendingEnd, pendingStart, pendingEnd, textSearch, twoDaysAgo, loading } = useHistory();
@@ -62,6 +64,12 @@ export default function History() {
                     </Grid>
                     <Grid size={{ xs: 12, sm: 12, md: 12, lg: 12, xl: 12 }} mb={2}>
                         <h2>History Report</h2>
+                        {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <PaletteIcon sx={{ color: ' #696969' }} />
+                            <Typography component="strong" color='#696969' mr={3}>User action confrim</Typography>
+                            <PaletteIcon sx={{ color: '#669999' }} />
+                            <Typography component="strong" color='#669999'>Details Log</Typography>
+                        </Box> */}
                     </Grid>
                 </Grid>
             </Container>

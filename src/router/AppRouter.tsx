@@ -8,28 +8,45 @@ import DashboardPage from "@/features/dashboard/pages/DashboardPage";
 import ReportLogPages from "@/features/report-log/pages/ReportLogPage";
 import ReportLogByIdPage from "@/features/report-log/pages/ReportLogByIdPage";
 import ReportLogByIdPages from "@/features/reportLog/pages/ReportLogByIdPage";
-import UpdateOnEmailPage from "@/features/save-onemail/page/SaveOnmailpage";
+import UpdateOnEmailPage from "@/features/save-onemail/page/SaveOnEmailpage";
 import UsersPermissionPage from "@/features/mageusers/page/UsersPermissionPage";
-import type { User } from "@/layouts/userType";
-import sharedUsers from "@/shared/hooks/sharedUsers";
+// import type { User } from "@/layouts/userType";
+// import sharedUsers from "@/shared/hooks/sharedUsers";
 import DataGridCheckboxSelection from "@/features/reportLog/pages/testdatagridPage";
 import ReportCheckAll from "@/features/reportLog/pages/ReportCheckAll";
 import History from "@/features/history/page/History";
+// import usePrivateRoute from "@/shared/hooks/usePrivateRoute";
+import { useAuthContext } from "@/shared/context/AuthContext";
 
 const AppRouter = () => {
-  const userDataString = localStorage.getItem("user");
-  const resultData: User | null = userDataString
-    ? JSON.parse(userDataString)
-    : null;
-  const { sessionUser, loading } = sharedUsers(resultData?.emp_no as string)
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  const isAuthenticated = useAuthContext();
+
+  console.log(isAuthenticated.user?.status);
+
+  // const userDataString = localStorage.getItem("user");
+  // let resultData: User | null = null;
+
+  // try {
+  //   resultData = userDataString ? JSON.parse(userDataString) : null;
+  // } catch (error) {
+  //   console.error("Failed to parse user data from localStorage", error);
+  //   localStorage.removeItem("user");
+  // }
+
+  // const { sessionUser, loading } = sharedUsers(resultData?.emp_no as string)
+
+
+  // if (loading) {
+  //   return <div>Loading...</div>;
+  // }
+
+
   return (
     <Routes>
       <Route path="/ErrorPermissionPage" element={<ErrorPermissionPage />} />
       <Route path="/updateDateOnEmail/:plant?/:app_log?/:datetime?" element={<UpdateOnEmailPage />} />
       {/* <Route path="/login" element={<LoginPage />} /> */}
+
       <Route element={<MainLayout />}>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/reportlogs" element={<ReportLogPage />} />
@@ -40,7 +57,7 @@ const AppRouter = () => {
         <Route path="/reportlog/:id?/:tap?" element={<ReportLogByIdPages />} />
         <Route path="/saved_report" element={<Saved_Reports />} />
         <Route path="/dashboard" element={<DashboardPage />} />
-        {sessionUser?.status?.toLowerCase() === "admin" && (
+        {isAuthenticated.user?.status.toLowerCase() === "admin" && (
           <> <Route path="/userpermission" element={<UsersPermissionPage />} />
             <Route path="/history" element={<History />} /></>
         )}

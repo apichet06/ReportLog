@@ -6,7 +6,7 @@ import { DataGridPremium } from "@mui/x-data-grid-premium";
 import type { Histotys } from "../types/historyType";
 import { useState } from "react";
 import datetime from "@/shared/utils/handleDatetime";
-
+// import Typography from '@mui/material/Typography';
 interface Props {
     rows: Histotys[];
     isAbove1537: boolean;
@@ -22,7 +22,6 @@ export default function HistoryTable({ rows, isAbove1537, isBetween1201And1536, 
             headerName: "NO",
             align: "center",
             sortable: false,
-
             renderHeader: () => <ColumnHeaderWithInfo field="no" label="NO" />,
             headerAlign: "center", flex: 0.5, minWidth: 100,
             renderCell: (params: GridRenderCellParams) => {
@@ -30,6 +29,7 @@ export default function HistoryTable({ rows, isAbove1537, isBetween1201And1536, 
                 const rowIndex = sortedRowIds.indexOf(params.id);
                 return fNumber(rowIndex + 1);
             },
+
         },
         {
             field: "emp_no", headerName: "Emp No", flex: 0.5, minWidth: 100,
@@ -38,10 +38,12 @@ export default function HistoryTable({ rows, isAbove1537, isBetween1201And1536, 
         {
             field: "fullname", headerName: "Full Name", flex: 0.5, minWidth: 180,
             renderHeader: () => <ColumnHeaderWithInfo field="fullname" label="Full Name" />,
+
         },
         {
             field: "processType", headerName: "Process", flex: 0.5, minWidth: 140,
             renderHeader: () => <ColumnHeaderWithInfo field="processType" label="ProcessType" />,
+
         },
         {
             field: "comment", headerName: "Comment", flex: 0.5, minWidth: 300,
@@ -59,16 +61,6 @@ export default function HistoryTable({ rows, isAbove1537, isBetween1201And1536, 
             field: "details", headerName: "Detail", flex: 0.5, minWidth: 620,
             renderHeader: () => <ColumnHeaderWithInfo field="details" label="Details" />,
         },
-        // {
-        //     field: "details", headerName: "Detail", flex: 0.5, minWidth: 620,
-        //     renderHeader: () => <ColumnHeaderWithInfo field="details" label="Details" />,
-        //     renderCell: (params) => {
-        //         const details = params.row.details
-        //         const action = params.row.action
-        //         return `(${action}) ${details}`;
-
-        //     }
-        // },
         {
             field: "action_datetime", headerName: "Action Date", flex: 0.5, minWidth: 120,
             renderCell: (params) =>
@@ -99,7 +91,6 @@ export default function HistoryTable({ rows, isAbove1537, isBetween1201And1536, 
                 pageSizeOptions={[5, 10, 15, 20, 40, 60, 80, 100]}
                 disablePivoting
                 loading={loading}
-
                 disableColumnSorting
                 disableColumnFilter
                 disableColumnMenu
@@ -116,6 +107,11 @@ export default function HistoryTable({ rows, isAbove1537, isBetween1201And1536, 
                         ? { marginInline: "-10%" }
                         : {}),
                     fontSize: "12px",
+                    // "& .MuiDataGrid-cell[data-field='no'],& .MuiDataGrid-cell[data-field='emp_no']": { color: "#696969" },
+                    // "& .MuiDataGrid-cell[data-field='fullname'],& .MuiDataGrid-cell[data-field='processType']": { color: "#696969" },
+                    // "& .MuiDataGrid-cell[data-field='comment'],& .MuiDataGrid-cell[data-field='action_datetime']": { color: "#696969" },
+                    // "& .MuiDataGrid-cell[data-field='app_log'],& .MuiDataGrid-cell[data-field='action']": { color: "#669999" },
+                    // "& .MuiDataGrid-cell[data-field='details']": { color: "#669999" }
                 }}
                 paginationModel={paginationModel}
                 onPaginationModelChange={(model) => setPaginationModel(model)}

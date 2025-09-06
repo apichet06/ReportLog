@@ -103,7 +103,7 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
         ? JSON.parse(userDataString)
         : null;
 
-    const { sessionUser } = sharedUsers(resultData?.emp_no as string)
+    const { sessionUser, loading } = sharedUsers(resultData?.emp_no as string)
     // console.log(sessionUser);
     const hendleLogout = () => {
         // แจ้ง Logout ไปยัง CaaS
@@ -168,7 +168,7 @@ const MainLayout = ({ children }: { children?: React.ReactNode }) => {
     }, [handlelogin, navigate]);
 
     // ระหว่างรอ login เสร็จ
-    if (!isAppInitialized) {
+    if (!isAppInitialized && loading) {
         return <div>Loading...</div>;
     }
 

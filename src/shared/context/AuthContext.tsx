@@ -3,7 +3,24 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 
 interface User {
     id: number;
-    username: string;
+    emp_no: string,
+    emp_email: string,
+    username: string,
+    firstname: string,
+    lastname: string,
+    is_accept: boolean,
+    is_active: boolean,
+    is_review: boolean,
+    is_export: boolean,
+    plant: string,
+    plant_Id: number,
+    plant_Name: string,
+    app_Id: number,
+    status: string,
+    created_by: string,
+    created_date: string,
+    updated_by: string,
+    updated_date: string,
 }
 
 interface AuthContextType {

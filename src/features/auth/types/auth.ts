@@ -7,13 +7,23 @@ export interface LoginResponse {
   result: {
     id: number;
     emp_no: string;
-    username: string;
     emp_email: string;
+    username: string;
     firstname: string;
     lastname: string;
-    is_active: number;
-    is_accept: number;
-    is_review: number;
+    is_accept: boolean;
+    is_active: boolean;
+    is_review: boolean;
+    is_export: boolean;
+    plant: string;
+    plant_Id: number;
+    plant_Name: string;
+    app_Id: number;
+    status: string;
+    created_by: string;
+    created_date: string;
+    updated_by: string;
+    updated_date: string;
   };
   token: string;
   message: string;
